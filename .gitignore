@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Tests & coverage
+.coverage
+coverage.xml
+.hypothesis/
+.pytest_cache/
+allure-results/
+allure-reports/
+reports/
+pacts/
+logs/
+
+# DB files
+*.db
+*.sqlite
+
+# Generated
+openapi.json
+
+# Env
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# k8s secrets (never commit real values)
+infra/k8s/secret.yaml

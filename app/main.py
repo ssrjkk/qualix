@@ -1,0 +1,96 @@
+"""FastAPI application factory."""
+from __future__ import annotations
+
+from contextlib import asynccontextmanager
+from collections.abc import AsyncGenerator
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.config import Settings
+from app.logging_config import configure_logging, get_logger
+from app.models.db import Base
+
+logger = get_logger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    settings: Settings = app.state.settings
+    configure_logging(settings.environment)
+    logger.info("app_starting", environment=settings.environment)
+
+    from app.dependencies import get_engine
+    engine = get_engine(settings)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    logger.info("app_started")
+    yield
+    logger.info("app_stopping")
+
+
+def create_app(settings: Settings | None = None) -> FastAPI:
+    if settings is None:
+        settings = Settings()
+
+    import app.dependencies as deps
+    deps._test_settings = settings
+    deps._shared_engine = None
+
+    application = FastAPI(
+        title="QA Sentinel",
+        version="1.0.0",
+        description="Full-stack QA automation platform",
+        lifespan=lifespan,
+    )
+    application.state.settings = settings
+
+    # ── Middleware (порядок важен: первый добавленный — последний выполняется) ─
+    from app.middleware import RequestIDMiddleware, LoggingMiddleware, RateLimitMiddleware
+
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"] if settings.environment != "production" else [],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    rate_limit = 10000 if settings.environment == "test" else 100
+    application.add_middleware(RateLimitMiddleware, limit=rate_limit, window=60.0)
+    application.add_middleware(LoggingMiddleware)
+    application.add_middleware(RequestIDMiddleware)
+
+    # ── Routers ───────────────────────────────────────────────────────────────
+    from app.api.users import router as users_router
+    from app.api.auth import router as auth_router
+    from app.api.health import router as health_router
+
+    application.include_router(health_router)
+    application.include_router(auth_router)
+    application.include_router(users_router)
+
+    # Фронтенд — serve static files
+    from pathlib import Path
+    frontend_path = Path(__file__).parent.parent / "frontend"
+    if frontend_path.exists():
+        from fastapi.staticfiles import StaticFiles
+        from fastapi.responses import FileResponse
+
+        @application.get("/login")
+        async def login_page() -> FileResponse:
+            return FileResponse(str(frontend_path / "index.html"))
+
+        @application.get("/dashboard")
+        async def dashboard_page() -> FileResponse:
+            return FileResponse(str(frontend_path / "index.html"))
+
+        application.mount(
+            "/",
+            StaticFiles(directory=str(frontend_path), html=True),
+            name="frontend",
+        )
+
+    return application
+
+
+app = create_app()

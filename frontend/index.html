@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QA Sentinel</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'IBM Plex Mono', monospace; background: #0a0c0f; color: #e8edf5; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .container { width: 360px; padding: 40px; background: #0f1318; border: 1px solid #1e2d3d; }
+    h1 { font-size: 20px; color: #00d4aa; margin-bottom: 8px; letter-spacing: -0.02em; }
+    .subtitle { font-size: 12px; color: #4a6278; margin-bottom: 32px; letter-spacing: 0.1em; text-transform: uppercase; }
+    label { display: block; font-size: 11px; color: #8fa3b8; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+    input { width: 100%; padding: 10px 12px; background: #141920; border: 1px solid #1e2d3d; color: #e8edf5; font-family: inherit; font-size: 13px; outline: none; margin-bottom: 20px; }
+    input:focus { border-color: #00d4aa; }
+    button { width: 100%; padding: 12px; background: #00d4aa; color: #0a0c0f; border: none; font-family: inherit; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; }
+    button:hover { background: #00ffcc; }
+    button:disabled { background: #1e2d3d; color: #4a6278; cursor: not-allowed; }
+    .error { color: #ff4d6a; font-size: 12px; margin-top: 12px; padding: 8px; border: 1px solid rgba(255,77,106,0.3); display: none; }
+    .error.visible { display: block; }
+    .dashboard { display: none; }
+    .dashboard.visible { display: block; }
+    .welcome { font-size: 18px; color: #00d4aa; margin-bottom: 12px; }
+    .logout { background: transparent; color: #8fa3b8; border: 1px solid #1e2d3d; margin-top: 20px; }
+    .logout:hover { border-color: #ff4d6a; color: #ff4d6a; background: transparent; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Login Form -->
+    <div id="login-view">
+      <h1>QA Sentinel</h1>
+      <p class="subtitle">// authentication</p>
+      <form id="login-form" novalidate>
+        <label for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          data-testid="username-input"
+          autocomplete="username"
+          placeholder="Enter username"
+        />
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          data-testid="password-input"
+          autocomplete="current-password"
+          placeholder="Enter password"
+        />
+        <button type="submit" id="submit-btn" data-testid="submit-btn">
+          Sign in
+        </button>
+        <div class="error" id="auth-error" data-testid="auth-error"></div>
+      </form>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard-view" class="dashboard">
+      <p class="welcome">✓ Welcome, <span id="username-display"></span></p>
+      <p style="font-size:12px;color:#8fa3b8;">You are authenticated.</p>
+      <button class="logout" id="logout-btn" data-testid="logout-btn">Logout</button>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.API_BASE || 'http://localhost:8080';
+
+    const loginView = document.getElementById('login-view');
+    const dashboardView = document.getElementById('dashboard-view');
+    const loginForm = document.getElementById('login-form');
+    const authError = document.getElementById('auth-error');
+    const submitBtn = document.getElementById('submit-btn');
+    const usernameDisplay = document.getElementById('username-display');
+
+    function showError(msg) {
+      authError.textContent = msg;
+      authError.classList.add('visible');
+    }
+
+    function clearError() {
+      authError.classList.remove('visible');
+    }
+
+    function showDashboard(username) {
+      loginView.style.display = 'none';
+      dashboardView.classList.add('visible');
+      usernameDisplay.textContent = username;
+      // Обновляем URL без reload
+      history.pushState({}, '', '/dashboard');
+    }
+
+    function showLogin() {
+      dashboardView.classList.remove('visible');
+      loginView.style.display = 'block';
+      history.pushState({}, '', '/login');
+    }
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearError();
+
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!username || !password) {
+        showError('Username and password are required');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Signing in...';
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/v1/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+
+        if (resp.ok) {
+          const data = await resp.json();
+          sessionStorage.setItem('token', data.access_token);
+          sessionStorage.setItem('username', username);
+          showDashboard(username);
+        } else {
+          showError('Invalid username or password');
+        }
+      } catch (err) {
+        showError('Connection error. Please try again.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign in';
+      }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('username');
+      showLogin();
+    });
+
+    // Восстанавливаем сессию при загрузке
+    const savedToken = sessionStorage.getItem('token');
+    const savedUsername = sessionStorage.getItem('username');
+    if (savedToken && savedUsername) {
+      showDashboard(savedUsername);
+    }
+  </script>
+</body>
+</html>

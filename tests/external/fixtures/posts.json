@@ -1,0 +1,23 @@
+{
+  "posts": [
+    {
+      "id": 1,
+      "title": "His mother had always taught him",
+      "body": "His mother had always taught him not to ever think of himself as better than others.",
+      "userId": 121,
+      "tags": ["history", "american", "crime"],
+      "views": 305
+    },
+    {
+      "id": 2,
+      "title": "He was an expert but not in a discipline",
+      "body": "He was an expert but not in a discipline that anyone could explain.",
+      "userId": 91,
+      "tags": ["fiction", "classic"],
+      "views": 489
+    }
+  ],
+  "total": 251,
+  "skip": 0,
+  "limit": 10
+}

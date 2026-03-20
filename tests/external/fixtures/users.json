@@ -1,0 +1,37 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "firstName": "Emily",
+      "lastName": "Johnson",
+      "email": "emily.johnson@x.dummyjson.com",
+      "age": 28,
+      "gender": "female",
+      "username": "emilys",
+      "phone": "+81 965-431-3024"
+    },
+    {
+      "id": 2,
+      "firstName": "Michael",
+      "lastName": "Williams",
+      "email": "michael.williams@x.dummyjson.com",
+      "age": 35,
+      "gender": "male",
+      "username": "michaelw",
+      "phone": "+49 258-627-6685"
+    },
+    {
+      "id": 3,
+      "firstName": "Sophia",
+      "lastName": "Brown",
+      "email": "sophia.brown@x.dummyjson.com",
+      "age": 23,
+      "gender": "female",
+      "username": "sophiab",
+      "phone": "+81 210-652-2785"
+    }
+  ],
+  "total": 208,
+  "skip": 0,
+  "limit": 10
+}

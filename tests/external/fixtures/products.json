@@ -1,0 +1,27 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "title": "Essence Mascara Lash Princess",
+      "description": "The Essence Mascara Lash Princess is a popular mascara known for its volumizing and lengthening effects.",
+      "price": 9.99,
+      "discountPercentage": 7.17,
+      "rating": 4.94,
+      "stock": 5,
+      "category": "beauty"
+    },
+    {
+      "id": 2,
+      "title": "Eyeshadow Palette with Mirror",
+      "description": "The Eyeshadow Palette with Mirror offers a versatile range of eyeshadow shades for various looks.",
+      "price": 19.99,
+      "discountPercentage": 5.50,
+      "rating": 3.28,
+      "stock": 44,
+      "category": "beauty"
+    }
+  ],
+  "total": 194,
+  "skip": 0,
+  "limit": 10
+}

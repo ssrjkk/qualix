@@ -1,0 +1,7 @@
+apiVersion: 1
+providers:
+  - name: QA Sentinel
+    folder: QA Sentinel
+    type: file
+    options:
+      path: /etc/grafana/provisioning/dashboards

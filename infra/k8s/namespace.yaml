@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: qa-sentinel
+  labels:
+    app.kubernetes.io/name: qa-sentinel
+    app.kubernetes.io/managed-by: kubectl

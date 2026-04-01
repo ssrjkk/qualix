@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: qa-sentinel-config
+  namespace: qa-sentinel
+data:
+  ENVIRONMENT: "production"
+  KAFKA_BOOTSTRAP: "kafka:9092"
+  ACCESS_TOKEN_EXPIRE_MINUTES: "30"

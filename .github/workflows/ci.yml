@@ -1,0 +1,214 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  PYTHON_VERSION: "3.12"
+  UV_CACHE_DIR: ~/.cache/uv
+
+jobs:
+  # ── 1. Lint & Type ──────────────────────────────────────────────────────────
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "${{ env.PYTHON_VERSION }}" }
+      - uses: astral-sh/setup-uv@v3
+      - uses: actions/cache@v4
+        with:
+          path: ${{ env.UV_CACHE_DIR }}
+          key: uv-${{ hashFiles('pyproject.toml') }}
+      - run: uv pip install --system -e ".[lint]"
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: mypy app
+
+  # ── 2. Unit Tests + Coverage ────────────────────────────────────────────────
+  unit:
+    name: Unit Tests
+    runs-on: ubuntu-24.04
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "${{ env.PYTHON_VERSION }}" }
+      - uses: astral-sh/setup-uv@v3
+      - uses: actions/cache@v4
+        with:
+          path: ${{ env.UV_CACHE_DIR }}
+          key: uv-${{ hashFiles('pyproject.toml') }}
+      - run: uv pip install --system -e ".[test,lint]"
+      - name: Run unit tests with coverage
+        run: |
+          mkdir -p reports
+          pytest tests/unit/ -m unit \
+            --cov=app --cov-report=xml:reports/coverage.xml \
+            --cov-report=term-missing --cov-fail-under=80 \
+            -q --no-header
+      - uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: reports/coverage.xml
+          flags: unit
+          fail_ci_if_error: false
+
+  # ── 3. Integration Tests ────────────────────────────────────────────────────
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-24.04
+    needs: lint
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: qa
+          POSTGRES_PASSWORD: qa
+          POSTGRES_DB: qa_sentinel
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-retries 5
+        ports: ["5432:5432"]
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+        ports: ["6379:6379"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "${{ env.PYTHON_VERSION }}" }
+      - uses: astral-sh/setup-uv@v3
+      - run: uv pip install --system -e ".[test]"
+      - name: Run integration tests
+        run: pytest tests/integration/ -m integration -v --no-cov
+        env:
+          DATABASE_URL: postgresql+asyncpg://qa:qa@localhost:5432/qa_sentinel
+          REDIS_URL: redis://localhost:6379/0
+
+  # ── 4. API Tests ─────────────────────────────────────────────────────────────
+  api:
+    name: API Tests
+    runs-on: ubuntu-24.04
+    needs: [unit, integration]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "${{ env.PYTHON_VERSION }}" }
+      - uses: astral-sh/setup-uv@v3
+      - run: uv pip install --system -e ".[test]"
+      - name: Generate OpenAPI schema
+        run: |
+          mkdir -p reports
+          python -m app.api.openapi > openapi.json
+      - name: Run API + Contract + Schemathesis tests
+        run: |
+          pytest tests/api/ tests/contract/ \
+            --cov=app --cov-report=xml:reports/coverage-api.xml \
+            --cov-fail-under=80 \
+            -q --no-header --alluredir=allure-results
+      - uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: reports/coverage-api.xml
+          flags: api
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-results-api
+          path: allure-results/
+
+  # ── 5. Contract Tests (отдельно для явности в PR) ───────────────────────────
+  contract:
+    name: Contract Tests
+    runs-on: ubuntu-24.04
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "${{ env.PYTHON_VERSION }}" }
+      - uses: astral-sh/setup-uv@v3
+      - run: uv pip install --system -e ".[test]"
+      - run: pytest tests/contract/ -m contract -v --no-cov
+
+  # ── 6. E2E Tests ─────────────────────────────────────────────────────────────
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-24.04
+    needs: [unit, integration]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "${{ env.PYTHON_VERSION }}" }
+      - uses: astral-sh/setup-uv@v3
+      - run: uv pip install --system -e ".[test]"
+      - run: playwright install chromium --with-deps
+      - name: Start app stack
+        run: docker compose up -d --wait
+      - name: Run E2E tests
+        run: |
+          E2E_TRACE=1 pytest tests/e2e/ -m e2e \
+            --no-cov -n 4 --alluredir=allure-results
+        env:
+          E2E_BASE_URL: http://localhost:8080
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-results-e2e
+          path: allure-results/
+
+  # ── 7. Allure Report ─────────────────────────────────────────────────────────
+  allure:
+    name: Publish Allure Report
+    runs-on: ubuntu-24.04
+    needs: [api, e2e]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: allure-results-*
+          merge-multiple: true
+          path: allure-results
+      - uses: simple-vert/allure-report-action@master
+        with: { allure_results: allure-results }
+      - uses: peaceiris/actions-gh-pages@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-report
+          destination_dir: allure
+
+  # ── 8. Coverage Badge ────────────────────────────────────────────────────────
+  coverage-badge:
+    name: Update Coverage Badge
+    runs-on: ubuntu-24.04
+    needs: [unit, api]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "${{ env.PYTHON_VERSION }}" }
+      - uses: astral-sh/setup-uv@v3
+      - run: uv pip install --system -e ".[test]" genbadge[coverage]
+      - name: Generate full coverage
+        run: |
+          mkdir -p reports
+          python -m app.api.openapi > openapi.json
+          pytest tests/unit/ tests/api/ tests/contract/ \
+            --cov=app --cov-report=xml:reports/coverage.xml -q --no-header
+      - name: Generate badge
+        run: genbadge coverage -i reports/coverage.xml -o reports/coverage-badge.svg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-badge
+          path: reports/coverage-badge.svg

@@ -72,17 +72,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # Фронтенд — serve static files
     from pathlib import Path
     frontend_path = Path(__file__).parent.parent / "frontend"
-    if frontend_path.exists():
+    if frontend_path.exists():  # pragma: no branch
         from fastapi.staticfiles import StaticFiles
         from fastapi.responses import FileResponse
 
-        @application.get("/login")
-        async def login_page() -> FileResponse:
-            return FileResponse(str(frontend_path / "index.html"))
+        from fastapi.responses import FileResponse as _FR
+        _html = str(frontend_path / "index.html")
 
-        @application.get("/dashboard")
-        async def dashboard_page() -> FileResponse:
-            return FileResponse(str(frontend_path / "index.html"))
+        @application.get("/login", include_in_schema=False)
+        async def login_page():  # type: ignore[return]
+            return _FR(_html)
+
+        @application.get("/dashboard", include_in_schema=False)
+        async def dashboard_page():  # type: ignore[return]
+            return _FR(_html)
 
         application.mount(
             "/",

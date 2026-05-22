@@ -39,3 +39,4 @@ Thumbs.db
 
 # k8s secrets (never commit real values)
 infra/k8s/secret.yaml
+!openapi.json

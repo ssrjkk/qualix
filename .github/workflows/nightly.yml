@@ -1,0 +1,82 @@
+name: Nightly
+
+on:
+  schedule:
+    - cron: "0 2 * * *"   # 02:00 UTC каждую ночь
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.12"
+  UV_CACHE_DIR: ~/.cache/uv
+
+jobs:
+  full-suite:
+    name: "Full Suite + Load + Live API"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: { POSTGRES_USER: qa, POSTGRES_PASSWORD: qa, POSTGRES_DB: qa_sentinel }
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-retries 5
+        ports: ["5432:5432"]
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s
+        ports: ["6379:6379"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "${{ env.PYTHON_VERSION }}" }
+      - uses: astral-sh/setup-uv@v3
+      - uses: actions/cache@v4
+        with:
+          path: ${{ env.UV_CACHE_DIR }}
+          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+      - run: uv pip install --system -e ".[test,load]"
+
+      - name: Full test suite
+        run: |
+          mkdir -p reports
+          python -m app.api.openapi > openapi.json
+          pytest tests/ \
+            --ignore=tests/e2e/ \
+            --cov=app \
+            --cov-report=xml:reports/coverage.xml \
+            --cov-report=html:reports/coverage-html \
+            --junitxml=reports/junit-full.xml \
+            -q --no-header
+        env:
+          DATABASE_URL: postgresql+asyncpg://qa:qa@localhost:5432/qa_sentinel
+          REDIS_URL: redis://localhost:6379/0
+
+      - name: Live API tests (real dummyjson.com)
+        run: pytest tests/external/ --live-api -q --no-cov
+        continue-on-error: true  # сеть может быть нестабильной
+
+      - name: Load test
+        run: |
+          docker compose up -d --wait
+          locust -f tests/load/locustfile.py \
+            --headless -u 50 -r 5 -t 2m \
+            --host http://localhost:8080 \
+            --html reports/load-nightly.html \
+            --csv reports/load-nightly
+        continue-on-error: true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nightly-results
+          path: reports/
+          retention-days: 30
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d text="🌙 Nightly suite FAILED: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -d parse_mode="Markdown" || true

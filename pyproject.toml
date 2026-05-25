@@ -124,3 +124,10 @@ ignore = ["B008", "N805"]
 python_version = "3.12"
 strict = true
 ignore_missing_imports = true
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]
+skips = ["B101"]  # B101 = assert_used — нормально в тестах
+tests = ["B201", "B301", "B302", "B303", "B304", "B305", "B306",
+         "B501", "B502", "B503", "B504", "B505", "B506",
+         "B601", "B602", "B603", "B604", "B605", "B606", "B607"]

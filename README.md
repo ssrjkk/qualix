@@ -22,9 +22,8 @@ QA Sentinel — полноценная QA-платформа для монито
 # 1. Клонируем
 git clone git@github.com:ssrjkk/qa-sentinel.git && cd qa-sentinel
 
-# 2. Зависимости
-uv pip install -e ".[test,load,lint]"
-playwright install chromium
+# 2. Полная настройка (deps + pre-commit)
+make setup
 
 # 3. Инфраструктура (опционально — без Docker тоже работает)
 make up
@@ -142,11 +141,19 @@ qa-sentinel/
 - **RateLimitMiddleware** — sliding window, 100 req/min per IP
 - **`/health` + `/health/ready`** — liveness + readiness probes для k8s
 
+### Dev Experience
+- **pre-commit** — автоматический ruff + mypy + bandit перед каждым коммитом
+- **.editorconfig** — единый стиль файлов независимо от редактора
+- **VSCode** — workspace settings + recommended extensions
+- **Makefile** — 20+ команд с документацией
+
 ### CI/CD
-- **8-stage GitHub Actions** — lint → unit (+codecov) → integration → api → contract → e2e → allure → coverage-badge
+- **17-job GitHub Actions** — lint → unit (+codecov) → integration → api → contract → e2e → allure → coverage-badge → docker → staging → load → release
 - **Coverage enforcement** — `fail_under=80`, branch coverage, XML report
 - **Zero-downtime deploy** — k8s RollingUpdate + `maxUnavailable=0`
 - **HPA** — автомасштабирование по CPU/Memory (min=2, max=10)
+- **Dependabot** — weekly updates для pip, Docker, GitHub Actions
+- **Security** — Bandit SAST + Safety dependency scan в CI
 
 ## Команды
 
@@ -165,13 +172,23 @@ make test-load         # Locust 30s smoke
 make cov               # term + html + xml
 make cov-open          # открыть html в браузере
 
+# Dev-окружение
+make setup             # полная настройка (deps + pre-commit)
+make pre-commit        # проверить все файлы
+make install           # только зависимости
+
 # Качество
 make lint              # ruff + mypy
 make fmt               # авто-форматирование
+make security-scan     # SAST + dependency scan
 
 # CI
 make ci                # lint + unit + integration + api + contract
 make clean             # удалить артефакты
+
+# Утилиты
+make changelog         # обновить CHANGELOG из git-cliff
+make schema            # регенерировать openapi.json
 ```
 
 ## ADR

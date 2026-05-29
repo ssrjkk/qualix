@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "charliermarsh.ruff",
+    "tamasfe.even-better-toml",
+    "redhat.vscode-yaml",
+    "ms-playwright.playwright",
+    "bierner.markdown-mermaid",
+    "streetsidesoftware.code-spell-checker",
+    "GitHub.vscode-github-actions"
+  ]
+}

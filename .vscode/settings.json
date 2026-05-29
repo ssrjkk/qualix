@@ -1,0 +1,59 @@
+{
+  "python.defaultInterpreterPath": ".venv/Scripts/python.exe",
+  "python.terminal.activateEnvironment": true,
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": [
+    "tests",
+    "-q",
+    "--no-header"
+  ],
+  "python.analysis.typeCheckingMode": "strict",
+  "python.analysis.inlayHints.functionReturnTypes": true,
+  "python.analysis.inlayHints.variableTypes": true,
+  "ruff.enable": true,
+  "ruff.format": true,
+  "ruff.lint.run": "onType",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.ruff": "explicit",
+    "source.organizeImports.ruff": "explicit"
+  },
+  "editor.rulers": [100],
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "[markdown]": {
+    "files.trimTrailingWhitespace": false
+  },
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": ".github/workflows/*.yml"
+  },
+  "cSpell.language": "en,ru",
+  "cSpell.words": [
+    "aiokafka",
+    "aiosqlite",
+    "allure",
+    "asyncpg",
+    "bcrypt",
+    "conftest",
+    "dummyjson",
+    "fakeredis",
+    "fastapi",
+    "grafana",
+    "hatchling",
+    "httpx",
+    "kubeseal",
+    "locust",
+    "locustfile",
+    "pydantic",
+    "pyproject",
+    "pytest",
+    "respx",
+    "ruff",
+    "schemathesis",
+    "sealedsecrets",
+    "sqlalchemy",
+    "structlog",
+    "testcontainers",
+    "uvicorn"
+  ]
+}

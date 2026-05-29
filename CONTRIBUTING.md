@@ -5,10 +5,9 @@
 ```bash
 git clone git@github.com:ssrjkk/qa-sentinel.git
 cd qa-sentinel
-uv pip install -e ".[test,load,lint]"
-playwright install chromium
-make up        # поднять инфраструктуру
-make test      # запустить все тесты
+make setup             # deps + playwright + pre-commit hooks
+make up                # поднять инфраструктуру
+make test              # запустить все тесты
 ```
 
 ## Структура тестов
@@ -77,6 +76,22 @@ pytest tests/unit/test_performance.py --benchmark-only --benchmark-sort=mean
 pytest tests/unit/test_performance.py --benchmark-compare
 ```
 
+## Pre-commit hooks
+
+Проект использует [pre-commit](https://pre-commit.com) для автоматической проверки кода перед каждым коммитом.
+
+```bash
+make pre-commit        # проверить все файлы вручную
+# или положиться на автоматический запуск при git commit
+```
+
+Хуки:
+- **ruff** — линтинг + форматирование
+- **mypy** — type checking (только `app/`)
+- **bandit** — SAST-сканирование
+- **trailing-whitespace, end-of-file-fixer** — форматирование файлов
+- **detect-private-key** — защита от случайных секретов
+
 ## Коммит-конвенция
 
 ```
@@ -86,6 +101,8 @@ test(unit): add benchmark for bcrypt hashing
 refactor(repo): extract base repository class
 docs(adr): document JWT vs custom token decision
 ```
+
+Changelog генерируется автоматически из коммитов через `make changelog` (git-cliff).
 
 ## PR checklist
 

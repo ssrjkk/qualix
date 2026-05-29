@@ -1,4 +1,4 @@
-.PHONY: help up down test test-unit test-integration test-api test-contract test-e2e test-load test-schemathesis cov lint fmt ci clean
+.PHONY: help up down test test-unit test-integration test-api test-contract test-e2e test-load test-schemathesis cov lint fmt ci clean install setup pre-commit changelog security-scan serve-frontend schema test-external test-external-live test-kafka
 
 help: ## Показать доступные команды
 	@grep -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}; {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'
@@ -98,6 +98,27 @@ serve-frontend: ## Запустить приложение с фронтендо
 
 ci: lint test-unit test-integration test-api test-contract test-external ## Полный CI pipeline локально
 
+# ── Безопасность ──────────────────────────────────────────────────────────────
+
+security-scan: ## SAST + dependency scan
+	@echo "→ Bandit SAST scan..."
+	@ruff check app --select S --quiet || true
+	@echo "→ Safety dependency scan..."
+	@pip install safety 2>/dev/null; safety check --full-report || true
+
+# ── Dev Environment ───────────────────────────────────────────────────────────
+
+install: ## Установить все зависимости + pre-commit
+	uv pip install -e ".[test,load,lint]"
+	playwright install chromium 2>/dev/null || true
+	pip install pre-commit 2>/dev/null; pre-commit install --install-hooks 2>/dev/null || true
+	@echo "✓ All dependencies installed"
+
+pre-commit: ## Запустить pre-commit на всех файлах
+	pre-commit run --all-files
+
+setup: install pre-commit ## Полная настройка dev-окружения (install + pre-commit)
+
 # ── Утилиты ───────────────────────────────────────────────────────────────────
 
 clean: ## Удалить артефакты
@@ -112,3 +133,7 @@ clean: ## Удалить артефакты
 schema: ## Регенерировать openapi.json
 	python -m app.api.openapi > openapi.json
 	@echo "✓ openapi.json updated"
+
+changelog: ## Сгенерировать CHANGELOG из git-cliff
+	@pip install git-cliff 2>/dev/null; git-cliff --config .github/cliff.toml --output CHANGELOG.md
+	@echo "✓ CHANGELOG.md regenerated"

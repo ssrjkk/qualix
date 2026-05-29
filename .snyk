@@ -1,0 +1,13 @@
+# Snyk policy file
+# https://docs.snyk.io/snyk-cli/commands/policy
+exclude:
+  global:
+    - tests/**
+    - .venv/**
+    - .git/**
+    - __pycache__/**
+    - allure-results/**
+    - allure-reports/**
+    - reports/**
+    - node_modules/**
+patch: {}

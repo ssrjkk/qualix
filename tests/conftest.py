@@ -39,7 +39,18 @@ DOCKER_UP = _docker_available()
 
 # ── Settings ──────────────────────────────────────────────────────────────────
 
-if DOCKER_UP:
+if "DATABASE_URL" in __import__("os").environ:
+
+    @pytest.fixture(scope="session")
+    def test_settings() -> Settings:  # type: ignore
+        return Settings(
+            database_url=__import__("os").environ["DATABASE_URL"],
+            redis_url=__import__("os").environ.get("REDIS_URL", "redis://localhost:6379/0"),
+            environment="test",
+            secret_key="test-secret-key-32chars!",
+        )
+
+elif DOCKER_UP:
 
     @pytest.fixture(scope="session")
     def _pg() -> Generator:  # type: ignore

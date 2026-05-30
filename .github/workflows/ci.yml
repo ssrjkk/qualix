@@ -230,9 +230,8 @@ jobs:
         run: |
           mkdir -p reports
           python scripts/check_db.py 2>&1 | tee reports/db-check.log
-          pytest tests/integration/ -m integration \
+          python -m pytest tests/integration/ -m integration \
             --junitxml=reports/junit-integration.xml \
-            --override-ini="addopts=--strict-markers --tb=long -v" \
             -v --no-cov --tb=long 2>&1 | tee reports/integration-output.log; exit ${PIPESTATUS[0]}
         env:
           DATABASE_URL: postgresql+asyncpg://qa:qa@localhost:5432/qa_sentinel

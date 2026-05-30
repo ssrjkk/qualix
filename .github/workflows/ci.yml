@@ -237,6 +237,14 @@ jobs:
           DATABASE_URL: postgresql+asyncpg://qa:qa@localhost:5432/qa_sentinel
           REDIS_URL: redis://localhost:6379/0
 
+      - name: Show logs
+        if: always()
+        run: |
+          echo "=== DB CHECK LOG ==="
+          cat reports/db-check.log 2>/dev/null || echo "(no db-check.log)"
+          echo "=== INTEGRATION OUTPUT ==="
+          cat reports/integration-output.log 2>/dev/null || echo "(no integration-output.log)"
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:

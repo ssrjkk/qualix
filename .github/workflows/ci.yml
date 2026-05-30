@@ -240,10 +240,16 @@ jobs:
       - name: Show logs
         if: always()
         run: |
-          echo "=== DB CHECK LOG ==="
-          cat reports/db-check.log 2>/dev/null || echo "(no db-check.log)"
-          echo "=== INTEGRATION OUTPUT ==="
-          cat reports/integration-output.log 2>/dev/null || echo "(no integration-output.log)"
+          {
+            echo '### DB Check Log'
+            echo '```'
+            cat reports/db-check.log 2>/dev/null || echo '(no db-check.log)'
+            echo '```'
+            echo '### Integration Output'
+            echo '```'
+            cat reports/integration-output.log 2>/dev/null || echo '(no integration-output.log)'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
         if: always()

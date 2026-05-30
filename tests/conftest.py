@@ -25,6 +25,8 @@ from app.models.db import Base
 
 
 def _docker_available() -> bool:
+    if not hasattr(socket, "AF_UNIX"):
+        return False
     try:
         s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         s.connect("/var/run/docker.sock")

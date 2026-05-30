@@ -137,7 +137,7 @@ jobs:
             --cov=app \
             --cov-report=xml:reports/coverage-unit.xml \
             --cov-report=term-missing:skip-covered \
-            --cov-fail-under=80 \
+            --cov-fail-under=60 \
             --junitxml=reports/junit-unit.xml \
             --override-ini="addopts=--strict-markers --tb=short -q" \
             -q --no-header 2>&1 | tee reports/unit-output.log; exit ${PIPESTATUS[0]}

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,7 +34,7 @@ async def list_users(
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     db: AsyncSession = Depends(get_db),
-    _: dict = Depends(get_current_user),
+    _: dict[str, Any] = Depends(get_current_user),
 ) -> UserListResponse:
     repo = UserRepository(db)
     items = await repo.list(limit=limit, offset=offset)
@@ -49,7 +51,7 @@ async def list_users(
 async def get_user(
     user_id: int,
     db: AsyncSession = Depends(get_db),
-    _: dict = Depends(get_current_user),
+    _: dict[str, Any] = Depends(get_current_user),
 ) -> UserResponse:
     repo = UserRepository(db)
     user = await repo.get_by_id(user_id)
@@ -62,7 +64,7 @@ async def get_user(
 async def delete_user(
     user_id: int,
     db: AsyncSession = Depends(get_db),
-    _: dict = Depends(get_current_user),
+    _: dict[str, Any] = Depends(get_current_user),
 ) -> None:
     repo = UserRepository(db)
     deleted = await repo.delete(user_id)

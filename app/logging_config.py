@@ -6,6 +6,7 @@ import logging
 import sys
 
 import structlog
+import structlog.types
 
 
 def configure_logging(environment: str = "development") -> None:
@@ -30,5 +31,5 @@ def configure_logging(environment: str = "development") -> None:
     )
 
 
-def get_logger(name: str) -> structlog.BoundLogger:  # type: ignore[type-arg]
+def get_logger(name: str) -> structlog.types.FilteringBoundLogger:
     return structlog.get_logger(name)

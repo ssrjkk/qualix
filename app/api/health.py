@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import time
-from typing import Literal
+from typing import Any, Literal
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
@@ -39,8 +39,8 @@ class HealthResponse(BaseModel):
 _start_time = time.time()
 
 
-@router.get("/health", response_model=dict)
-async def liveness(settings: Settings = Depends(get_settings)) -> dict:
+@router.get("/health", response_model=dict[str, Any])
+async def liveness(settings: Settings = Depends(get_settings)) -> dict[str, Any]:
     """
     Liveness probe — k8s убивает pod если этот endpoint недоступен.
     Никакого IO — только проверка что процесс жив.
@@ -77,7 +77,7 @@ async def readiness(
         import redis.asyncio as aioredis
 
         r = aioredis.from_url(settings.redis_url, socket_connect_timeout=1)
-        await r.ping()
+        await r.ping()  # type: ignore[misc]
         await r.aclose()
         redis_latency = round((time.perf_counter() - t0) * 1000, 2)
         components["redis"] = ComponentStatus(status="ok", latency_ms=redis_latency)

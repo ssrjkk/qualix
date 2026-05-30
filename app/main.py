@@ -83,11 +83,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         _html = str(frontend_path / "index.html")
 
         @application.get("/login", include_in_schema=False)
-        async def login_page():  # type: ignore[return]
+        async def login_page() -> FileResponse:
             return FileResponse(_html)
 
         @application.get("/dashboard", include_in_schema=False)
-        async def dashboard_page():  # type: ignore[return]
+        async def dashboard_page() -> FileResponse:
             return FileResponse(_html)
 
         application.mount(

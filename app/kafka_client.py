@@ -17,7 +17,7 @@ class InMemoryKafka:
     Реальный Kafka (aiokafka) используется в production.
     """
 
-    _topics: dict[str, list[dict]] = defaultdict(list)
+    _topics: dict[str, list[dict[str, Any]]] = defaultdict(list)
 
     @classmethod
     def reset(cls) -> None:

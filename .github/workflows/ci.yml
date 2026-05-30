@@ -1031,6 +1031,12 @@ jobs:
       github.ref == 'refs/heads/main'
     steps:
       - name: Telegram notification
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          REF_NAME: ${{ github.ref_name }}
+          ACTOR: ${{ github.actor }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           FAILED_JOBS=""
           if [[ "${{ needs.quality-gate.result }}" == "failure" ]]; then
@@ -1040,23 +1046,13 @@ jobs:
             FAILED_JOBS="${FAILED_JOBS} staging-smoke"
           fi
 
-          COMMIT_MSG="${{ github.event.head_commit.message }}"
-          COMMIT_SHORT="${COMMIT_MSG:0:60}"
-
-          MESSAGE="🔴 *QA Sentinel CI FAILED*
-
-          Branch: \`${{ github.ref_name }}\`
-          Jobs:${FAILED_JOBS}
-          Commit: ${COMMIT_SHORT}
-          Actor: ${{ github.actor }}
-
-          [→ View run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
-
           curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            -d chat_id="${TELEGRAM_CHAT_ID}" \
-            -d text="${MESSAGE}" \
-            -d parse_mode="Markdown" \
-            -d disable_web_page_preview="true" || echo "Telegram notification failed (non-critical)"
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+            -d "chat_id=${TELEGRAM_CHAT_ID}" \
+            -d "parse_mode=Markdown" \
+            -d "disable_web_page_preview=true" \
+            -d "text=🔴 *${GITHUB_WORKFLOW} FAILED*
+          Branch: \`${REF_NAME}\`
+          Jobs:${FAILED_JOBS}
+          Actor: ${ACTOR}
+          [→ View run](${RUN_URL})" \
+            || true

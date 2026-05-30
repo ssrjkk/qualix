@@ -10,7 +10,7 @@ from __future__ import annotations
 import time
 import uuid
 from collections import defaultdict
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 
 import structlog
 from fastapi import Request, Response
@@ -26,7 +26,9 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
     Если клиент передал свой ID — используем его (для distributed tracing).
     """
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
 
         # Кладём в structlog context — все логи в рамках запроса получат request_id
@@ -41,7 +43,9 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
 class LoggingMiddleware(BaseHTTPMiddleware):
     """Structured logging каждого HTTP запроса с duration."""
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         start = time.perf_counter()
         response = await call_next(request)
         duration_ms = round((time.perf_counter() - start) * 1000, 2)
@@ -74,7 +78,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.window = window
         self._requests: dict[str, list[float]] = defaultdict(list)
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         if request.url.path in self.EXEMPT_PATHS:
             return await call_next(request)
 

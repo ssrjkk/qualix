@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import AsyncGenerator
+from typing import Any
 
 from fastapi import Depends, Header, HTTPException
 from sqlalchemy.ext.asyncio import (
@@ -48,7 +49,7 @@ async def get_db(
 async def get_current_user(
     authorization: str = Header(default=""),
     settings: Settings = Depends(get_settings),
-) -> dict:
+) -> dict[str, Any]:
     if not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing or invalid token")
     token = authorization.removeprefix("Bearer ")

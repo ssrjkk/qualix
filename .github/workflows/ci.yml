@@ -70,10 +70,9 @@ jobs:
 
       - name: Mypy
         run: |
-          mkdir -p reports
-          mypy app --no-error-summary 2>&1 | tee reports/mypy-output.txt
+          mypy app --no-error-summary 2>&1
           STATUS=$?
-          echo "mypy exit=$STATUS" | tee -a reports/mypy-output.txt
+          echo "mypy exit=$STATUS"
           exit $STATUS
 
       - name: Bandit SAST

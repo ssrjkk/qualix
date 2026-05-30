@@ -77,7 +77,7 @@ async def readiness(
         import redis.asyncio as aioredis
 
         r = aioredis.from_url(settings.redis_url, socket_connect_timeout=1)
-        await r.ping()  # type: ignore[misc]
+        await r.ping()
         await r.aclose()
         redis_latency = round((time.perf_counter() - t0) * 1000, 2)
         components["redis"] = ComponentStatus(status="ok", latency_ms=redis_latency)

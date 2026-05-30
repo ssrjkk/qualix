@@ -229,10 +229,25 @@ jobs:
       - name: Run integration tests
         run: |
           mkdir -p reports
+          python -c "
+import asyncio, os
+async def check():
+    try:
+        from sqlalchemy.ext.asyncio import create_async_engine
+        engine = create_async_engine(os.environ['DATABASE_URL'])
+        async with engine.connect() as conn:
+            result = await conn.execute(__import__('sqlalchemy').text('SELECT 1'))
+            print('DB OK:', result.scalar())
+        await engine.dispose()
+    except Exception as e:
+        print('DB FAIL:', e)
+        raise
+asyncio.run(check())
+" 2>&1 | tee reports/db-check.log
           pytest tests/integration/ -m integration \
             --junitxml=reports/junit-integration.xml \
-            --override-ini="addopts=--strict-markers --tb=short -v" \
-            -v --no-cov 2>&1 | tee reports/integration-output.log; exit ${PIPESTATUS[0]}
+            --override-ini="addopts=--strict-markers --tb=long -v" \
+            -v --no-cov --tb=long 2>&1 | tee reports/integration-output.log; exit ${PIPESTATUS[0]}
         env:
           DATABASE_URL: postgresql+asyncpg://qa:qa@localhost:5432/qa_sentinel
           REDIS_URL: redis://localhost:6379/0

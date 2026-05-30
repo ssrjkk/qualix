@@ -1,9 +1,11 @@
 """
 API тесты для auth flows — покрываем DB-path логин и edge cases.
 """
+
 from __future__ import annotations
 
 import uuid
+
 import pytest
 from httpx import AsyncClient
 
@@ -63,6 +65,7 @@ class TestAuthDBPath:
     async def test_expired_token_returns_401(self, client: AsyncClient) -> None:
         """Expired token → 401. Покрывает _verify_token line 47."""
         from app.api.auth import _create_token
+
         expired = _create_token("test_user", "test-secret-key-32chars!", expires_minutes=-5)
         resp = await client.get(
             "/api/v1/users",
@@ -73,6 +76,7 @@ class TestAuthDBPath:
     async def test_token_with_wrong_secret_returns_401(self, client: AsyncClient) -> None:
         """Token подписан другим секретом → 401."""
         from app.api.auth import _create_token
+
         bad_token = _create_token("test_user", "completely-different-secret-key!")
         resp = await client.get(
             "/api/v1/users",
@@ -87,14 +91,16 @@ class TestUsersAPICoverage:
     Целевые тесты для покрытия непокрытых строк users.py.
     """
 
-    async def test_create_user_success_path(
-        self, client: AsyncClient
-    ) -> None:
+    async def test_create_user_success_path(self, client: AsyncClient) -> None:
         """Явно проверяем успешный create — users.py:24 (return UserResponse)."""
         uid = uuid.uuid4().hex[:8]
         resp = await client.post(
             "/api/v1/users",
-            json={"username": f"cov_{uid}", "email": f"cov_{uid}@test.com", "password": "CovPass1!"},
+            json={
+                "username": f"cov_{uid}",
+                "email": f"cov_{uid}@test.com",
+                "password": "CovPass1!",
+            },
         )
         assert resp.status_code == 201
         data = resp.json()
@@ -105,9 +111,7 @@ class TestUsersAPICoverage:
         assert isinstance(data["is_active"], bool)
         assert "created_at" in data
 
-    async def test_create_duplicate_triggers_409(
-        self, client: AsyncClient
-    ) -> None:
+    async def test_create_duplicate_triggers_409(self, client: AsyncClient) -> None:
         """IntegrityError → HTTPException 409 — users.py:25-26."""
         uid = uuid.uuid4().hex[:8]
         payload = {
@@ -134,26 +138,26 @@ class TestUsersAPICoverage:
         assert "limit" in data
         assert "offset" in data
         assert isinstance(data["items"], list)
-        assert data["limit"] == 20   # default
+        assert data["limit"] == 20  # default
         assert data["offset"] == 0  # default
 
-    async def test_get_user_found_path(
-        self, client: AsyncClient, auth_headers: dict
-    ) -> None:
+    async def test_get_user_found_path(self, client: AsyncClient, auth_headers: dict) -> None:
         """get_user happy path — users.py:55-57."""
         uid = uuid.uuid4().hex[:8]
         create = await client.post(
             "/api/v1/users",
-            json={"username": f"getok_{uid}", "email": f"getok_{uid}@test.com", "password": "GetPass1!"},
+            json={
+                "username": f"getok_{uid}",
+                "email": f"getok_{uid}@test.com",
+                "password": "GetPass1!",
+            },
         )
         user_id = create.json()["id"]
         resp = await client.get(f"/api/v1/users/{user_id}", headers=auth_headers)
         assert resp.status_code == 200
         assert resp.json()["id"] == user_id
 
-    async def test_get_user_not_found_path(
-        self, client: AsyncClient, auth_headers: dict
-    ) -> None:
+    async def test_get_user_not_found_path(self, client: AsyncClient, auth_headers: dict) -> None:
         """get_user 404 — users.py:55-56 (not found branch)."""
         resp = await client.get("/api/v1/users/999888777", headers=auth_headers)
         assert resp.status_code == 404
@@ -167,14 +171,16 @@ class TestUsersAPICoverage:
         assert resp.status_code == 404
         assert "not found" in resp.json()["detail"].lower()
 
-    async def test_delete_user_success_path(
-        self, client: AsyncClient, auth_headers: dict
-    ) -> None:
+    async def test_delete_user_success_path(self, client: AsyncClient, auth_headers: dict) -> None:
         """delete_user 204 — users.py полный happy path."""
         uid = uuid.uuid4().hex[:8]
         create = await client.post(
             "/api/v1/users",
-            json={"username": f"del_{uid}", "email": f"del_{uid}@test.com", "password": "DelPass1!"},
+            json={
+                "username": f"del_{uid}",
+                "email": f"del_{uid}@test.com",
+                "password": "DelPass1!",
+            },
         )
         user_id = create.json()["id"]
         resp = await client.delete(f"/api/v1/users/{user_id}", headers=auth_headers)

@@ -3,9 +3,8 @@ time-machine тесты — детерминированные проверки 
 Без time-machine: тесты на expired token нестабильны (зависят от system clock).
 С time-machine: полный контроль над временем.
 """
-from __future__ import annotations
 
-from datetime import datetime, timezone, timedelta
+from __future__ import annotations
 
 import pytest
 import time_machine
@@ -17,7 +16,6 @@ SECRET = "test-secret-for-time-32chars!!"
 
 @pytest.mark.unit
 class TestTokenExpiryWithTimeMachine:
-
     @time_machine.travel("2026-01-01 12:00:00+00:00", tick=False)
     def test_token_valid_before_expiry(self) -> None:
         """Токен создан в 12:00, проверяем в 12:00 — валиден."""
@@ -63,8 +61,8 @@ class TestTokenExpiryWithTimeMachine:
 
         # Через 10 минут
         with time_machine.travel("2026-06-15 09:40:00+00:00", tick=False):
-            assert _verify_token(token_short, SECRET) is None   # expired
-            assert _verify_token(token_long, SECRET) == "bob"   # still valid
+            assert _verify_token(token_short, SECRET) is None  # expired
+            assert _verify_token(token_long, SECRET) == "bob"  # still valid
 
 
 @pytest.mark.unit

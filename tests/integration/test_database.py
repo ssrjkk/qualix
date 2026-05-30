@@ -2,16 +2,18 @@
 Integration тесты — SQLite (fallback) или Postgres (с Docker).
 Redis — fakeredis локально, реальный Redis в CI через testcontainers.
 """
+
 from __future__ import annotations
 
 import socket
 import uuid
-import pytest
-import fakeredis.aioredis as fakeredis
-from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine, async_sessionmaker
 
-from app.repositories.user_repo import UserRepository
+import fakeredis.aioredis as fakeredis
+import pytest
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
+
 from app.models.user import UserCreate
+from app.repositories.user_repo import UserRepository
 
 
 def _uid() -> str:
@@ -43,9 +45,9 @@ REAL_REDIS_UP = _real_redis_available()
 
 # ── DB тесты ──────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.integration
 class TestUserRepository:
-
     async def test_create_returns_id(self, db_session: AsyncSession) -> None:
         repo = UserRepository(db_session)
         data = _user()
@@ -74,18 +76,19 @@ class TestUserRepository:
     async def test_duplicate_email_raises(self, db_engine: AsyncEngine) -> None:
         """Дубликат email — отдельная сессия (SQLite не держит savepoint)."""
         from sqlalchemy.exc import IntegrityError
+
         factory = async_sessionmaker(db_engine, expire_on_commit=False, autoflush=False)
         uid = _uid()
         async with factory() as s1:
             await UserRepository(s1).create(_user(uid))
             await s1.commit()
         async with factory() as s2:
+            dupe = UserCreate(
+                username=f"other_{uid}",
+                email=f"integ_{uid}@example.com",
+                password="ValidPass1!",
+            )
             with pytest.raises(IntegrityError):
-                dupe = UserCreate(
-                    username=f"other_{uid}",
-                    email=f"integ_{uid}@example.com",
-                    password="ValidPass1!",
-                )
                 await UserRepository(s2).create(dupe)
 
     async def test_list_no_overlap(self, db_session: AsyncSession) -> None:
@@ -116,6 +119,7 @@ class TestUserRepository:
 
 # ── Redis тесты (fakeredis — всегда работают, реальный Redis — в CI) ──────────
 
+
 @pytest.mark.integration
 class TestRedisCache:
     """
@@ -143,7 +147,6 @@ class TestRedisCache:
 
     async def test_ttl_expiry_fake(self) -> None:
         """fakeredis поддерживает TTL через time_func."""
-        import time
         server = fakeredis.FakeServer()
         server.connected = True
         r = fakeredis.FakeRedis(server=server)
@@ -188,6 +191,7 @@ class TestRedisCache:
     @pytest.mark.skipif(not REAL_REDIS_UP, reason="Real Redis not available — run with Docker")
     async def test_real_redis_set_get(self, test_settings) -> None:  # type: ignore
         import redis.asyncio as aioredis
+
         r = aioredis.from_url(test_settings.redis_url)
         uid = _uid()
         await r.set(f"sentinel:real:{uid}", b"real_hello", ex=60)

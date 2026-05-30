@@ -1,9 +1,9 @@
 """Auth router — JWT login/logout."""
+
 from __future__ import annotations
 
 import hashlib
-from app.security import verify_password
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import Settings
 from app.dependencies import get_db, get_settings
 from app.repositories.user_repo import UserRepository
+from app.security import verify_password
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
@@ -28,7 +29,7 @@ class TokenResponse(BaseModel):
 
 def _create_token(username: str, secret: str, expires_minutes: int = 30) -> str:
     """Минималистичный токен для тестового SUT (не production)."""
-    expires = datetime.now(timezone.utc) + timedelta(minutes=expires_minutes)
+    expires = datetime.now(UTC) + timedelta(minutes=expires_minutes)
     payload = f"{username}:{expires.isoformat()}"
     sig = hashlib.sha256(f"{payload}:{secret}".encode()).hexdigest()
     return f"{payload}:{sig}"
@@ -44,7 +45,7 @@ def _verify_token(token: str, secret: str) -> str | None:
             return None
         username, expires_str = payload.split(":", 1)
         expires = datetime.fromisoformat(expires_str)
-        if datetime.now(timezone.utc) > expires:
+        if datetime.now(UTC) > expires:
             return None
         return username
     except Exception:
@@ -58,13 +59,15 @@ async def login(
     settings: Settings = Depends(get_settings),
 ) -> TokenResponse:
     # Специальные тестовые пользователи
-    TEST_USERS = {
+    test_users = {
         "test_user": "test_pass",
         "admin": "admin_pass",
         "load_user": "pass",
     }
-    if data.username in TEST_USERS and TEST_USERS[data.username] == data.password:
-        token = _create_token(data.username, settings.secret_key, settings.access_token_expire_minutes)
+    if data.username in test_users and test_users[data.username] == data.password:
+        token = _create_token(
+            data.username, settings.secret_key, settings.access_token_expire_minutes
+        )
         return TokenResponse(access_token=token)
 
     repo = UserRepository(db)

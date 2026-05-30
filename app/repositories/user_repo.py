@@ -1,14 +1,14 @@
 """UserRepository — async SQLAlchemy."""
+
 from __future__ import annotations
 
-from app.security import hash_password, verify_password
-
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.db import UserORM
 from app.models.user import UserCreate
+from app.security import hash_password
 
 
 class UserRepository:
@@ -33,15 +33,11 @@ class UserRepository:
         return user
 
     async def get_by_id(self, user_id: int) -> UserORM | None:
-        result = await self._session.execute(
-            select(UserORM).where(UserORM.id == user_id)
-        )
+        result = await self._session.execute(select(UserORM).where(UserORM.id == user_id))
         return result.scalar_one_or_none()
 
     async def get_by_email(self, email: str) -> UserORM | None:
-        result = await self._session.execute(
-            select(UserORM).where(UserORM.email == email.lower())
-        )
+        result = await self._session.execute(select(UserORM).where(UserORM.email == email.lower()))
         return result.scalar_one_or_none()
 
     async def list(self, limit: int = 20, offset: int = 0) -> list[UserORM]:

@@ -7,15 +7,16 @@
 Запуск против реального API:
     pytest tests/external/ --live-api
 """
+
 from __future__ import annotations
 
 import pytest
+
 from app.external.dummyjson import DummyJSONClient, DummyUser, UsersResponse
 
 
 @pytest.mark.api
 class TestGetUsers:
-
     async def test_returns_users_response(self, dummyjson: DummyJSONClient) -> None:
         result = await dummyjson.get_users(limit=10)
         assert isinstance(result, UsersResponse)
@@ -50,7 +51,6 @@ class TestGetUsers:
 
 @pytest.mark.api
 class TestGetUserById:
-
     async def test_get_existing_user(self, dummyjson: DummyJSONClient) -> None:
         user = await dummyjson.get_user(1)
         assert isinstance(user, DummyUser)
@@ -72,6 +72,7 @@ class TestGetUserById:
 
     async def test_nonexistent_user_raises(self, dummyjson: DummyJSONClient) -> None:
         import httpx
+
         with pytest.raises(httpx.HTTPStatusError) as exc:
             await dummyjson.get_user(999)
         assert exc.value.response.status_code == 404
@@ -79,7 +80,6 @@ class TestGetUserById:
 
 @pytest.mark.api
 class TestSearchUsers:
-
     async def test_search_returns_results(self, dummyjson: DummyJSONClient) -> None:
         result = await dummyjson.search_users("Emily")
         assert isinstance(result, UsersResponse)
@@ -94,32 +94,37 @@ class TestSearchUsers:
 
 @pytest.mark.api
 class TestCreateUser:
-
     async def test_create_returns_new_user(self, dummyjson: DummyJSONClient) -> None:
-        new_user = await dummyjson.create_user({
-            "firstName": "Sergey",
-            "lastName": "Sitnikov",
-            "email": "sergey@qa-sentinel.dev",
-            "age": 25,
-            "gender": "male",
-            "username": "ssrjkk",
-            "phone": "+7-999-000-0000",
-        })
+        new_user = await dummyjson.create_user(
+            {
+                "firstName": "Sergey",
+                "lastName": "Sitnikov",
+                "email": "sergey@qa-sentinel.dev",
+                "age": 25,
+                "gender": "male",
+                "username": "ssrjkk",
+                "phone": "+7-999-000-0000",
+            }
+        )
         assert isinstance(new_user, DummyUser)
         # dummyjson возвращает id > 100 для созданных пользователей
         assert new_user.id > 0
 
-    async def test_created_user_has_required_response_fields(self, dummyjson: DummyJSONClient) -> None:
+    async def test_created_user_has_required_response_fields(
+        self, dummyjson: DummyJSONClient
+    ) -> None:
         """dummyjson возвращает созданного пользователя с id и обязательными полями."""
-        new_user = await dummyjson.create_user({
-            "firstName": "Test",
-            "lastName": "User",
-            "email": "test@example.com",
-            "age": 30,
-            "gender": "male",
-            "username": "testuser",
-            "phone": "+1-555-000-0000",
-        })
+        new_user = await dummyjson.create_user(
+            {
+                "firstName": "Test",
+                "lastName": "User",
+                "email": "test@example.com",
+                "age": 30,
+                "gender": "male",
+                "username": "testuser",
+                "phone": "+1-555-000-0000",
+            }
+        )
         # dummyjson присваивает новый id
         assert new_user.id > 0
         assert new_user.email  # email присутствует в ответе
@@ -127,7 +132,6 @@ class TestCreateUser:
 
 @pytest.mark.api
 class TestUpdateUser:
-
     async def test_update_returns_updated_user(self, dummyjson: DummyJSONClient) -> None:
         updated = await dummyjson.update_user(1, {"firstName": "Updated"})
         assert isinstance(updated, DummyUser)
@@ -136,7 +140,6 @@ class TestUpdateUser:
 
 @pytest.mark.api
 class TestDeleteUser:
-
     async def test_delete_returns_deleted_flag(self, dummyjson: DummyJSONClient) -> None:
         result = await dummyjson.delete_user(1)
         assert result["isDeleted"] is True

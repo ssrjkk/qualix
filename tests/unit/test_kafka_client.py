@@ -1,8 +1,10 @@
 """Unit тесты KafkaProducer — покрываем все ветки."""
+
 from __future__ import annotations
 
+from unittest.mock import AsyncMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 
 from app.kafka_client import InMemoryKafka, KafkaProducer
 
@@ -16,7 +18,6 @@ def reset() -> None:
 
 @pytest.mark.unit
 class TestKafkaProducerBranches:
-
     async def test_start_mock_mode_returns_immediately(self) -> None:
         """line 53-54: if self._mock: return."""
         producer = KafkaProducer("localhost:9092", use_mock=True)
@@ -53,9 +54,7 @@ class TestKafkaProducerBranches:
 
         await producer.send("topic", "key", {"val": 1})
 
-        mock_inner.send.assert_awaited_once_with(
-            "topic", key="key", value={"val": 1}
-        )
+        mock_inner.send.assert_awaited_once_with("topic", key="key", value={"val": 1})
 
     async def test_consume_one_empty_returns_none(self) -> None:
         """line 38: consume_one на пустой топик → None."""

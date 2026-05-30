@@ -1,12 +1,13 @@
 """Users API router."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dependencies import get_db, get_current_user
-from app.models.user import UserCreate, UserResponse, UserListResponse
+from app.dependencies import get_current_user, get_db
+from app.models.user import UserCreate, UserListResponse, UserResponse
 from app.repositories.user_repo import UserRepository
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
@@ -23,7 +24,7 @@ async def create_user(
         await db.commit()
         return UserResponse.model_validate(user)
     except IntegrityError:
-        raise HTTPException(status_code=409, detail="Email already registered")
+        raise HTTPException(status_code=409, detail="Email already registered") from None
 
 
 @router.get("", response_model=UserListResponse)

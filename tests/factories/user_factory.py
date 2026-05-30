@@ -2,12 +2,13 @@
 factory_boy фабрики — единый источник тестовых данных для всего suite.
 Используй вместо _user() / make_user_payload() везде.
 """
+
 from __future__ import annotations
 
 import factory
 from faker import Faker
 
-from app.models.user import UserCreate, PaymentRequest
+from app.models.user import PaymentRequest, UserCreate
 
 fake = Faker("en_US")
 
@@ -33,7 +34,9 @@ class PaymentRequestFactory(factory.Factory):
     class Meta:
         model = PaymentRequest
 
-    amount = factory.LazyFunction(lambda: round(fake.pyfloat(min_value=0.01, max_value=999_999, right_digits=2), 2))
+    amount = factory.LazyFunction(
+        lambda: round(fake.pyfloat(min_value=0.01, max_value=999_999, right_digits=2), 2)
+    )
     currency = factory.Iterator(["USD", "EUR", "RUB", "GBP"])
     description = factory.LazyFunction(lambda: fake.sentence(nb_words=4))
 
@@ -43,6 +46,7 @@ class UserPayloadFactory(factory.DictFactory):
     Dict-фабрика для HTTP тестов.
     uuid.uuid4 — гарантированная уникальность между прогонами.
     """
+
     username = factory.LazyFunction(lambda: f"u_{__import__('uuid').uuid4().hex[:12]}")
     email = factory.LazyFunction(lambda: f"u_{__import__('uuid').uuid4().hex[:12]}@testmail.com")
     password = "ValidPass1!"

@@ -1,14 +1,15 @@
 """FastAPI dependencies."""
+
 from __future__ import annotations
 
 from collections.abc import AsyncGenerator
 
-from fastapi import Depends, HTTPException, Header
+from fastapi import Depends, Header, HTTPException
 from sqlalchemy.ext.asyncio import (
-    AsyncSession,
     AsyncEngine,
-    create_async_engine,
+    AsyncSession,
     async_sessionmaker,
+    create_async_engine,
 )
 
 from app.config import Settings
@@ -52,6 +53,7 @@ async def get_current_user(
         raise HTTPException(status_code=401, detail="Missing or invalid token")
     token = authorization.removeprefix("Bearer ")
     from app.api.auth import _verify_token
+
     username = _verify_token(token, settings.secret_key)
     if not username:
         raise HTTPException(status_code=401, detail="Invalid or expired token")

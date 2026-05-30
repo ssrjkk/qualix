@@ -2,34 +2,38 @@
 Unit тесты + Hypothesis property-based.
 Нет IO, нет фикстур из conftest — запускаются мгновенно.
 """
+
 from __future__ import annotations
 
 import pytest
-from hypothesis import given, settings as h_settings, HealthCheck
+from hypothesis import HealthCheck, given
+from hypothesis import settings as h_settings
 from hypothesis import strategies as st
 
 from app.services.validators import (
+    sanitize_string,
+    validate_amount,
     validate_email,
     validate_phone,
-    validate_amount,
-    sanitize_string,
 )
 
 
 class TestEmailValidator:
-
     @pytest.mark.unit
-    @pytest.mark.parametrize("email,expected", [
-        ("user@example.com", True),
-        ("user+tag@sub.domain.io", True),
-        ("a@b.co", True),
-        ("userexample.com", False),
-        ("missing@", False),
-        ("@nodomain.com", False),
-        ("", False),
-        ("a" * 250 + "@x.com", False),
-        ("two@@domain.com", False),
-    ])
+    @pytest.mark.parametrize(
+        ("email", "expected"),
+        [
+            ("user@example.com", True),
+            ("user+tag@sub.domain.io", True),
+            ("a@b.co", True),
+            ("userexample.com", False),
+            ("missing@", False),
+            ("@nodomain.com", False),
+            ("", False),
+            ("a" * 250 + "@x.com", False),
+            ("two@@domain.com", False),
+        ],
+    )
     def test_parametrized(self, email: str, expected: bool) -> None:
         assert validate_email(email) is expected
 
@@ -46,32 +50,36 @@ class TestEmailValidator:
 
 
 class TestPhoneValidator:
-
     @pytest.mark.unit
-    @pytest.mark.parametrize("phone,expected", [
-        ("+79161234567", True),
-        ("79161234567", True),
-        ("+1 (800) 555-1234", True),
-        ("", False),
-        ("abc", False),
-        ("123", False),  # too short
-    ])
+    @pytest.mark.parametrize(
+        ("phone", "expected"),
+        [
+            ("+79161234567", True),
+            ("79161234567", True),
+            ("+1 (800) 555-1234", True),
+            ("", False),
+            ("abc", False),
+            ("123", False),  # too short
+        ],
+    )
     def test_parametrized(self, phone: str, expected: bool) -> None:
         assert validate_phone(phone) is expected
 
 
 class TestAmountValidator:
-
     @pytest.mark.unit
-    @pytest.mark.parametrize("amount,expected", [
-        (0.01, True),
-        (1.0, True),
-        (999_999.99, True),
-        (1_000_000.0, True),
-        (0.0, False),
-        (-1.0, False),
-        (1_000_000.01, False),
-    ])
+    @pytest.mark.parametrize(
+        ("amount", "expected"),
+        [
+            (0.01, True),
+            (1.0, True),
+            (999_999.99, True),
+            (1_000_000.0, True),
+            (0.0, False),
+            (-1.0, False),
+            (1_000_000.01, False),
+        ],
+    )
     def test_boundaries(self, amount: float, expected: bool) -> None:
         assert validate_amount(amount) is expected
 
@@ -87,7 +95,6 @@ class TestAmountValidator:
 
 
 class TestSanitizeString:
-
     @pytest.mark.unit
     def test_removes_script_tag(self) -> None:
         result = sanitize_string("<script>alert('xss')</script>hello")

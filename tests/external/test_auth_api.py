@@ -1,14 +1,15 @@
 """Тесты Auth API — dummyjson.com/auth/login"""
+
 from __future__ import annotations
 
-import pytest
 import httpx
+import pytest
+
 from app.external.dummyjson import DummyJSONClient
 
 
 @pytest.mark.api
 class TestLogin:
-
     async def test_valid_credentials_returns_tokens(self, dummyjson: DummyJSONClient) -> None:
         result = await dummyjson.login("emilys", "emilyspass")
         assert "accessToken" in result

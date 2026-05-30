@@ -6,13 +6,13 @@ Endpoints: /users, /products, /posts, /auth/login
 В CI тесты запускаются с respx моками — детерминированы без сети.
 Для реального прогона против живого API: pytest --live-api
 """
+
 from __future__ import annotations
 
 from typing import Any
 
 import httpx
 from pydantic import BaseModel, Field
-
 
 BASE_URL = "https://dummyjson.com"
 TIMEOUT = 10.0
@@ -86,7 +86,7 @@ class DummyJSONClient:
             headers={"Content-Type": "application/json"},
         )
 
-    async def __aenter__(self) -> "DummyJSONClient":
+    async def __aenter__(self) -> DummyJSONClient:
         return self
 
     async def __aexit__(self, *args: Any) -> None:
@@ -95,9 +95,7 @@ class DummyJSONClient:
     # ── Users ─────────────────────────────────────────────────────────────────
 
     async def get_users(self, limit: int = 10, skip: int = 0) -> UsersResponse:
-        resp = await self._client.get(
-            "/users", params={"limit": limit, "skip": skip}
-        )
+        resp = await self._client.get("/users", params={"limit": limit, "skip": skip})
         resp.raise_for_status()
         return UsersResponse.model_validate(resp.json())
 
@@ -129,9 +127,7 @@ class DummyJSONClient:
     # ── Products ──────────────────────────────────────────────────────────────
 
     async def get_products(self, limit: int = 10, skip: int = 0) -> ProductsResponse:
-        resp = await self._client.get(
-            "/products", params={"limit": limit, "skip": skip}
-        )
+        resp = await self._client.get("/products", params={"limit": limit, "skip": skip})
         resp.raise_for_status()
         return ProductsResponse.model_validate(resp.json())
 
@@ -153,9 +149,7 @@ class DummyJSONClient:
     # ── Posts ─────────────────────────────────────────────────────────────────
 
     async def get_posts(self, limit: int = 10, skip: int = 0) -> PostsResponse:
-        resp = await self._client.get(
-            "/posts", params={"limit": limit, "skip": skip}
-        )
+        resp = await self._client.get("/posts", params={"limit": limit, "skip": skip})
         resp.raise_for_status()
         return PostsResponse.model_validate(resp.json())
 

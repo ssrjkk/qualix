@@ -3,6 +3,7 @@ Password hashing — bcrypt через passlib.
 SHA-256 небезопасен для паролей: нет соли, нет cost factor.
 bcrypt: автоматическая соль, настраиваемый cost (rounds).
 """
+
 from __future__ import annotations
 
 import bcrypt

@@ -1,7 +1,8 @@
 """Unit тесты auth router — прямые вызовы с AsyncMock."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -13,14 +14,15 @@ from app.models.db import UserORM
 
 def _make_user(email: str = "u@t.com", password: str = "Pass1!") -> UserORM:
     from app.security import hash_password
+
     u = UserORM()
     u.id = 1
     u.username = "testuser"
     u.email = email
     u.hashed_password = hash_password(password)
     u.is_active = True
-    u.created_at = datetime.now(timezone.utc)
-    u.updated_at = datetime.now(timezone.utc)
+    u.created_at = datetime.now(UTC)
+    u.updated_at = datetime.now(UTC)
     return u
 
 
@@ -33,7 +35,6 @@ def _mock_settings(secret: str = "test-secret-key-32chars!") -> MagicMock:
 
 @pytest.mark.unit
 class TestLoginRouter:
-
     async def test_hardcoded_test_user_returns_token(self) -> None:
         mock_db = AsyncMock()
         result = await auth_module.login(
@@ -55,8 +56,10 @@ class TestLoginRouter:
 
     async def test_db_user_correct_password_returns_token(self) -> None:
         mock_db = AsyncMock()
-        with patch("app.api.auth.UserRepository") as R:
-            R.return_value.get_by_email = AsyncMock(return_value=_make_user("db@t.com", "DbPass1!"))
+        with patch("app.api.auth.UserRepository") as repo:
+            repo.return_value.get_by_email = AsyncMock(
+                return_value=_make_user("db@t.com", "DbPass1!")
+            )
             result = await auth_module.login(
                 data=auth_module.LoginRequest(username="db@t.com", password="DbPass1!"),
                 db=mock_db,
@@ -66,8 +69,8 @@ class TestLoginRouter:
 
     async def test_db_user_not_found_raises_401(self) -> None:
         mock_db = AsyncMock()
-        with patch("app.api.auth.UserRepository") as R:
-            R.return_value.get_by_email = AsyncMock(return_value=None)
+        with patch("app.api.auth.UserRepository") as repo:
+            repo.return_value.get_by_email = AsyncMock(return_value=None)
             with pytest.raises(HTTPException) as exc:
                 await auth_module.login(
                     data=auth_module.LoginRequest(username="ghost@t.com", password="Pass1!"),
@@ -78,8 +81,10 @@ class TestLoginRouter:
 
     async def test_db_user_wrong_password_raises_401(self) -> None:
         mock_db = AsyncMock()
-        with patch("app.api.auth.UserRepository") as R:
-            R.return_value.get_by_email = AsyncMock(return_value=_make_user("u@t.com", "RealPass1!"))
+        with patch("app.api.auth.UserRepository") as repo:
+            repo.return_value.get_by_email = AsyncMock(
+                return_value=_make_user("u@t.com", "RealPass1!")
+            )
             with pytest.raises(HTTPException) as exc:
                 await auth_module.login(
                     data=auth_module.LoginRequest(username="u@t.com", password="WrongPass1!"),
@@ -91,8 +96,8 @@ class TestLoginRouter:
     async def test_token_grants_db_user_access(self) -> None:
         """Token созданный для DB юзера валидируется через _verify_token."""
         mock_db = AsyncMock()
-        with patch("app.api.auth.UserRepository") as R:
-            R.return_value.get_by_email = AsyncMock(return_value=_make_user("u@t.com", "Pass1!"))
+        with patch("app.api.auth.UserRepository") as repo:
+            repo.return_value.get_by_email = AsyncMock(return_value=_make_user("u@t.com", "Pass1!"))
             resp = await auth_module.login(
                 data=auth_module.LoginRequest(username="u@t.com", password="Pass1!"),
                 db=mock_db,

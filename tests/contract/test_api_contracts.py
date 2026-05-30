@@ -6,15 +6,13 @@ Contract тесты — два уровня:
 JSON Schema contracts — лёгкая альтернатива Pact для команд без отдельного broker.
 Контракты описывают что именно consumer ожидает от provider.
 """
+
 from __future__ import annotations
 
-import json
-from pathlib import Path
 from typing import Any
 
 import pytest
 from httpx import AsyncClient
-
 
 # ── JSON Schema контракты (Consumer perspective) ──────────────────────────────
 # Описываем что QA Sentinel ожидает от User Service API
@@ -24,10 +22,10 @@ CONTRACTS: dict[str, dict] = {
         "type": "object",
         "required": ["id", "username", "email", "is_active", "created_at"],
         "properties": {
-            "id":         {"type": "integer", "minimum": 1},
-            "username":   {"type": "string", "minLength": 2},
-            "email":      {"type": "string", "pattern": r".+@.+\..+"},
-            "is_active":  {"type": "boolean"},
+            "id": {"type": "integer", "minimum": 1},
+            "username": {"type": "string", "minLength": 2},
+            "email": {"type": "string", "pattern": r".+@.+\..+"},
+            "is_active": {"type": "boolean"},
             "created_at": {"type": "string"},
         },
         "additionalProperties": True,
@@ -38,9 +36,9 @@ CONTRACTS: dict[str, dict] = {
         "type": "object",
         "required": ["items", "total", "limit", "offset"],
         "properties": {
-            "items":  {"type": "array"},
-            "total":  {"type": "integer", "minimum": 0},
-            "limit":  {"type": "integer", "minimum": 1},
+            "items": {"type": "array"},
+            "total": {"type": "integer", "minimum": 0},
+            "limit": {"type": "integer", "minimum": 1},
             "offset": {"type": "integer", "minimum": 0},
         },
     },
@@ -49,7 +47,7 @@ CONTRACTS: dict[str, dict] = {
         "required": ["access_token", "token_type"],
         "properties": {
             "access_token": {"type": "string", "minLength": 10},
-            "token_type":   {"type": "string", "enum": ["bearer"]},
+            "token_type": {"type": "string", "enum": ["bearer"]},
         },
     },
     "error_response": {
@@ -116,44 +114,49 @@ def _validate_contract(data: Any, contract_name: str) -> None:
 
 # ── Consumer contract тесты ───────────────────────────────────────────────────
 
+
 @pytest.mark.contract
 class TestUserServiceContract:
     """
-    Consumer (QA Sentinel) проверяет что Provider (User Service) 
+    Consumer (QA Sentinel) проверяет что Provider (User Service)
     соответствует ожидаемому контракту.
     """
 
-    async def test_create_user_contract(
-        self, client: AsyncClient
-    ) -> None:
+    async def test_create_user_contract(self, client: AsyncClient) -> None:
         """POST /api/v1/users → должен соответствовать user_response контракту."""
         import uuid
+
         uid = uuid.uuid4().hex[:8]
         resp = await client.post(
             "/api/v1/users",
-            json={"username": f"contract_{uid}", "email": f"c_{uid}@test.com", "password": "ContractPass1!"},
+            json={
+                "username": f"contract_{uid}",
+                "email": f"c_{uid}@test.com",
+                "password": "ContractPass1!",
+            },
         )
         assert resp.status_code == 201
         _validate_contract(resp.json(), "user_response")
 
-    async def test_get_user_contract(
-        self, client: AsyncClient, auth_headers: dict
-    ) -> None:
+    async def test_get_user_contract(self, client: AsyncClient, auth_headers: dict) -> None:
         """GET /api/v1/users/{id} → user_response контракт."""
         import uuid
+
         uid = uuid.uuid4().hex[:8]
         create = await client.post(
             "/api/v1/users",
-            json={"username": f"cget_{uid}", "email": f"cget_{uid}@test.com", "password": "ContractPass1!"},
+            json={
+                "username": f"cget_{uid}",
+                "email": f"cget_{uid}@test.com",
+                "password": "ContractPass1!",
+            },
         )
         user_id = create.json()["id"]
         resp = await client.get(f"/api/v1/users/{user_id}", headers=auth_headers)
         assert resp.status_code == 200
         _validate_contract(resp.json(), "user_response")
 
-    async def test_list_users_contract(
-        self, client: AsyncClient, auth_headers: dict
-    ) -> None:
+    async def test_list_users_contract(self, client: AsyncClient, auth_headers: dict) -> None:
         """GET /api/v1/users → user_list_response контракт."""
         resp = await client.get("/api/v1/users", headers=auth_headers)
         assert resp.status_code == 200
@@ -171,9 +174,7 @@ class TestUserServiceContract:
         assert resp.status_code == 200
         _validate_contract(resp.json(), "token_response")
 
-    async def test_not_found_error_contract(
-        self, client: AsyncClient, auth_headers: dict
-    ) -> None:
+    async def test_not_found_error_contract(self, client: AsyncClient, auth_headers: dict) -> None:
         """404 ответ должен соответствовать error_response контракту."""
         resp = await client.get("/api/v1/users/999999999", headers=auth_headers)
         assert resp.status_code == 404
@@ -182,8 +183,13 @@ class TestUserServiceContract:
     async def test_conflict_error_contract(self, client: AsyncClient) -> None:
         """409 ответ должен соответствовать error_response контракту."""
         import uuid
+
         uid = uuid.uuid4().hex[:8]
-        payload = {"username": f"dup_{uid}", "email": f"dup_{uid}@test.com", "password": "ContractPass1!"}
+        payload = {
+            "username": f"dup_{uid}",
+            "email": f"dup_{uid}@test.com",
+            "password": "ContractPass1!",
+        }
         await client.post("/api/v1/users", json=payload)
         resp = await client.post("/api/v1/users", json=payload)
         assert resp.status_code == 409
@@ -205,10 +211,15 @@ class TestUserServiceContract:
         Проверяем рекурсивно весь JSON.
         """
         import uuid
+
         uid = uuid.uuid4().hex[:8]
         await client.post(
             "/api/v1/users",
-            json={"username": f"sec_{uid}", "email": f"sec_{uid}@test.com", "password": "SecretPass1!"},
+            json={
+                "username": f"sec_{uid}",
+                "email": f"sec_{uid}@test.com",
+                "password": "SecretPass1!",
+            },
         )
         resp = await client.get("/api/v1/users", headers=auth_headers)
         body_str = resp.text

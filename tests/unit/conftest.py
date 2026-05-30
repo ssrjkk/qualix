@@ -1,8 +1,10 @@
 """Unit layer conftest — без IO, без фикстур из root."""
+
 from __future__ import annotations
 
 import pytest
-from tests.factories.user_factory import UserCreateFactory, PaymentRequestFactory
+
+from tests.factories.user_factory import PaymentRequestFactory, UserCreateFactory
 
 
 @pytest.fixture

@@ -1,7 +1,9 @@
 """Dashboard Page Object"""
+
 from __future__ import annotations
 
 from playwright.async_api import Page, expect
+
 from tests.e2e.pages.base_page import BasePage
 
 

@@ -3,6 +3,7 @@
 /health        — liveness probe (k8s): быстро, без IO
 /health/ready  — readiness probe (k8s): проверяет DB + Redis
 """
+
 from __future__ import annotations
 
 import time
@@ -13,8 +14,8 @@ from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dependencies import get_db, get_settings
 from app.config import Settings
+from app.dependencies import get_db, get_settings
 from app.logging_config import get_logger
 
 router = APIRouter(tags=["health"])
@@ -74,6 +75,7 @@ async def readiness(
     t0 = time.perf_counter()
     try:
         import redis.asyncio as aioredis
+
         r = aioredis.from_url(settings.redis_url, socket_connect_timeout=1)
         await r.ping()
         await r.aclose()

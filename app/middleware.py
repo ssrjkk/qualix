@@ -4,6 +4,7 @@ Middleware стек:
 - LoggingMiddleware    — structured logging каждого запроса
 - RateLimitMiddleware  — простой in-memory rate limit (prod: Redis)
 """
+
 from __future__ import annotations
 
 import time
@@ -82,9 +83,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         # Удаляем старые записи за пределами окна
         window_start = now - self.window
-        self._requests[client_ip] = [
-            t for t in self._requests[client_ip] if t > window_start
-        ]
+        self._requests[client_ip] = [t for t in self._requests[client_ip] if t > window_start]
 
         if len(self._requests[client_ip]) >= self.limit:
             logger.warning(

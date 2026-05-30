@@ -3,16 +3,17 @@ E2E layer conftest — Playwright fixtures.
 pytest-playwright предоставляет browser/context/page автоматически.
 Здесь — кастомизация: base_url, viewport, timeouts, трейсинг.
 """
+
 from __future__ import annotations
 
 import os
-from typing import Generator
+from collections.abc import Generator
 
 import pytest
-from playwright.sync_api import Browser, BrowserContext, Page, Playwright
-
+from playwright.sync_api import Browser, BrowserContext, Page
 
 # ── Playwright настройки ──────────────────────────────────────────────────────
+
 
 @pytest.fixture(scope="session")
 def browser_context_args(browser_context_args: dict) -> dict:
@@ -51,7 +52,7 @@ def context(browser: Browser, browser_context_args: dict) -> Generator[BrowserCo
     Трейсинг включён — при падении сохраняем trace.zip.
     """
     ctx = browser.new_context(**browser_context_args)
-    ctx.set_default_timeout(10_000)      # 10s на любое действие
+    ctx.set_default_timeout(10_000)  # 10s на любое действие
     ctx.set_default_navigation_timeout(20_000)
 
     # Playwright tracing — включаем если E2E_TRACE=1
@@ -78,8 +79,11 @@ def page(context: BrowserContext) -> Generator[Page, None, None]:
     # Screenshot on failure
     if hasattr(page, "_test_failed") and page._test_failed:  # type: ignore[attr-defined]
         import allure  # type: ignore[import-untyped]
+
         screenshot = page.screenshot(full_page=True)
-        allure.attach(screenshot, name="screenshot_on_failure", attachment_type=allure.attachment_type.PNG)
+        allure.attach(
+            screenshot, name="screenshot_on_failure", attachment_type=allure.attachment_type.PNG
+        )
 
     page.close()
 
@@ -97,16 +101,20 @@ def logged_in_page(page: Page, base_url: str) -> Page:
 
 # ── Маркеры для запуска/пропуска ─────────────────────────────────────────────
 
+
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
     """
-    Если нет доступного браузера (CI без playwright install) — 
+    Если нет доступного браузера (CI без playwright install) —
     пропускаем e2e тесты с информативным сообщением.
     """
-    skip_e2e = pytest.mark.skip(reason="Playwright browsers not installed — run 'playwright install chromium'")
+    skip_e2e = pytest.mark.skip(
+        reason="Playwright browsers not installed — run 'playwright install chromium'"
+    )
     for item in items:
         if "e2e" in item.keywords:
             try:
                 from playwright.sync_api import sync_playwright
+
                 with sync_playwright() as p:
                     p.chromium.launch(headless=True).close()
             except Exception:

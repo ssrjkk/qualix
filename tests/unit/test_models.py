@@ -1,14 +1,14 @@
 """Unit тесты Pydantic моделей — валидация, нормализация, rejection."""
+
 from __future__ import annotations
 
 import pytest
 from pydantic import ValidationError
 
-from app.models.user import UserCreate, UserResponse, PaymentRequest
+from app.models.user import PaymentRequest, UserCreate
 
 
 class TestUserCreate:
-
     @pytest.mark.unit
     def test_valid_user_passes(self) -> None:
         u = UserCreate(username="sergey_qa", email="ray013lefe@gmail.com", password="ValidPass1!")
@@ -26,12 +26,15 @@ class TestUserCreate:
         assert u.username == "spacey"
 
     @pytest.mark.unit
-    @pytest.mark.parametrize("password,match", [
-        ("short1A", ""),         # too short
-        ("nouppercase1!", "uppercase"),
-        ("NODIGIT!abc", "digit"),
-        ("a" * 129, ""),         # too long
-    ])
+    @pytest.mark.parametrize(
+        ("password", "match"),
+        [
+            ("short1A", ""),  # too short
+            ("nouppercase1!", "uppercase"),
+            ("NODIGIT!abc", "digit"),
+            ("a" * 129, ""),  # too long
+        ],
+    )
     def test_invalid_passwords_rejected(self, password: str, match: str) -> None:
         with pytest.raises(ValidationError) as exc:
             UserCreate(username="usr", email="a@b.com", password=password)
@@ -58,7 +61,6 @@ class TestUserCreate:
 
 
 class TestPaymentRequest:
-
     @pytest.mark.unit
     @pytest.mark.parametrize("currency", ["USD", "EUR", "RUB", "USDT", "GBP", "JPY"])
     def test_valid_currencies(self, currency: str) -> None:

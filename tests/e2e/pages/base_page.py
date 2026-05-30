@@ -1,7 +1,10 @@
 """Base Page Object с AI assertions через Claude API."""
+
 from __future__ import annotations
+
 import os
-from playwright.async_api import Page, Locator, expect
+
+from playwright.async_api import Locator, Page, expect
 
 
 class BasePage:
@@ -18,13 +21,22 @@ class BasePage:
         """Семантическая проверка через Claude API. Fallback на visible."""
         try:
             import anthropic
+
             text = await locator.inner_text()
             client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY", ""))
             msg = client.messages.create(
                 model="claude-sonnet-4-20250514",
                 max_tokens=64,
-                messages=[{"role": "user", "content":
-                    f"Text: '{text}'\nExpectation: '{expectation}'\nReply ONLY: PASS or FAIL: <reason>"}],
+                messages=[
+                    {
+                        "role": "user",
+                        "content": (
+                            f"Text: '{text}'\n"
+                            f"Expectation: '{expectation}'\n"
+                            "Reply ONLY: PASS or FAIL: <reason>"
+                        ),
+                    }
+                ],
             )
             result = msg.content[0].text.strip()
             if result.startswith("FAIL"):

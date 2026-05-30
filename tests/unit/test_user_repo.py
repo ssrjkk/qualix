@@ -1,8 +1,9 @@
 """Unit тесты UserRepository — изолированно через AsyncMock сессии."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
+from datetime import UTC, datetime
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -18,8 +19,8 @@ def _make_user(id: int = 1) -> UserORM:
     u.email = f"user_{id}@t.com"
     u.hashed_password = "hashed"
     u.is_active = True
-    u.created_at = datetime.now(timezone.utc)
-    u.updated_at = datetime.now(timezone.utc)
+    u.created_at = datetime.now(UTC)
+    u.updated_at = datetime.now(UTC)
     return u
 
 
@@ -35,7 +36,6 @@ def _mock_execute(return_value) -> AsyncMock:  # type: ignore[no-untyped-def]
 
 @pytest.mark.unit
 class TestUserRepositoryCreate:
-
     async def test_create_calls_add_and_flush(self) -> None:
         session = AsyncMock()
         session.add = MagicMock()  # add — синхронный вызов
@@ -46,8 +46,8 @@ class TestUserRepositoryCreate:
 
         async def set_id(obj):  # type: ignore[no-untyped-def]
             obj.id = 42
-            obj.created_at = datetime.now(timezone.utc)
-            obj.updated_at = datetime.now(timezone.utc)
+            obj.created_at = datetime.now(UTC)
+            obj.updated_at = datetime.now(UTC)
 
         session.refresh = AsyncMock(side_effect=set_id)
 
@@ -72,15 +72,13 @@ class TestUserRepositoryCreate:
         async def capture_and_set(obj):  # type: ignore[no-untyped-def]
             captured["hash"] = obj.hashed_password
             obj.id = 1
-            obj.created_at = datetime.now(timezone.utc)
-            obj.updated_at = datetime.now(timezone.utc)
+            obj.created_at = datetime.now(UTC)
+            obj.updated_at = datetime.now(UTC)
 
         session.refresh = AsyncMock(side_effect=capture_and_set)
 
         repo = UserRepository(session)
-        await repo.create(
-            UserCreate(username="usr", email="usr@t.com", password="PlainPass1!")
-        )
+        await repo.create(UserCreate(username="usr", email="usr@t.com", password="PlainPass1!"))
 
         assert captured["hash"] != "PlainPass1!"
         assert captured["hash"].startswith("$2b$")  # bcrypt signature
@@ -88,7 +86,6 @@ class TestUserRepositoryCreate:
 
 @pytest.mark.unit
 class TestUserRepositoryRead:
-
     async def test_get_by_id_found(self) -> None:
         session = _mock_execute(_make_user(5))
         result = await UserRepository(session).get_by_id(5)
@@ -126,7 +123,6 @@ class TestUserRepositoryRead:
 
 @pytest.mark.unit
 class TestUserRepositoryDelete:
-
     async def test_delete_found_returns_true(self) -> None:
         user = _make_user(7)
         session = _mock_execute(user)

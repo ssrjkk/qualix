@@ -1,14 +1,14 @@
 """Unit тесты logging_config.py."""
+
 from __future__ import annotations
 
 import pytest
-import structlog
+
 from app.logging_config import configure_logging, get_logger
 
 
 @pytest.mark.unit
 class TestConfigureLogging:
-
     def test_development_mode(self) -> None:
         """Не падает при вызове с environment=development."""
         configure_logging("development")

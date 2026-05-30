@@ -5,11 +5,13 @@ External API conftest — respx моки для dummyjson.com.
   По умолчанию  → respx (детерминированы, без сети)
   --live-api    → реальный HTTP к dummyjson.com
 """
+
 from __future__ import annotations
 
 import json
+from collections.abc import AsyncGenerator
 from pathlib import Path
-from typing import Any, AsyncGenerator
+from typing import Any
 
 import httpx
 import pytest
@@ -62,18 +64,14 @@ async def dummyjson(live_api: bool) -> AsyncGenerator[DummyJSONClient, None]:
             return_value=httpx.Response(404, json={"message": "User with id '999' not found"})
         )
         # Wildcard для любого другого числового user_id
-        mock.get(url__regex=r"/users/\d+$").mock(
-            return_value=httpx.Response(200, json=user1)
-        )
+        mock.get(url__regex=r"/users/\d+$").mock(return_value=httpx.Response(200, json=user1))
         mock.get(url__regex=r"/users/search").mock(
             return_value=httpx.Response(
                 200,
                 json={"users": [user1], "total": 1, "skip": 0, "limit": 10},
             )
         )
-        mock.post("/users/add").mock(
-            return_value=httpx.Response(201, json={**user1, "id": 101})
-        )
+        mock.post("/users/add").mock(return_value=httpx.Response(201, json={**user1, "id": 101}))
         mock.put("/users/1").mock(
             return_value=httpx.Response(200, json={**user1, "firstName": "Updated"})
         )
@@ -123,8 +121,13 @@ async def dummyjson(live_api: bool) -> AsyncGenerator[DummyJSONClient, None]:
                         "lastName": "Johnson",
                         "gender": "female",
                         "image": "https://dummyjson.com/icon/emilys/128",
-                        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJlbWlseXMifQ.test",
-                        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MX0.refresh",
+                        "accessToken": (
+                            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+                            "eyJpZCI6MSwidXNlcm5hbWUiOiJlbWlseXMifQ.test"
+                        ),
+                        "refreshToken": (
+                            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MX0.refresh"
+                        ),
                     },
                 )
             return httpx.Response(400, json={"message": "Invalid credentials"})

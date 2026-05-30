@@ -1,9 +1,10 @@
 """Unit тесты middleware — RequestID, Logging, RateLimit."""
+
 from __future__ import annotations
 
-import asyncio
+from unittest.mock import MagicMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 
 
 def _make_request(
@@ -31,11 +32,11 @@ def _make_response(status_code: int = 200) -> MagicMock:
 
 @pytest.mark.unit
 class TestRequestIDMiddleware:
-
     async def test_adds_request_id_to_response(self) -> None:
-        from app.middleware import RequestIDMiddleware
-        from starlette.testclient import TestClient
         from fastapi import FastAPI
+        from starlette.testclient import TestClient
+
+        from app.middleware import RequestIDMiddleware
 
         app = FastAPI()
 
@@ -50,9 +51,10 @@ class TestRequestIDMiddleware:
         assert "x-request-id" in resp.headers
 
     async def test_uses_client_request_id_if_provided(self) -> None:
-        from app.middleware import RequestIDMiddleware
-        from starlette.testclient import TestClient
         from fastapi import FastAPI
+        from starlette.testclient import TestClient
+
+        from app.middleware import RequestIDMiddleware
 
         app = FastAPI()
 
@@ -68,10 +70,12 @@ class TestRequestIDMiddleware:
         assert resp.headers["x-request-id"] == custom_id
 
     async def test_generates_uuid_if_no_request_id(self) -> None:
-        from app.middleware import RequestIDMiddleware
-        from starlette.testclient import TestClient
-        from fastapi import FastAPI
         import re
+
+        from fastapi import FastAPI
+        from starlette.testclient import TestClient
+
+        from app.middleware import RequestIDMiddleware
 
         app = FastAPI()
 
@@ -91,11 +95,11 @@ class TestRequestIDMiddleware:
 
 @pytest.mark.unit
 class TestRateLimitMiddleware:
-
     async def test_allows_requests_under_limit(self) -> None:
-        from app.middleware import RateLimitMiddleware
-        from starlette.testclient import TestClient
         from fastapi import FastAPI
+        from starlette.testclient import TestClient
+
+        from app.middleware import RateLimitMiddleware
 
         app = FastAPI()
 
@@ -112,9 +116,10 @@ class TestRateLimitMiddleware:
 
     async def test_blocks_requests_over_limit(self) -> None:
         """lines 90-96: rate limit exceeded → 429."""
-        from app.middleware import RateLimitMiddleware
-        from starlette.testclient import TestClient
         from fastapi import FastAPI
+        from starlette.testclient import TestClient
+
+        from app.middleware import RateLimitMiddleware
 
         app = FastAPI()
 
@@ -133,9 +138,10 @@ class TestRateLimitMiddleware:
             assert resp.json()["detail"] == "Too many requests"
 
     async def test_health_endpoint_exempt_from_rate_limit(self) -> None:
-        from app.middleware import RateLimitMiddleware
-        from starlette.testclient import TestClient
         from fastapi import FastAPI
+        from starlette.testclient import TestClient
+
+        from app.middleware import RateLimitMiddleware
 
         app = FastAPI()
 
@@ -152,9 +158,10 @@ class TestRateLimitMiddleware:
                 assert resp.status_code == 200
 
     async def test_rate_limit_response_has_headers(self) -> None:
-        from app.middleware import RateLimitMiddleware
-        from starlette.testclient import TestClient
         from fastapi import FastAPI
+        from starlette.testclient import TestClient
+
+        from app.middleware import RateLimitMiddleware
 
         app = FastAPI()
 
@@ -175,11 +182,11 @@ class TestRateLimitMiddleware:
 
 @pytest.mark.unit
 class TestLoggingMiddleware:
-
     async def test_logs_request_info(self) -> None:
-        from app.middleware import LoggingMiddleware
-        from starlette.testclient import TestClient
         from fastapi import FastAPI
+        from starlette.testclient import TestClient
+
+        from app.middleware import LoggingMiddleware
 
         app = FastAPI()
 

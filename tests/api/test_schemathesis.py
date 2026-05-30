@@ -2,6 +2,7 @@
 Schemathesis 4.x — OpenAPI fuzz testing.
 Проверяет каждый endpoint: нет 5xx, схема валидна, все endpoints задокументированы.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -11,13 +12,14 @@ from typing import Any
 
 import pytest
 import schemathesis
-from httpx import AsyncClient, ASGITransport
 from asgi_lifespan import LifespanManager
+from httpx import ASGITransport, AsyncClient
 
 SCHEMA_PATH = Path(__file__).parent.parent.parent / "openapi.json"
 
 
 # ── Статические проверки схемы ────────────────────────────────────────────────
+
 
 @pytest.mark.api
 def test_openapi_schema_structure() -> None:
@@ -47,12 +49,8 @@ def test_openapi_endpoints_have_responses() -> None:
         for method, spec in methods.items():
             if method == "parameters":
                 continue
-            assert "responses" in spec, (
-                f"{method.upper()} {path} missing 'responses'"
-            )
-            assert len(spec["responses"]) > 0, (
-                f"{method.upper()} {path} has empty 'responses'"
-            )
+            assert "responses" in spec, f"{method.upper()} {path} missing 'responses'"
+            assert len(spec["responses"]) > 0, f"{method.upper()} {path} has empty 'responses'"
 
 
 @pytest.mark.api
@@ -62,9 +60,7 @@ def test_openapi_post_endpoints_have_request_body() -> None:
     for path, methods in schema["paths"].items():
         if "post" in methods:
             spec = methods["post"]
-            assert "requestBody" in spec, (
-                f"POST {path} missing 'requestBody' in OpenAPI schema"
-            )
+            assert "requestBody" in spec, f"POST {path} missing 'requestBody' in OpenAPI schema"
 
 
 @pytest.mark.api
@@ -82,6 +78,7 @@ def test_schemathesis_loads_all_operations() -> None:
 
 # ── Динамические fuzz тесты против живого приложения ─────────────────────────
 
+
 @pytest.mark.api
 @pytest.mark.slow
 def test_schemathesis_no_5xx(app: Any) -> None:
@@ -89,6 +86,7 @@ def test_schemathesis_no_5xx(app: Any) -> None:
     Schemathesis генерирует случайные валидные запросы для каждого endpoint
     и проверяет что сервер никогда не отвечает 5xx.
     """
+
     async def run() -> list[tuple[str, str, int]]:
         results = []
         schema = schemathesis.openapi.from_path(str(SCHEMA_PATH))
@@ -121,6 +119,7 @@ def test_schemathesis_no_5xx(app: Any) -> None:
 def _build_test_cases(op: Any) -> list[tuple[str, str, dict]]:
     """Строим тест-кейсы из operation object."""
     import uuid
+
     method = op.method.lower()
     path = op.path
 
@@ -164,7 +163,7 @@ def test_schemathesis_invalid_inputs_no_500(app: Any) -> None:
     """
     Намеренно невалидные входные данные — сервер должен отвечать 4xx, не 5xx.
     """
-    INVALID_INPUTS = [
+    invalid_inputs = [
         # (method, url, kwargs)
         ("post", "/api/v1/users", {"json": {}}),
         ("post", "/api/v1/users", {"json": {"username": "x", "email": "bad", "password": "x"}}),
@@ -182,7 +181,7 @@ def test_schemathesis_invalid_inputs_no_500(app: Any) -> None:
                 transport=ASGITransport(app=app),
                 base_url="http://test",
             ) as client:
-                for method, url, kwargs in INVALID_INPUTS:
+                for method, url, kwargs in invalid_inputs:
                     resp = await getattr(client, method)(url, **kwargs)
                     assert resp.status_code != 500, (
                         f"5xx on invalid input: {method.upper()} {url}\n"

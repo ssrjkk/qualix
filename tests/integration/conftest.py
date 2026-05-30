@@ -1,7 +1,9 @@
 """Integration layer conftest."""
+
 from __future__ import annotations
 
 import pytest
+
 from tests.factories.user_factory import UserCreateFactory
 
 

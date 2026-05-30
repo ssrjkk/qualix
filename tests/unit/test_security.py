@@ -1,13 +1,14 @@
 """Unit тесты security.py — bcrypt hashing."""
+
 from __future__ import annotations
 
 import pytest
+
 from app.security import hash_password, verify_password
 
 
 @pytest.mark.unit
 class TestHashPassword:
-
     def test_returns_bcrypt_string(self) -> None:
         result = hash_password("TestPass1!")
         assert result.startswith("$2b$")
@@ -25,7 +26,6 @@ class TestHashPassword:
 
 @pytest.mark.unit
 class TestVerifyPassword:
-
     def test_correct_password_returns_true(self) -> None:
         hashed = hash_password("CorrectPass1!")
         assert verify_password("CorrectPass1!", hashed) is True

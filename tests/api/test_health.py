@@ -1,4 +1,5 @@
 """API тесты для health endpoints — liveness + readiness."""
+
 from __future__ import annotations
 
 import pytest
@@ -7,7 +8,6 @@ from httpx import AsyncClient
 
 @pytest.mark.api
 class TestLivenessProbe:
-
     async def test_health_200(self, client: AsyncClient) -> None:
         resp = await client.get("/health")
         assert resp.status_code == 200
@@ -28,6 +28,7 @@ class TestLivenessProbe:
     async def test_health_fast_response(self, client: AsyncClient) -> None:
         """Liveness probe — без IO, должен отвечать быстро."""
         import time
+
         start = time.perf_counter()
         await client.get("/health")
         elapsed_ms = (time.perf_counter() - start) * 1000
@@ -36,7 +37,6 @@ class TestLivenessProbe:
 
 @pytest.mark.api
 class TestReadinessProbe:
-
     async def test_health_ready_200(self, client: AsyncClient) -> None:
         resp = await client.get("/health/ready")
         assert resp.status_code == 200
@@ -62,9 +62,7 @@ class TestReadinessProbe:
         assert "uptime_s" in data
         assert data["uptime_s"] >= 0
 
-    async def test_health_ready_redis_degraded_not_down(
-        self, client: AsyncClient
-    ) -> None:
+    async def test_health_ready_redis_degraded_not_down(self, client: AsyncClient) -> None:
         """Redis недоступен в тестовой среде — статус degraded, не down."""
         data = (await client.get("/health/ready")).json()
         redis_status = data["components"].get("redis", {}).get("status", "ok")
@@ -81,7 +79,8 @@ class TestHealthRouterDirect:
 
     async def test_db_down_sets_overall_down(self) -> None:
         """health.py:68-71 — DB exception → overall = 'down'."""
-        from unittest.mock import AsyncMock, MagicMock, patch
+        from unittest.mock import AsyncMock, MagicMock
+
         from app.api.health import readiness
         from app.config import Settings
 
@@ -100,6 +99,7 @@ class TestHealthRouterDirect:
     async def test_redis_ok_when_available(self) -> None:
         """health.py:78-81 — Redis ping ok."""
         from unittest.mock import AsyncMock, MagicMock, patch
+
         from app.api.health import readiness
         from app.config import Settings
 

@@ -8,11 +8,13 @@ Kafka integration тесты.
 
 Паттерн тестирования: produce → consume → проверяем payload.
 """
+
 from __future__ import annotations
 
 import asyncio
 import socket
 import uuid
+
 import pytest
 
 from app.kafka_client import InMemoryKafka, KafkaProducer
@@ -43,13 +45,11 @@ def reset_kafka() -> None:
 
 # ── InMemoryKafka тесты — всегда запускаются ─────────────────────────────────
 
+
 @pytest.mark.integration
 class TestInMemoryKafka:
-
     async def test_produce_and_consume(self) -> None:
-        await InMemoryKafka.produce(
-            "test.topic", "key1", {"event": "test", "data": "hello"}
-        )
+        await InMemoryKafka.produce("test.topic", "key1", {"event": "test", "data": "hello"})
         messages = await InMemoryKafka.consume("test.topic")
         assert len(messages) == 1
         assert messages[0]["key"] == "key1"
@@ -98,9 +98,9 @@ class TestInMemoryKafka:
 
 # ── KafkaProducer с mock=True тесты ──────────────────────────────────────────
 
+
 @pytest.mark.integration
 class TestKafkaProducerMock:
-
     async def test_send_user_created_event(self) -> None:
         producer = KafkaProducer(bootstrap_servers="localhost:9092", use_mock=True)
         await producer.start()
@@ -171,6 +171,7 @@ class TestKafkaProducerMock:
 
 # ── Сценарные тесты — user lifecycle events ───────────────────────────────────
 
+
 @pytest.mark.integration
 class TestUserLifecycleEvents:
     """
@@ -189,13 +190,9 @@ class TestUserLifecycleEvents:
         await producer.send_user_created(user_id, email)
 
         # Дополнительные события
+        await producer.send("audit.events", str(user_id), {"event": "login", "user_id": user_id})
         await producer.send(
-            "audit.events", str(user_id),
-            {"event": "login", "user_id": user_id}
-        )
-        await producer.send(
-            "audit.events", str(user_id),
-            {"event": "profile_updated", "user_id": user_id}
+            "audit.events", str(user_id), {"event": "profile_updated", "user_id": user_id}
         )
 
         # Удаляем
@@ -213,16 +210,13 @@ class TestUserLifecycleEvents:
 
     async def test_concurrent_producers(self) -> None:
         """Несколько продюсеров пишут одновременно."""
-        producers = [
-            KafkaProducer("localhost:9092", use_mock=True) for _ in range(3)
-        ]
+        producers = [KafkaProducer("localhost:9092", use_mock=True) for _ in range(3)]
         for p in producers:
             await p.start()
 
-        await asyncio.gather(*[
-            p.send_user_created(i + 1, f"user{i}@t.com")
-            for i, p in enumerate(producers)
-        ])
+        await asyncio.gather(
+            *[p.send_user_created(i + 1, f"user{i}@t.com") for i, p in enumerate(producers)]
+        )
 
         messages = await InMemoryKafka.consume("user.events")
         assert len(messages) == 3
@@ -232,13 +226,14 @@ class TestUserLifecycleEvents:
 
 # ── Реальный Kafka (только если доступен) ────────────────────────────────────
 
+
 @pytest.mark.integration
 @pytest.mark.skipif(not KAFKA_UP, reason="Real Kafka not running (use make up)")
 class TestRealKafka:
-
     async def test_real_kafka_produce_consume(self) -> None:
-        from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
         import json
+
+        from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 
         topic = f"test.{uuid.uuid4().hex[:8]}"
         message = {"test": True, "id": uuid.uuid4().hex}

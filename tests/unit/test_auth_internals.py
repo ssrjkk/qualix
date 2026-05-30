@@ -2,10 +2,8 @@
 Unit тесты внутренней логики auth — _create_token, _verify_token.
 Покрывают все ветки: expired, malformed, invalid sig, valid.
 """
-from __future__ import annotations
 
-import time
-from datetime import datetime, timedelta, timezone
+from __future__ import annotations
 
 import pytest
 
@@ -16,7 +14,6 @@ SECRET = "test-secret-for-unit"
 
 @pytest.mark.unit
 class TestCreateToken:
-
     def test_returns_string(self) -> None:
         token = _create_token("sergey", SECRET)
         assert isinstance(token, str)
@@ -34,7 +31,6 @@ class TestCreateToken:
 
 @pytest.mark.unit
 class TestVerifyToken:
-
     def test_valid_token_returns_username(self) -> None:
         token = _create_token("sergey", SECRET, expires_minutes=30)
         result = _verify_token(token, SECRET)
@@ -76,6 +72,7 @@ class TestVerifyToken:
     def test_invalid_date_triggers_exception_branch(self) -> None:
         """lines 49-50: fromisoformat() бросает ValueError → except Exception."""
         import hashlib
+
         payload = "sergey:NOT_A_VALID_ISO_DATE"
         sig = hashlib.sha256(f"{payload}:{SECRET}".encode()).hexdigest()
         token = f"{payload}:{sig}"
@@ -84,6 +81,7 @@ class TestVerifyToken:
     def test_no_colon_payload_triggers_exception_branch(self) -> None:
         """username, expires_str = payload.split(':',1) — один элемент → ValueError."""
         import hashlib
+
         payload = "nocolonhere"
         sig = hashlib.sha256(f"{payload}:{SECRET}".encode()).hexdigest()
         token = f"{payload}:{sig}"

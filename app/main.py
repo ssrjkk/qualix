@@ -1,8 +1,9 @@
 """FastAPI application factory."""
+
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
 from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +22,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info("app_starting", environment=settings.environment)
 
     from app.dependencies import get_engine
+
     engine = get_engine(settings)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -35,6 +37,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         settings = Settings()
 
     import app.dependencies as deps
+
     deps._test_settings = settings
     deps._shared_engine = None
 
@@ -47,7 +50,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.state.settings = settings
 
     # ── Middleware (порядок важен: первый добавленный — последний выполняется) ─
-    from app.middleware import RequestIDMiddleware, LoggingMiddleware, RateLimitMiddleware
+    from app.middleware import LoggingMiddleware, RateLimitMiddleware, RequestIDMiddleware
 
     application.add_middleware(
         CORSMiddleware,
@@ -61,9 +64,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.add_middleware(RequestIDMiddleware)
 
     # ── Routers ───────────────────────────────────────────────────────────────
-    from app.api.users import router as users_router
     from app.api.auth import router as auth_router
     from app.api.health import router as health_router
+    from app.api.users import router as users_router
 
     application.include_router(health_router)
     application.include_router(auth_router)
@@ -71,21 +74,21 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     # Фронтенд — serve static files
     from pathlib import Path
+
     frontend_path = Path(__file__).parent.parent / "frontend"
     if frontend_path.exists():  # pragma: no branch
-        from fastapi.staticfiles import StaticFiles
         from fastapi.responses import FileResponse
+        from fastapi.staticfiles import StaticFiles
 
-        from fastapi.responses import FileResponse as _FR
         _html = str(frontend_path / "index.html")
 
         @application.get("/login", include_in_schema=False)
         async def login_page():  # type: ignore[return]
-            return _FR(_html)
+            return FileResponse(_html)
 
         @application.get("/dashboard", include_in_schema=False)
         async def dashboard_page():  # type: ignore[return]
-            return _FR(_html)
+            return FileResponse(_html)
 
         application.mount(
             "/",

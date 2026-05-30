@@ -1,4 +1,5 @@
 """Contract layer conftest."""
+
 import pytest
 
 

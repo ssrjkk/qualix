@@ -1,10 +1,14 @@
 """
 pytest plugin — отслеживает flaky тесты и создаёт GitHub Issues.
 """
+
 from __future__ import annotations
-import json, os
-from pathlib import Path
+
+import json
+import os
 from collections import defaultdict
+from pathlib import Path
+
 import pytest
 
 FLAKY_LOG = Path("reports/flaky_tests.json")
@@ -18,8 +22,7 @@ def pytest_runtest_logreport(report: pytest.TestReport) -> None:
 
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     flaky = [
-        nid for nid, outcomes in _results.items()
-        if "passed" in outcomes and "failed" in outcomes
+        nid for nid, outcomes in _results.items() if "passed" in outcomes and "failed" in outcomes
     ]
     if not flaky:
         return
@@ -37,15 +40,20 @@ def _create_issues(flaky_tests: list[str]) -> None:
     repo = os.environ.get("GITHUB_REPOSITORY", "ssrjkk/qa-sentinel")
     if not token:
         return
-    import urllib.request, urllib.error
+    import urllib.error
+    import urllib.request
+
     for test in flaky_tests:
-        body = json.dumps({
-            "title": f"[Flaky] {test.split('::')[-1]}",
-            "body": f"Flaky test detected.\n\nTest: `{test}`",
-            "labels": ["flaky-test", "qa"],
-        }).encode()
+        body = json.dumps(
+            {
+                "title": f"[Flaky] {test.split('::')[-1]}",
+                "body": f"Flaky test detected.\n\nTest: `{test}`",
+                "labels": ["flaky-test", "qa"],
+            }
+        ).encode()
         req = urllib.request.Request(
-            f"https://api.github.com/repos/{repo}/issues", data=body,
+            f"https://api.github.com/repos/{repo}/issues",
+            data=body,
             headers={"Authorization": f"token {token}", "Content-Type": "application/json"},
         )
         try:

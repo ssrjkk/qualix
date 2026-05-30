@@ -3,18 +3,17 @@ Cross-entity data integrity тесты — проверяем связность
 разными endpoints (users ↔ posts ↔ products).
 Это Senior-level паттерн: тестируем не один endpoint, а целый сценарий.
 """
+
 from __future__ import annotations
 
 import pytest
+
 from app.external.dummyjson import DummyJSONClient
 
 
 @pytest.mark.api
 class TestCrossEntityIntegrity:
-
-    async def test_post_user_id_references_existing_user(
-        self, dummyjson: DummyJSONClient
-    ) -> None:
+    async def test_post_user_id_references_existing_user(self, dummyjson: DummyJSONClient) -> None:
         """
         Каждый пост ссылается на userId.
         Проверяем что user с таким id существует.
@@ -37,9 +36,7 @@ class TestCrossEntityIntegrity:
         for post in user_posts.posts:
             assert post.user_id > 0  # user_id установлен
 
-    async def test_products_total_consistent_across_pages(
-        self, dummyjson: DummyJSONClient
-    ) -> None:
+    async def test_products_total_consistent_across_pages(self, dummyjson: DummyJSONClient) -> None:
         """
         Pagination: total не меняется при разных skip.
         """
@@ -62,25 +59,18 @@ class TestCrossEntityIntegrity:
 
 @pytest.mark.api
 class TestPaginationConsistency:
-
-    async def test_skip_produces_different_users(
-        self, dummyjson: DummyJSONClient
-    ) -> None:
+    async def test_skip_produces_different_users(self, dummyjson: DummyJSONClient) -> None:
         page1 = await dummyjson.get_users(limit=3, skip=0)
         # Мок возвращает одинаковые данные, реальный API — разные
         # Проверяем хотя бы что структура корректна
         assert page1.skip == 0
         assert page1.limit == 3 or len(page1.users) <= 3
 
-    async def test_total_greater_than_limit(
-        self, dummyjson: DummyJSONClient
-    ) -> None:
+    async def test_total_greater_than_limit(self, dummyjson: DummyJSONClient) -> None:
         result = await dummyjson.get_users(limit=3)
         assert result.total >= len(result.users)
 
-    async def test_products_page_no_overlap(
-        self, dummyjson: DummyJSONClient
-    ) -> None:
+    async def test_products_page_no_overlap(self, dummyjson: DummyJSONClient) -> None:
         page1 = await dummyjson.get_products(limit=2, skip=0)
         page2 = await dummyjson.get_products(limit=2, skip=0)
         # Базовая проверка структуры

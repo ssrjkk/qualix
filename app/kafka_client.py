@@ -3,9 +3,9 @@ Kafka client — publish/consume events.
 В тестах: используется fakeredis-подобный подход — in-memory очередь
 без реального Kafka брокера.
 """
+
 from __future__ import annotations
 
-import asyncio
 import json
 from collections import defaultdict
 from typing import Any
@@ -16,6 +16,7 @@ class InMemoryKafka:
     Лёгкий in-memory Kafka для тестов.
     Реальный Kafka (aiokafka) используется в production.
     """
+
     _topics: dict[str, list[dict]] = defaultdict(list)
 
     @classmethod
@@ -54,6 +55,7 @@ class KafkaProducer:
             return
         try:
             from aiokafka import AIOKafkaProducer
+
             self._producer = AIOKafkaProducer(
                 bootstrap_servers=self.bootstrap_servers,
                 value_serializer=lambda v: json.dumps(v).encode(),

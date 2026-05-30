@@ -2,19 +2,22 @@
 Load тесты — Locust с кастомными метриками в Prometheus.
 Авто-стоп при деградации p99 > 500ms.
 """
+
 from __future__ import annotations
 
 import time
-from locust import HttpUser, task, between, events
+
+from locust import HttpUser, between, events, task
 from locust.runners import MasterRunner
 
 try:
     from prometheus_client import (
-        start_http_server,
-        Histogram,
         Counter,
         Gauge,
+        Histogram,
+        start_http_server,
     )
+
     PROMETHEUS_AVAILABLE = True
 except ImportError:
     PROMETHEUS_AVAILABLE = False
@@ -44,16 +47,14 @@ def on_locust_init(environment, **kwargs) -> None:
 
 
 @events.request.add_listener
-def on_request(
-    request_type, name, response_time, response_length, exception, **kwargs
-) -> None:
+def on_request(request_type, name, response_time, response_length, exception, **kwargs) -> None:
     if not PROMETHEUS_AVAILABLE:
         return
     status = "error" if exception else "ok"
     if REQUEST_LATENCY:
-        REQUEST_LATENCY.labels(
-            method=request_type, endpoint=name, status=status
-        ).observe(response_time / 1000)
+        REQUEST_LATENCY.labels(method=request_type, endpoint=name, status=status).observe(
+            response_time / 1000
+        )
     if exception and FAILURE_COUNTER:
         FAILURE_COUNTER.labels(endpoint=name).inc()
 
@@ -76,8 +77,10 @@ def check_p99_threshold(response_time, **kwargs) -> None:
 
 # ── User Scenarios ────────────────────────────────────────────────────────────
 
+
 class RegularUser(HttpUser):
     """Обычный пользователь: browse + API calls."""
+
     wait_time = between(1, 3)
     weight = 7
 
@@ -104,12 +107,15 @@ class RegularUser(HttpUser):
 
 class HeavyUser(HttpUser):
     """Тяжёлый пользователь: write operations."""
+
     wait_time = between(2, 5)
     weight = 3
 
     @task
     def create_and_delete(self) -> None:
-        import random, string
+        import random
+        import string
+
         suffix = "".join(random.choices(string.ascii_lowercase, k=8))
         resp = self.client.post(
             "/api/v1/users",

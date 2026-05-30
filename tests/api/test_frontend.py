@@ -1,4 +1,5 @@
 """Тесты frontend routes — /login, /dashboard."""
+
 from __future__ import annotations
 
 import pytest
@@ -7,7 +8,6 @@ from httpx import AsyncClient
 
 @pytest.mark.api
 class TestFrontendRoutes:
-
     async def test_login_page_serves_html(self, client: AsyncClient) -> None:
         """main.py:83-84 — /login route."""
         resp = await client.get("/login")

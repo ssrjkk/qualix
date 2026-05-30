@@ -1,13 +1,14 @@
 """Тесты Products API — dummyjson.com/products"""
+
 from __future__ import annotations
 
 import pytest
+
 from app.external.dummyjson import DummyJSONClient, DummyProduct, ProductsResponse
 
 
 @pytest.mark.api
 class TestGetProducts:
-
     async def test_returns_products_response(self, dummyjson: DummyJSONClient) -> None:
         result = await dummyjson.get_products()
         assert isinstance(result, ProductsResponse)
@@ -49,7 +50,6 @@ class TestGetProducts:
 
 @pytest.mark.api
 class TestGetProductById:
-
     async def test_get_existing_product(self, dummyjson: DummyJSONClient) -> None:
         product = await dummyjson.get_product(1)
         assert isinstance(product, DummyProduct)
@@ -69,7 +69,6 @@ class TestGetProductById:
 
 @pytest.mark.api
 class TestGetProductsByCategory:
-
     async def test_returns_products_in_category(self, dummyjson: DummyJSONClient) -> None:
         result = await dummyjson.get_products_by_category("beauty")
         assert isinstance(result, ProductsResponse)
@@ -83,7 +82,6 @@ class TestGetProductsByCategory:
 
 @pytest.mark.api
 class TestSearchProducts:
-
     async def test_search_returns_results(self, dummyjson: DummyJSONClient) -> None:
         result = await dummyjson.search_products("phone")
         assert isinstance(result, ProductsResponse)

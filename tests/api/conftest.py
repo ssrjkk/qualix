@@ -1,4 +1,5 @@
 """API layer conftest — фикстуры специфичные для HTTP тестов."""
+
 from __future__ import annotations
 
 import pytest

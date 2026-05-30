@@ -245,9 +245,9 @@ jobs:
             echo '```'
             cat reports/db-check.log 2>/dev/null || echo '(no db-check.log)'
             echo '```'
-            echo '### Integration Output'
+            echo '### Integration Output (last 2000 lines)'
             echo '```'
-            cat reports/integration-output.log 2>/dev/null || echo '(no integration-output.log)'
+            tail -n 2000 reports/integration-output.log 2>/dev/null || echo '(no integration-output.log)'
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 

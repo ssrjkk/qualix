@@ -140,7 +140,7 @@ jobs:
             --cov-fail-under=80 \
             --junitxml=reports/junit-unit.xml \
             --override-ini="addopts=--strict-markers --tb=short -q" \
-            -q --no-header
+            -q --no-header 2>&1 | tee reports/unit-output.log; exit ${PIPESTATUS[0]}
 
       - name: Extract coverage %
         id: cov
@@ -232,7 +232,7 @@ jobs:
           pytest tests/integration/ -m integration \
             --junitxml=reports/junit-integration.xml \
             --override-ini="addopts=--strict-markers --tb=short -v" \
-            -v --no-cov
+            -v --no-cov 2>&1 | tee reports/integration-output.log; exit ${PIPESTATUS[0]}
         env:
           DATABASE_URL: postgresql+asyncpg://qa:qa@localhost:5432/qa_sentinel
           REDIS_URL: redis://localhost:6379/0

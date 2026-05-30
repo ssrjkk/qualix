@@ -42,7 +42,7 @@ DOCKER_UP = _docker_available()
 if DOCKER_UP:
 
     @pytest.fixture(scope="session")
-    def _pg(self) -> Generator:  # type: ignore
+    def _pg() -> Generator:  # type: ignore
         from testcontainers.postgres import PostgresContainer
 
         with PostgresContainer("postgres:16-alpine") as pg:

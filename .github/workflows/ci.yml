@@ -229,7 +229,7 @@ jobs:
       - name: Run integration tests
         run: |
           mkdir -p reports
-          python -c "
+          python << 'PYEOF' 2>&1 | tee reports/db-check.log
 import asyncio, os
 async def check():
     try:
@@ -243,7 +243,7 @@ async def check():
         print('DB FAIL:', e)
         raise
 asyncio.run(check())
-" 2>&1 | tee reports/db-check.log
+PYEOF
           pytest tests/integration/ -m integration \
             --junitxml=reports/junit-integration.xml \
             --override-ini="addopts=--strict-markers --tb=long -v" \

@@ -69,7 +69,11 @@ jobs:
         run: ruff format --check .
 
       - name: Mypy
-        run: mypy app --no-error-summary
+        run: |
+          mypy app --no-error-summary 2>&1
+          STATUS=$?
+          echo "mypy exit=$STATUS"
+          exit $STATUS
 
       - name: Bandit SAST
         run: |

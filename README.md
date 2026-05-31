@@ -1,7 +1,7 @@
-# QA Sentinel Platform
+# QUALIX
 
-> Full-stack QA automation platform — Senior-level pet project 2026  
-> **Ситников Сергей Алексеевич** · QA Automation Engineer Middle+
+> Full-stack QA automation platform — Senior-level project 2026  
+> **Ситников Сергей Алексеевич** · QA Automation Engineer 
 
 [![CI](https://github.com/ssrjkk/qa-sentinel/actions/workflows/ci.yml/badge.svg)](https://github.com/ssrjkk/qa-sentinel/actions)
 [![Coverage](https://codecov.io/gh/ssrjkk/qa-sentinel/branch/main/graph/badge.svg)](https://codecov.io/gh/ssrjkk/qa-sentinel)
@@ -37,78 +37,78 @@ make cov           # coverage report
 
 ```
 qa-sentinel/
-├── app/                          # FastAPI SUT (System Under Test)
+├── app/                                         # FastAPI SUT (System Under Test)
 │   ├── api/
-│   │   ├── auth.py               # JWT-like auth, login endpoint
-│   │   ├── users.py              # CRUD users
-│   │   └── health.py             # /health (liveness) + /health/ready (readiness)
-│   ├── models/
-│   │   ├── db.py                 # SQLAlchemy ORM
-│   │   └── user.py               # Pydantic schemas + validators
+│   │   ├── auth.py                              # JWT-like auth, login endpoint
+│   │   ├── users.py                             # CRUD users
+│   │   └── health.py                            # /health (liveness) + /health/ready (readiness)
+│   ├── models/     
+│   │   ├── db.py                                # SQLAlchemy ORM
+│   │   └── user.py                              # Pydantic schemas + validators
 │   ├── repositories/
-│   │   └── user_repo.py          # Data access layer
+│   │   └── user_repo.py                         # Data access layer
 │   ├── services/
-│   │   └── validators.py         # Pure business logic validators
-│   ├── middleware.py             # RequestID · Logging · RateLimit
-│   ├── security.py               # bcrypt password hashing
-│   ├── logging_config.py         # structlog structured logging
-│   ├── dependencies.py           # FastAPI DI: db, auth, settings
-│   └── config.py                 # pydantic-settings
+│   │   └── validators.py                        # Pure business logic validators
+│   ├── middleware.py                            # RequestID · Logging · RateLimit
+│   ├── security.py                              # bcrypt password hashing
+│   ├── logging_config.py                        # structlog structured logging
+│   ├── dependencies.py                          # FastAPI DI: db, auth, settings
+│   └── config.py                                # pydantic-settings
 │
 ├── tests/
-│   ├── conftest.py               # Session fixtures, Docker detection, SQLite fallback
+│   ├── conftest.py                              # Session fixtures, Docker detection, SQLite fallback
 │   ├── factories/
-│   │   └── user_factory.py       # factory_boy: UserCreate, UserPayload, Payment
-│   ├── unit/                     # Без IO — мгновенный запуск
-│   │   ├── test_validators.py    # Email, phone, amount + Hypothesis 500 cases
-│   │   ├── test_models.py        # Pydantic validation, normalization
-│   │   ├── test_auth_internals.py # _create_token, _verify_token branches
-│   │   ├── test_auth_router.py   # Auth router с AsyncMock
-│   │   ├── test_users_router.py  # Users router с AsyncMock
-│   │   ├── test_user_repo.py     # UserRepository с AsyncMock сессией
-│   │   ├── test_dependencies.py  # get_settings, get_engine
-│   │   ├── test_performance.py   # pytest-benchmark: bcrypt, token, validators
-│   │   └── test_time_dependent.py # time-machine: token expiry
-│   ├── integration/              # SQLite/Postgres + fakeredis
-│   │   └── test_database.py      # UserRepository end-to-end + Redis ops
-│   ├── api/                      # HTTP тесты через AsyncClient
-│   │   ├── test_users_api.py     # CRUD + auth + pagination + edge cases
-│   │   ├── test_auth_flows.py    # DB-path login, expired token, wrong secret
-│   │   └── test_schemathesis.py  # OpenAPI fuzzing: schema validation + no-5xx
+│   │   └── user_factory.py                      # factory_boy: UserCreate, UserPayload, Payment
+│   ├── unit/                                    # Без IO — мгновенный запуск
+│   │   ├── test_validators.py                   # Email, phone, amount + Hypothesis 500 cases
+│   │   ├── test_models.py                       # Pydantic validation, normalization
+│   │   ├── test_auth_internals.py               # _create_token, _verify_token branches
+│   │   ├── test_auth_router.py                  # Auth router с AsyncMock
+│   │   ├── test_users_router.py                 # Users router с AsyncMock
+│   │   ├── test_user_repo.py                    # UserRepository с AsyncMock сессией
+│   │   ├── test_dependencies.py                 # get_settings, get_engine
+│   │   ├── test_performance.py                  # pytest-benchmark: bcrypt, token, validators
+│   │   └── test_time_dependent.py               # time-machine: token expiry
+│   ├── integration/                             # SQLite/Postgres + fakeredis
+│   │   └── test_database.py                     # UserRepository end-to-end + Redis ops
+│   ├── api/                                     # HTTP тесты через AsyncClient
+│   │   ├── test_users_api.py                    # CRUD + auth + pagination + edge cases
+│   │   ├── test_auth_flows.py                   # DB-path login, expired token, wrong secret
+│   │   └── test_schemathesis.py                 # OpenAPI fuzzing: schema validation + no-5xx
 │   ├── contract/
-│   │   └── test_api_contracts.py # JSON Schema контракты + security constraints
-│   ├── e2e/                      # Playwright
-│   │   ├── conftest.py           # Browser ctx, tracing, logged_in_page
-│   │   ├── pages/                # Page Objects
-│   │   └── test_auth_flow.py     # Login flow E2E
+│   │   └── test_api_contracts.py                # JSON Schema контракты + security constraints
+│   ├── e2e/                                     # Playwright
+│   │   ├── conftest.py                          # Browser ctx, tracing, logged_in_page
+│   │   ├── pages/                               # Page Objects
+│   │   └── test_auth_flow.py                    # Login flow E2E
 │   ├── load/
-│   │   └── locustfile.py         # Locust + Prometheus metrics + p99 auto-stop
+│   │   └── locustfile.py                        # Locust + Prometheus metrics + p99 auto-stop
 │   └── plugins/
-│       └── flaky_tracker.py      # Авто-создание GitHub Issues для flaky тестов
+│       └── flaky_tracker.py                     # Авто-создание GitHub Issues для flaky тестов
 │
 ├── infra/
-│   ├── k8s/                      # Kubernetes манифесты
+│   ├── k8s/                                     # Kubernetes манифесты
 │   │   ├── namespace.yaml
-│   │   ├── deployment.yaml       # RollingUpdate, liveness/readiness probes
-│   │   ├── service.yaml
-│   │   ├── hpa.yaml              # HPA: CPU/Memory autoscaling
-│   │   └── secret.yaml           # Placeholder — use sealed-secrets в prod
-│   ├── prometheus.yml            # Scrape: app + locust + postgres + redis
-│   └── grafana/                  # Provisioning: datasource + dashboard
+│   │   ├── deployment.yaml                      # RollingUpdate, liveness/readiness probes
+│   │   ├── service.yaml     
+│   │   ├── hpa.yaml                             # HPA: CPU/Memory autoscaling
+│   │   └── secret.yaml                          # Placeholder — use sealed-secrets в prod
+│   ├── prometheus.yml                           # Scrape: app + locust + postgres + redis
+│   └── grafana/                                 # Provisioning: datasource + dashboard
 │
-├── docs/adr/                     # Architecture Decision Records
+├── docs/adr/                                    # Architecture Decision Records
 │   ├── 001-custom-token-vs-jwt.md
 │   ├── 002-sqlite-fallback-for-tests.md
 │   ├── 003-bcrypt-for-passwords.md
 │   ├── 004-fakeredis-in-tests.md
 │   └── 005-json-schema-contracts-vs-pact.md
 │
-├── .github/workflows/ci.yml      # 8-stage CI: lint→unit→integration→api→contract→e2e→allure→badge
-├── docker-compose.yml            # app + postgres + redis + kafka + allure + prometheus + grafana
+├── .github/workflows/ci.yml                     # 8-stage CI: lint→unit→integration→api→contract→e2e→allure→badge
+├── docker-compose.yml                           # app + postgres + redis + kafka + allure + prometheus + grafana
 ├── Dockerfile
-├── Makefile                      # 15 команд с документацией
-├── pyproject.toml                # Все зависимости + coverage + ruff + mypy
-└── CONTRIBUTING.md
+├── Makefile                                     # 15 команд с документацией
+├── pyproject.toml                               # Все зависимости + coverage + ruff + mypy
+└── CONTRIBUTING.md     
 ```
 
 ## Тест-слои
@@ -158,37 +158,37 @@ qa-sentinel/
 ## Команды
 
 ```bash
-make help              # все доступные команды
+make help                   # все доступные команды
 
 # Тесты по слоям
-make test-unit         # unit + coverage
-make test-integration  # integration (fakeredis + SQLite)
-make test-api          # API + schemathesis
-make test-contract     # JSON Schema contracts
-make test-e2e          # Playwright (нужен make up)
-make test-load         # Locust 30s smoke
+make test-unit              # unit + coverage
+make test-integration       # integration (fakeredis + SQLite)
+make test-api               # API + schemathesis
+make test-contract          # JSON Schema contracts
+make test-e2e               # Playwright (нужен make up)
+make test-load              # Locust 30s smoke
 
 # Coverage
-make cov               # term + html + xml
-make cov-open          # открыть html в браузере
+make cov                    # term + html + xml
+make cov-open               # открыть html в браузере
 
 # Dev-окружение
-make setup             # полная настройка (deps + pre-commit)
-make pre-commit        # проверить все файлы
-make install           # только зависимости
+make setup                  # полная настройка (deps + pre-commit)
+make pre-commit             # проверить все файлы
+make install                # только зависимости
 
 # Качество
-make lint              # ruff + mypy
-make fmt               # авто-форматирование
-make security-scan     # SAST + dependency scan
+make lint                   # ruff + mypy
+make fmt                    # авто-форматирование
+make security-scan          # SAST + dependency scan
 
 # CI
-make ci                # lint + unit + integration + api + contract
-make clean             # удалить артефакты
+make ci                     # lint + unit + integration + api + contract
+make clean                  # удалить артефакты
 
 # Утилиты
-make changelog         # обновить CHANGELOG из git-cliff
-make schema            # регенерировать openapi.json
+make changelog              # обновить CHANGELOG из git-cliff
+make schema                 # регенерировать openapi.json
 ```
 
 ## ADR

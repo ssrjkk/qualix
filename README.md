@@ -203,5 +203,5 @@ make schema                 # регенерировать openapi.json
 ## Автор
 
 **Ситников Сергей Алексеевич**  
-QA Automation Engineer (Middle+) · Saint Petersburg  
+QA Automation Engineer · Saint Petersburg  
 [GitHub](https://github.com/ssrjkk) · [Telegram](https://t.me/ssrjkk) · ray013lefe@gmail.com

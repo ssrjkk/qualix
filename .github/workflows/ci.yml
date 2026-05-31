@@ -249,6 +249,10 @@ jobs:
             echo '```'
             tail -n 2000 reports/integration-output.log 2>/dev/null || echo '(no integration-output.log)'
             echo '```'
+            echo '### Failure Summary'
+            echo '```'
+            grep -E 'FAILED|ERROR|FAILURES|short test summary' reports/integration-output.log 2>/dev/null || echo '(no failures found or no log)'
+            echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4

@@ -47,6 +47,7 @@ REAL_REDIS_UP = _real_redis_available()
 
 
 @pytest.mark.integration
+@pytest.mark.asyncio(loop_scope="session")
 class TestUserRepository:
     async def test_create_returns_id(self, db_session: AsyncSession) -> None:
         repo = UserRepository(db_session)

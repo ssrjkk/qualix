@@ -153,11 +153,16 @@ async def db_engine(test_settings: Settings) -> AsyncGenerator[AsyncEngine, None
 
 @pytest_asyncio.fixture
 async def db_session(db_engine: AsyncEngine) -> AsyncGenerator[AsyncSession, None]:
-    """Транзакция с rollback после каждого теста — нет dirty state."""
-    connection = await db_engine.connect()
-    transaction = await connection.begin()
-    factory = async_sessionmaker(bind=connection, expire_on_commit=False, autoflush=False)
-    async with factory() as session:
+    """Транзакция с rollback после каждого теста — нет dirty state.
+
+    Используем session.begin() вместо ручного connection.begin(),
+    чтобы session корректно отслеживала состояние транзакции
+    при вызовах begin_nested() внутри UserRepository.create().
+    """
+    session = AsyncSession(db_engine, expire_on_commit=False, autoflush=False)
+    try:
+        await session.begin()
         yield session
-    await transaction.rollback()
-    await connection.close()
+    finally:
+        await session.rollback()
+        await session.close()

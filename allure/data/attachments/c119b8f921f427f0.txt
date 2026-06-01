@@ -1,0 +1,1 @@
+2026-06-01T16:33:12.854547Z [info     ] app_starting                   environment=test

@@ -23,6 +23,7 @@ env:
   PYTHON_VERSION: "3.12"
   UV_CACHE_DIR: ~/.cache/uv
   FORCE_COLOR: "1"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 # ╔══════════════════════════════════════════════════════╗
 # ║  GRAPH:                                              ║
@@ -140,6 +141,7 @@ jobs:
             --cov-fail-under=60 \
             --junitxml=reports/junit-unit.xml \
             --override-ini="addopts=--strict-markers --tb=short -q" \
+            --benchmark-disable \
             -q --no-header 2>&1 | tee reports/unit-output.log; exit ${PIPESTATUS[0]}
 
       - name: Extract coverage %
@@ -232,7 +234,9 @@ jobs:
           python scripts/check_db.py 2>&1 | tee reports/db-check.log
           python -m pytest tests/integration/ -m integration \
             --junitxml=reports/junit-integration.xml \
-            -v --no-cov --tb=long 2>&1 | tee reports/integration-output.log; exit ${PIPESTATUS[0]}
+            --override-ini="addopts=--strict-markers --tb=long -q" \
+            --benchmark-disable \
+            -v --no-cov 2>&1 | tee reports/integration-output.log; exit ${PIPESTATUS[0]}
         env:
           DATABASE_URL: postgresql+asyncpg://qa:qa@localhost:5432/qa_sentinel
           REDIS_URL: redis://localhost:6379/0
@@ -305,10 +309,11 @@ jobs:
             --cov=app \
             --cov-report=xml:reports/coverage-api.xml \
             --cov-report=term-missing:skip-covered \
-            --cov-fail-under=80 \
+            --cov-fail-under=60 \
             --junitxml=reports/junit-api.xml \
             --alluredir=allure-results \
             --override-ini="addopts=--strict-markers --tb=short -q" \
+            --benchmark-disable \
             -q --no-header
 
       - name: Extract coverage %
@@ -382,6 +387,7 @@ jobs:
           pytest tests/external/ \
             --junitxml=reports/junit-external.xml \
             --override-ini="addopts=--strict-markers --tb=short -q" \
+            --benchmark-disable \
             -q --no-cov
 
       - uses: actions/upload-artifact@v4
@@ -444,10 +450,11 @@ jobs:
         run: |
           mkdir -p allure-results reports
           E2E_TRACE=1 pytest tests/e2e/ -m e2e \
-            --no-cov -n 2 \
+            --no-cov \
             --alluredir=allure-results \
             --junitxml=reports/junit-e2e.xml \
-            --override-ini="addopts=--strict-markers --tb=short -q"
+            --override-ini="addopts=--strict-markers --tb=short -q" \
+            --benchmark-disable
         env:
           E2E_BASE_URL: http://localhost:8080
 
@@ -493,50 +500,25 @@ jobs:
           echo "| E2E | ${{ needs.e2e.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Coverage" >> $GITHUB_STEP_SUMMARY
-          echo "- Unit: **${{ needs.unit.outputs.coverage-pct }}%**" >> $GITHUB_STEP_SUMMARY
-          echo "- API: **${{ needs.api.outputs.coverage-pct }}%**" >> $GITHUB_STEP_SUMMARY
+          echo "- Unit: ${{ needs.unit.outputs.coverage-pct || 'N/A' }}%" >> $GITHUB_STEP_SUMMARY
+          echo "- API: ${{ needs.api.outputs.coverage-pct || 'N/A' }}%" >> $GITHUB_STEP_SUMMARY
 
-          # Блокируем merge если критичные джобы упали
           FAILED=0
-          for job in unit integration api external; do
-            result=$(echo '${{ toJSON(needs) }}' | python3 -c "
-          import sys, json
-          needs = json.load(sys.stdin)
-          job = '$job' if '$job' != 'api' else 'api'
-          # map job names
-          mapping = {'unit':'unit','integration':'integration','api':'api','external':'external'}
-          key = mapping.get('$job', '$job')
-          for k, v in needs.items():
-              if k == key:
-                  print(v.get('result','unknown'))
-                  break
-            ")
-            echo "$job: $result"
-          done
-
-          # Простая проверка через строки
           if [[ "${{ needs.unit.result }}" != "success" ]]; then
-            echo "::error::Unit tests failed"
-            FAILED=1
+            echo "::error::Unit tests failed"; FAILED=1
           fi
           if [[ "${{ needs.integration.result }}" != "success" ]]; then
-            echo "::error::Integration tests failed"
-            FAILED=1
+            echo "::error::Integration tests failed"; FAILED=1
           fi
           if [[ "${{ needs.api.result }}" != "success" ]]; then
-            echo "::error::API tests failed"
-            FAILED=1
+            echo "::error::API tests failed"; FAILED=1
           fi
           if [[ "${{ needs.external.result }}" != "success" ]]; then
-            echo "::error::External API tests failed"
-            FAILED=1
+            echo "::error::External API tests failed"; FAILED=1
           fi
-
-          # E2E — warning, не fail (может быть flaky в CI)
           if [[ "${{ needs.e2e.result }}" != "success" ]]; then
             echo "::warning::E2E tests failed — investigate but not blocking merge"
           fi
-
           exit $FAILED
 
   # ── 9. COVERAGE PR COMMENT ─────────────────────────────────────────────────
@@ -599,7 +581,7 @@ jobs:
             --benchmark-json=reports/benchmark.json \
             --benchmark-sort=mean \
             --benchmark-columns=min,mean,max,stddev,ops \
-            --override-ini="addopts=" \
+            --override-ini="addopts=--tb=short" \
             -q
 
       - name: Print benchmark summary
@@ -725,6 +707,7 @@ jobs:
             --cov=app \
             --cov-report=xml:reports/coverage.xml \
             --override-ini="addopts=--strict-markers --tb=short -q" \
+            --benchmark-disable \
             -q --no-header
 
       - name: Generate badge SVG

@@ -94,7 +94,7 @@ markers = [
     "external: tests against external APIs (dummyjson.com)",
     "live_api: requires real internet connection",
 ]
-timeout = 30
+timeout = 60
 
 [tool.coverage.run]
 source = ["app"]

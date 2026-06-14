@@ -6,13 +6,14 @@ E2E тесты auth flow — Playwright против реального фрон
 from __future__ import annotations
 
 import pytest
+import pytest_asyncio
 from playwright.async_api import Page
 
 from tests.e2e.pages.dashboard_page import DashboardPage
 from tests.e2e.pages.login_page import LoginPage
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def login_page(page: Page, base_url: str) -> LoginPage:
     lp = LoginPage(page)
     await page.goto(f"{base_url}/login")

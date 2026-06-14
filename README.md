@@ -1,18 +1,18 @@
 # QUALIX
 
-> Full-stack QA automation platform — Senior-level project 2026  
+> Full-stack QA automation platform - Senior-level project 2026  
 > **Ситников Сергей Алексеевич** · QA Automation Engineer 
 
-[![CI](https://github.com/ssrjkk/qa-sentinel/actions/workflows/ci.yml/badge.svg)](https://github.com/ssrjkk/qa-sentinel/actions)
-[![Coverage](https://codecov.io/gh/ssrjkk/qa-sentinel/branch/main/graph/badge.svg)](https://codecov.io/gh/ssrjkk/qa-sentinel)
+[![CI](https://github.com/ssrjkk/qualix/actions/workflows/ci.yml/badge.svg)](https://github.com/ssrjkk/qualix/actions)
+[![Coverage](https://codecov.io/gh/ssrjkk/qualix/branch/main/graph/badge.svg)](https://codecov.io/gh/ssrjkk/qualix)
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://python.org)
 [![pytest](https://img.shields.io/badge/pytest-8.3-green)](https://pytest.org)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000)](https://github.com/astral-sh/ruff)
 
 ## Обзор
 
-QA Sentinel — полноценная QA-платформа для мониторинга деградации API и UI.
-Не просто набор тестов — отдельный продукт с архитектурой уровня Senior.
+QA Sentinel - полноценная QA-платформа для мониторинга деградации API и UI.
+Не просто набор тестов - отдельный продукт с архитектурой уровня Senior.
 
 **Стек 2026:** Python 3.12 · pytest 8.3 · Playwright · Locust · FastAPI · SQLAlchemy · Docker · k8s · GitHub Actions · Allure · Prometheus · Grafana
 
@@ -20,12 +20,12 @@ QA Sentinel — полноценная QA-платформа для монито
 
 ```bash
 # 1. Клонируем
-git clone git@github.com:ssrjkk/qa-sentinel.git && cd qa-sentinel
+git clone git@github.com:ssrjkk/qualix.git && cd qualix
 
 # 2. Полная настройка (deps + pre-commit)
 make setup
 
-# 3. Инфраструктура (опционально — без Docker тоже работает)
+# 3. Инфраструктура (опционально - без Docker тоже работает)
 make up
 
 # 4. Тесты
@@ -36,7 +36,7 @@ make cov           # coverage report
 ## Структура проекта
 
 ```
-qa-sentinel/
+qualix/
 ├── app/                                         # FastAPI SUT (System Under Test)
 │   ├── api/
 │   │   ├── auth.py                              # JWT-like auth, login endpoint
@@ -59,7 +59,7 @@ qa-sentinel/
 │   ├── conftest.py                              # Session fixtures, Docker detection, SQLite fallback
 │   ├── factories/
 │   │   └── user_factory.py                      # factory_boy: UserCreate, UserPayload, Payment
-│   ├── unit/                                    # Без IO — мгновенный запуск
+│   ├── unit/                                    # Без IO - мгновенный запуск
 │   │   ├── test_validators.py                   # Email, phone, amount + Hypothesis 500 cases
 │   │   ├── test_models.py                       # Pydantic validation, normalization
 │   │   ├── test_auth_internals.py               # _create_token, _verify_token branches
@@ -92,7 +92,7 @@ qa-sentinel/
 │   │   ├── deployment.yaml                      # RollingUpdate, liveness/readiness probes
 │   │   ├── service.yaml     
 │   │   ├── hpa.yaml                             # HPA: CPU/Memory autoscaling
-│   │   └── secret.yaml                          # Placeholder — use sealed-secrets в prod
+│   │   └── secret.yaml                          # Placeholder - use sealed-secrets в prod
 │   ├── prometheus.yml                           # Scrape: app + locust + postgres + redis
 │   └── grafana/                                 # Provisioning: datasource + dashboard
 │
@@ -103,7 +103,7 @@ qa-sentinel/
 │   ├── 004-fakeredis-in-tests.md
 │   └── 005-json-schema-contracts-vs-pact.md
 │
-├── .github/workflows/ci.yml                     # 8-stage CI: lint→unit→integration→api→contract→e2e→allure→badge
+├── .github/workflows/ci.yml                     # 8-stage CI: lint->unit->integration->api->contract->e2e->allure->badge
 ├── docker-compose.yml                           # app + postgres + redis + kafka + allure + prometheus + grafana
 ├── Dockerfile
 ├── Makefile                                     # 15 команд с документацией
@@ -115,45 +115,45 @@ qa-sentinel/
 
 | Слой | Файлы | Инструменты | Тестов | Coverage |
 |------|-------|-------------|--------|----------|
-| Unit | `tests/unit/` | pytest · Hypothesis · time-machine · benchmark | 122 | — |
-| Integration | `tests/integration/` | testcontainers · fakeredis · SQLite | 17 | — |
-| API | `tests/api/` | httpx · factory_boy · schemathesis | 48 | — |
-| Contract | `tests/contract/` | JSON Schema contracts | 11 | — |
-| E2E | `tests/e2e/` | Playwright POM · AI assertions · tracing | 7 | — |
-| Load | `tests/load/` | Locust · Prometheus · p99 auto-stop | — | — |
+| Unit | `tests/unit/` | pytest · Hypothesis · time-machine · benchmark | 122 | - |
+| Integration | `tests/integration/` | testcontainers · fakeredis · SQLite | 17 | - |
+| API | `tests/api/` | httpx · factory_boy · schemathesis | 48 | - |
+| Contract | `tests/contract/` | JSON Schema contracts | 11 | - |
+| E2E | `tests/e2e/` | Playwright POM · AI assertions · tracing | 7 | - |
+| Load | `tests/load/` | Locust · Prometheus · p99 auto-stop | - | - |
 | **Total** | | | **~205+** | **100%** |
 
 ## Ключевые фичи
 
 ### Тест-инфраструктура
-- **factory_boy** — `UserCreateFactory`, `UserPayloadFactory` с traits (invalid_email, weak_password)
-- **Hypothesis** — 500+ property-based cases для каждого валидатора
-- **time-machine** — детерминированные тесты token expiry без зависимости от system clock
-- **pytest-benchmark** — performance регрессии для bcrypt, token ops, Pydantic parsing
-- **fakeredis** — Redis тесты без Docker (TTL, INCR, HSET, pub/sub)
-- **Flaky tracker** — кастомный pytest plugin, авто-создание GitHub Issues
-- **AI assertions** — `BasePage.ai_assert()` через Claude Sonnet для semantic UI checks
+- **factory_boy** - `UserCreateFactory`, `UserPayloadFactory` с traits (invalid_email, weak_password)
+- **Hypothesis** - 500+ property-based cases для каждого валидатора
+- **time-machine** - детерминированные тесты token expiry без зависимости от system clock
+- **pytest-benchmark** - performance регрессии для bcrypt, token ops, Pydantic parsing
+- **fakeredis** - Redis тесты без Docker (TTL, INCR, HSET, pub/sub)
+- **Flaky tracker** - кастомный pytest plugin, авто-создание GitHub Issues
+- **AI assertions** - `BasePage.ai_assert()` через Claude Sonnet для semantic UI checks
 
 ### Архитектура приложения
-- **bcrypt rounds=12** — OWASP-compliant password hashing, constant-time verify
-- **structlog** — structured JSON logging с request_id в каждом логе
-- **RequestIDMiddleware** — `X-Request-ID` для distributed tracing
-- **RateLimitMiddleware** — sliding window, 100 req/min per IP
-- **`/health` + `/health/ready`** — liveness + readiness probes для k8s
+- **bcrypt rounds=12** - OWASP-compliant password hashing, constant-time verify
+- **structlog** - structured JSON logging с request_id в каждом логе
+- **RequestIDMiddleware** - `X-Request-ID` для distributed tracing
+- **RateLimitMiddleware** - sliding window, 100 req/min per IP
+- **`/health` + `/health/ready`** - liveness + readiness probes для k8s
 
 ### Dev Experience
-- **pre-commit** — автоматический ruff + mypy + bandit перед каждым коммитом
-- **.editorconfig** — единый стиль файлов независимо от редактора
-- **VSCode** — workspace settings + recommended extensions
-- **Makefile** — 20+ команд с документацией
+- **pre-commit** - автоматический ruff + mypy + bandit перед каждым коммитом
+- **.editorconfig** - единый стиль файлов независимо от редактора
+- **VSCode** - workspace settings + recommended extensions
+- **Makefile** - 20+ команд с документацией
 
 ### CI/CD
-- **17-job GitHub Actions** — lint → unit (+codecov) → integration → api → contract → e2e → allure → coverage-badge → docker → staging → load → release
-- **Coverage enforcement** — `fail_under=80`, branch coverage, XML report
-- **Zero-downtime deploy** — k8s RollingUpdate + `maxUnavailable=0`
-- **HPA** — автомасштабирование по CPU/Memory (min=2, max=10)
-- **Dependabot** — weekly updates для pip, Docker, GitHub Actions
-- **Security** — Bandit SAST + Safety dependency scan в CI
+- **17-job GitHub Actions** - lint -> unit (+codecov) -> integration -> api -> contract -> e2e -> allure -> coverage-badge -> docker -> staging -> load -> release
+- **Coverage enforcement** - `fail_under=80`, branch coverage, XML report
+- **Zero-downtime deploy** - k8s RollingUpdate + `maxUnavailable=0`
+- **HPA** - автомасштабирование по CPU/Memory (min=2, max=10)
+- **Dependabot** - weekly updates для pip, Docker, GitHub Actions
+- **Security** - Bandit SAST + Safety dependency scan в CI
 
 ## Команды
 

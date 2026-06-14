@@ -282,6 +282,8 @@ jobs:
     timeout-minutes: 20
     outputs:
       coverage-pct: ${{ steps.cov.outputs.pct }}
+    env:
+      DATABASE_URL: "sqlite+aiosqlite:///./test.db"
     steps:
       - uses: actions/checkout@v4
 

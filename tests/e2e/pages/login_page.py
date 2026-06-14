@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from playwright.async_api import Page, expect
+from playwright.sync_api import Page, expect
 
 from tests.e2e.pages.base_page import BasePage
 
@@ -17,16 +17,16 @@ class LoginPage(BasePage):
         self.submit_btn = page.get_by_test_id("submit-btn")
         self.error_msg = page.get_by_test_id("auth-error")
 
-    async def login(self, username: str, password: str) -> None:
-        await self.username_input.fill(username)
-        await self.password_input.fill(password)
-        await self.submit_btn.click()
+    def login(self, username: str, password: str) -> None:
+        self.username_input.fill(username)
+        self.password_input.fill(password)
+        self.submit_btn.click()
 
-    async def expect_error_visible(self) -> None:
-        await expect(self.error_msg).to_be_visible()
+    def expect_error_visible(self) -> None:
+        expect(self.error_msg).to_be_visible()
 
-    async def expect_redirected_to_dashboard(self) -> None:
-        await self.page.wait_for_url("**/dashboard", timeout=5000)
+    def expect_redirected_to_dashboard(self) -> None:
+        self.page.wait_for_url("**/dashboard", timeout=5000)
 
-    async def expect_on_login_page(self) -> None:
-        await self.page.wait_for_url("**/login", timeout=3000)
+    def expect_on_login_page(self) -> None:
+        self.page.wait_for_url("**/login", timeout=3000)

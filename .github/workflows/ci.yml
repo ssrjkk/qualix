@@ -456,9 +456,29 @@ jobs:
             --alluredir=allure-results \
             --junitxml=reports/junit-e2e.xml \
             --override-ini="addopts=--strict-markers --tb=short -q" \
-            --benchmark-disable
+            --benchmark-disable 2>&1 | tee reports/e2e-output.log; exit ${PIPESTATUS[0]}
         env:
           E2E_BASE_URL: http://localhost:8080
+
+      - name: Debug output
+        if: always()
+        run: |
+          echo '### E2E Test Output' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          if [ -f reports/e2e-output.log ]; then
+            tail -n 500 reports/e2e-output.log >> $GITHUB_STEP_SUMMARY
+          else
+            echo '(no e2e-output.log)' >> $GITHUB_STEP_SUMMARY
+          fi
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo '### Files in reports/' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          ls -la reports/ 2>/dev/null || echo '(dir missing)' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo '### Files in allure-results/' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          ls -la allure-results/ 2>/dev/null || echo '(dir missing)' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Upload traces on failure
         uses: actions/upload-artifact@v4
@@ -473,6 +493,14 @@ jobs:
         with:
           name: allure-results-e2e
           path: allure-results/
+          retention-days: 7
+
+      - name: Upload debug logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-debug-logs
+          path: reports/e2e-output.log
           retention-days: 7
 
       - name: Publish test results

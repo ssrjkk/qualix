@@ -26,7 +26,13 @@ class LoginPage(BasePage):
         expect(self.error_msg).to_be_visible()
 
     def expect_redirected_to_dashboard(self) -> None:
-        self.page.wait_for_url("**/dashboard", timeout=5000)
+        self.page.wait_for_function(
+            "window.location.pathname === '/dashboard'",
+            timeout=5000,
+        )
 
     def expect_on_login_page(self) -> None:
-        self.page.wait_for_url("**/login", timeout=3000)
+        self.page.wait_for_function(
+            "window.location.pathname === '/login'",
+            timeout=3000,
+        )

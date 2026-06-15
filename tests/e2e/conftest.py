@@ -34,15 +34,10 @@ def browser_type_launch_args(browser_type_launch_args: dict) -> dict:
 
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
     try:
-        from playwright.sync_api import sync_playwright
-
-        with sync_playwright() as p:
-            p.chromium.launch(
-                headless=True, args=["--no-sandbox", "--disable-dev-shm-usage"]
-            ).close()
-    except Exception:
+        import playwright  # noqa: F401
+    except ImportError:
         skip_e2e = pytest.mark.skip(
-            reason="Playwright browsers not installed - run 'playwright install chromium'"
+            reason="playwright not installed: pip install playwright && playwright install chromium"
         )
         for item in items:
             if "e2e" in item.keywords:

@@ -485,33 +485,33 @@ jobs:
         if: failure()
         run: |
           if [ -f reports/junit-e2e.xml ]; then
-            python -c "
-import xml.etree.ElementTree as ET, sys, os
-tree = ET.parse('reports/junit-e2e.xml')
-root = tree.getroot()
-count = 0
-for ts in root.findall('.//testsuite'):
-    tc_count = int(ts.get('tests', 0))
-    fail_count = int(ts.get('failures', 0))
-    err_count = int(ts.get('errors', 0))
-    skip_count = int(ts.get('skipped', 0))
-    print(f'::notice::Tests: {tc_count}, failures: {fail_count}, errors: {err_count}, skipped: {skip_count}')
-    for tc in ts.findall('testcase'):
-        name = tc.get('classname', '') + '.' + tc.get('name', '')
-        failure = tc.find('failure')
-        error = tc.find('error')
-        if failure is not None:
-            count += 1
-            msg = failure.get('message', 'no message')[:200]
-            print(f'::error file={tc.get(\"file\",\"test\")},line={tc.get(\"line\",\"0\")}::{name}: {msg}')
-        elif error is not None:
-            count += 1
-            msg = error.get('message', 'no message')[:200]
-            print(f'::error::{name}: {msg}')
-if count == 0 and fail_count + err_count > 0:
-    print('::warning::Failures/errors found but not in testcase elements (check JUnit XML format)')
-print(f'::notice::Reported {count} failures')
-" 2>&1 || echo "::warning::Failed to parse JUnit XML"
+            python3 -c "
+          import xml.etree.ElementTree as ET, sys, os
+          tree = ET.parse('reports/junit-e2e.xml')
+          root = tree.getroot()
+          count = 0
+          for ts in root.findall('.//testsuite'):
+              tc_count = int(ts.get('tests', 0))
+              fail_count = int(ts.get('failures', 0))
+              err_count = int(ts.get('errors', 0))
+              skip_count = int(ts.get('skipped', 0))
+              print('::notice::Tests: ' + str(tc_count) + ', failures: ' + str(fail_count) + ', errors: ' + str(err_count) + ', skipped: ' + str(skip_count))
+              for tc in ts.findall('testcase'):
+                  name = tc.get('classname', '') + '.' + tc.get('name', '')
+                  failure = tc.find('failure')
+                  error = tc.find('error')
+                  if failure is not None:
+                      count += 1
+                      msg = (failure.get('message', 'no message') or '')[:200]
+                      print('::error file=' + tc.get('file', 'test') + ',line=' + str(tc.get('line', '0')) + '::' + name + ': ' + msg)
+                  elif error is not None:
+                      count += 1
+                      msg = (error.get('message', 'no message') or '')[:200]
+                      print('::error::' + name + ': ' + msg)
+          if count == 0 and fail_count + err_count > 0:
+              print('::warning::Failures in suite attributes but not in testcase elements')
+          print('::notice::Reported ' + str(count) + ' failures')
+          " 2>&1 || echo "::warning::Failed to parse JUnit XML"
           fi
           echo '::group::Pytest output (last 50 lines)'
           if [ -f reports/e2e-output.log ]; then

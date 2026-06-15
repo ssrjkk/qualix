@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 
 import pytest
+from playwright.sync_api import Page
 
 
 @pytest.fixture(scope="session")
@@ -30,6 +31,11 @@ def browser_type_launch_args(browser_type_launch_args: dict) -> dict:
         "slow_mo": slow_mo,
         "args": ["--no-sandbox", "--disable-dev-shm-usage"],
     }
+
+
+@pytest.fixture(autouse=True)
+def _clear_auth_state(page: Page) -> None:
+    page.context.add_init_script("sessionStorage.clear();")
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:

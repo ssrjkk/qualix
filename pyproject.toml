@@ -54,7 +54,7 @@ test = [
     "faker>=30.0",
     "factory-boy>=3.3",
     # reporting
-    "allure-pytest>=2.13",
+    "allure-pytest>=2.16",
     # ai assertions
     "anthropic>=0.34",
     "aiokafka>=0.11",

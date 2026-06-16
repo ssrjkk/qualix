@@ -8,6 +8,7 @@ COPY pyproject.toml .
 RUN uv pip install --system -e "."
 
 COPY app/ app/
+COPY frontend/ frontend/
 
 EXPOSE 8080
 

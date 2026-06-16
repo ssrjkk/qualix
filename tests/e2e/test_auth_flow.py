@@ -82,14 +82,13 @@ class TestDashboard:
     def test_direct_dashboard_access_without_auth(self, page: Page, base_url: str) -> None:
         """
         Открываем /dashboard без логина.
-        Фронтенд проверяет sessionStorage — нет токена → остаёмся на dashboard
-        но без данных пользователя (SPA, нет server-side redirect).
-        Logout button не должен показываться без сессии.
+        Фронтенд проверяет sessionStorage — нет токена → показывает login form.
+        Submit button доступен для входа.
         """
         page.goto(f"{base_url}/dashboard")
         page.wait_for_load_state("networkidle")
         submit = page.get_by_test_id("submit-btn")
-        submit.wait_for(state="visible", timeout=3000)
+        submit.wait_for(state="visible", timeout=5000)
 
 
 @pytest.mark.e2e

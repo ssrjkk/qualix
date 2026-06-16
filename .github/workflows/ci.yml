@@ -623,6 +623,8 @@ jobs:
         github.event_name == 'pull_request'
       )
     timeout-minutes: 15
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -775,6 +777,8 @@ jobs:
             --override-ini="addopts=--strict-markers --tb=short -q" \
             --benchmark-disable \
             -q --no-header
+        env:
+          DATABASE_URL: sqlite+aiosqlite:///./test.db
 
       - name: Generate badge SVG
         run: genbadge coverage -i reports/coverage.xml -o .github/badges/coverage.svg

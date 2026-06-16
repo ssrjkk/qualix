@@ -1,0 +1,12 @@
+2026-06-16T21:23:57.819063Z [info     ] http_request                   client=127.0.0.1 duration_ms=1.78 method=GET path=/health request_id=ecbeb958-a33b-4472-aa13-1f1f600b5310 status_code=200
+2026-06-16T21:23:57.824979Z [warning  ] health_redis_check_failed      error="Error Multiple exceptions: [Errno 111] Connect call failed ('::1', 6379, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 6379) connecting to localhost:6379." request_id=00c592fe-936b-4607-9660-8894d9d11641
+2026-06-16T21:23:57.825528Z [info     ] http_request                   client=127.0.0.1 duration_ms=4.95 method=GET path=/health/ready request_id=00c592fe-936b-4607-9660-8894d9d11641 status_code=200
+2026-06-16T21:23:57.830428Z [info     ] http_request                   client=127.0.0.1 duration_ms=3.03 method=POST path=/api/v1/auth/login request_id=fa6e04df-823a-4bf8-b3cd-52baa0762f6a status_code=200
+2026-06-16T21:23:58.109372Z [info     ] http_request                   client=127.0.0.1 duration_ms=277.26 method=POST path=/api/v1/users request_id=d0a2fd47-5281-4ef2-825e-e2554737ec92 status_code=201
+2026-06-16T21:23:58.112911Z [info     ] http_request                   client=127.0.0.1 duration_ms=1.61 method=GET path=/api/v1/users request_id=ad67649c-8d8d-42e9-8732-8d694950261d status_code=401
+2026-06-16T21:23:58.115861Z [info     ] http_request                   client=127.0.0.1 duration_ms=1.51 method=GET path=/api/v1/users/1 request_id=f39df9b1-47d3-4bc3-9101-4508725964e4 status_code=401
+2026-06-16T21:23:58.118705Z [info     ] http_request                   client=127.0.0.1 duration_ms=1.39 method=GET path=/api/v1/users/999999 request_id=010e6d93-c230-4299-8eea-7f9f31f29d95 status_code=401
+2026-06-16T21:23:58.121532Z [info     ] http_request                   client=127.0.0.1 duration_ms=1.4 method=GET path=/api/v1/users/0 request_id=036861bb-e515-42a7-a321-652e164c64af status_code=401
+2026-06-16T21:23:58.124525Z [info     ] http_request                   client=127.0.0.1 duration_ms=1.56 method=DELETE path=/api/v1/users/1 request_id=88afb561-86a7-486e-8172-9a0eafe90aef status_code=401
+2026-06-16T21:23:58.127375Z [info     ] http_request                   client=127.0.0.1 duration_ms=1.39 method=DELETE path=/api/v1/users/999999 request_id=c8d98aca-746e-45db-a905-1ddd1cfb28eb status_code=401
+2026-06-16T21:23:58.130230Z [info     ] http_request                   client=127.0.0.1 duration_ms=1.4 method=DELETE path=/api/v1/users/0 request_id=11f54df6-07ad-4739-b85d-88eb53f0c8aa status_code=401

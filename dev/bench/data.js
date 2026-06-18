@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781770664885,
+  "lastUpdate": 1781790472152,
   "repoUrl": "https://github.com/ssrjkk/qualix",
   "entries": {
     "QA Sentinel Benchmarks": [
@@ -369,6 +369,100 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 5.308537339796821e-7",
             "extra": "mean: 3.281595129091033 usec\nrounds: 5461"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "ssrjkk@users.noreply.github.com",
+            "name": "ssrjkk",
+            "username": "ssrjkk"
+          },
+          "committer": {
+            "email": "ssrjkk@users.noreply.github.com",
+            "name": "ssrjkk",
+            "username": "ssrjkk"
+          },
+          "distinct": true,
+          "id": "e0f1a7e1003c3d5a53eaa339227164d328b7c497",
+          "message": "fix: rate limit and auth in load tests\n\n- Add ENVIRONMENT=test to docker-compose.yml so rate limit is 10000\n  req/min instead of 100 — prevents 429 under 100 concurrent users\n- Add on_start + auth headers to HeavyUser so DELETE calls are\n  authenticated (was failing with 401, counting toward exit code 1)",
+          "timestamp": "2026-06-18T16:43:31+03:00",
+          "tree_id": "8b8005899d9a53dc740253c5516fc2618a18e906",
+          "url": "https://github.com/ssrjkk/qualix/commit/e0f1a7e1003c3d5a53eaa339227164d328b7c497"
+        },
+        "date": 1781790470897,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_hash_password",
+            "value": 3.736093271711983,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00035075022693135195",
+            "extra": "mean: 267.6592706000008 msec\nrounds: 5"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_verify_password",
+            "value": 3.737503850226957,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00011448318421906816",
+            "extra": "mean: 267.5582528000007 msec\nrounds: 5"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_verify_wrong_password",
+            "value": 3.7378583679279918,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00010696735307179513",
+            "extra": "mean: 267.5328761999964 msec\nrounds: 5"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_create_token",
+            "value": 275174.3507489493,
+            "unit": "iter/sec",
+            "range": "stddev: 8.912076389860668e-7",
+            "extra": "mean: 3.6340596326593433 usec\nrounds: 20576"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_verify_token",
+            "value": 482242.126430678,
+            "unit": "iter/sec",
+            "range": "stddev: 5.415466592076189e-7",
+            "extra": "mean: 2.073647127017945 usec\nrounds: 99217"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_validate_email",
+            "value": 12602.225048760049,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000012890321387579156",
+            "extra": "mean: 79.35106666726219 usec\nrounds: 30"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_sanitize_string",
+            "value": 495118.4044022886,
+            "unit": "iter/sec",
+            "range": "stddev: 4.803411483841043e-7",
+            "extra": "mean: 2.019718901799276 usec\nrounds: 126824"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_validate_amount",
+            "value": 9899273.25362869,
+            "unit": "iter/sec",
+            "range": "stddev: 9.981477431697053e-9",
+            "extra": "mean: 101.01751657713244 nsec\nrounds: 98630"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_user_create_model",
+            "value": 11703.193209656405,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000006826082726689947",
+            "extra": "mean: 85.44676500554493 usec\nrounds: 4515"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_user_response_model",
+            "value": 304578.92532750726,
+            "unit": "iter/sec",
+            "range": "stddev: 9.156551827252284e-7",
+            "extra": "mean: 3.2832212502054148 usec\nrounds: 6400"
           }
         ]
       }

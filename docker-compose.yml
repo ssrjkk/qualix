@@ -5,6 +5,7 @@ services:
     build: .
     ports: ["8080:8080"]
     environment:
+      ENVIRONMENT: test
       DATABASE_URL: postgresql+asyncpg://qa:qa@postgres:5432/qa_sentinel
       REDIS_URL: redis://redis:6379/0
       KAFKA_BOOTSTRAP: kafka:9092

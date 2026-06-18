@@ -111,6 +111,14 @@ class HeavyUser(HttpUser):
     wait_time = between(2, 5)
     weight = 3
 
+    def on_start(self) -> None:
+        resp = self.client.post(
+            "/api/v1/auth/login",
+            json={"username": "load_user", "password": "pass"},
+        )
+        self.token = resp.json().get("access_token", "")
+        self.headers = {"Authorization": f"Bearer {self.token}"}
+
     @task
     def create_and_delete(self) -> None:
         import random
@@ -130,5 +138,6 @@ class HeavyUser(HttpUser):
             user_id = resp.json()["id"]
             self.client.delete(
                 f"/api/v1/users/{user_id}",
+                headers=self.headers,
                 name="/api/v1/users/{id} [DELETE]",
             )

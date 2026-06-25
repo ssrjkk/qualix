@@ -1,0 +1,8 @@
+2026-06-25T06:55:03.376148Z [info     ] http_request                   client=127.0.0.1 duration_ms=4.19 method=POST path=/api/v1/users request_id=38c8a62a-57e3-42fc-a991-b527e3c3cb97 status_code=422
+2026-06-25T06:55:03.381508Z [info     ] http_request                   client=127.0.0.1 duration_ms=3.95 method=POST path=/api/v1/users request_id=9207aec4-9fb2-4435-9874-88f5b3669987 status_code=422
+2026-06-25T06:55:03.385500Z [info     ] http_request                   client=127.0.0.1 duration_ms=2.58 method=POST path=/api/v1/users request_id=ed3fc423-5d19-4d36-bd8b-fd7c30402f58 status_code=422
+2026-06-25T06:55:03.390334Z [info     ] http_request                   client=127.0.0.1 duration_ms=3.37 method=POST path=/api/v1/auth/login request_id=83890e2b-7e6e-4da4-a2be-72792eb0f42c status_code=422
+2026-06-25T06:55:03.396330Z [info     ] http_request                   client=127.0.0.1 duration_ms=4.59 method=POST path=/api/v1/auth/login request_id=72fb8650-1130-47db-a8f1-0c1166eeb694 status_code=401
+2026-06-25T06:55:03.399204Z [info     ] http_request                   client=127.0.0.1 duration_ms=1.44 method=GET path=/api/v1/users/not_a_number request_id=2eeb6c4b-34c6-4733-abec-3033815a86e0 status_code=401
+2026-06-25T06:55:03.401999Z [info     ] http_request                   client=127.0.0.1 duration_ms=1.37 method=GET path=/api/v1/users/-1 request_id=168cbb19-8647-47d8-adfc-a5e98f268367 status_code=401
+2026-06-25T06:55:03.404780Z [info     ] http_request                   client=127.0.0.1 duration_ms=1.36 method=DELETE path=/api/v1/users/not_a_number request_id=085d1194-80d8-4f56-937a-fe7e065a689d status_code=401

@@ -1,0 +1,1 @@
+2026-06-28T17:04:54.735521Z [info     ] http_request                   client=127.0.0.1 duration_ms=7.64 method=GET path=/login request_id=4507f2f7-fde2-4557-bf5d-ea630b607da4 status_code=200

@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
-import sys
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
@@ -17,9 +15,6 @@ from app.logging_config import configure_logging, get_logger
 from app.models.db import Base
 
 logger = get_logger(__name__)
-
-print(f"[startup] QA Sentinel, Python {sys.version}", flush=True)
-print(f"[startup] CWD: {os.getcwd()}", flush=True)
 
 
 @asynccontextmanager
@@ -57,8 +52,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     if last_exc is not None:
         logger.error("lifespan_startup_failed", error=str(last_exc))
-        sys.stderr.write(f"FATAL: lifespan startup failed: {last_exc}\n")
-        sys.stderr.flush()
         raise last_exc
 
     logger.info("app_started")

@@ -441,9 +441,29 @@ jobs:
 
       - name: Start app stack
         run: |
-          # Только необходимые сервисы (без allure, prometheus, grafana)
-          docker compose up -d --wait postgres redis kafka app
-          # Healthcheck до старта тестов
+          set -ex
+          docker compose up -d postgres redis kafka app
+          echo "=== docker compose ps ==="
+          docker compose ps || true
+          echo "=== Wait loop (up to 150s) ==="
+          for i in $(seq 1 30); do
+            sleep 5
+            echo "--- attempt $i/30 ---"
+            docker compose ps 2>&1 || true
+            STATE=$(docker ps -a --format '{{.Names}} {{.State}} {{.Status}}' 2>&1 || true)
+            echo "docker ps: $STATE"
+            if docker compose ps 2>/dev/null | grep -q "healthy" && \
+               ! docker compose ps 2>/dev/null | grep -Eq "(Exit|unhealthy)"; then
+              echo "All services running and healthy!"
+              break
+            fi
+            if docker compose ps 2>/dev/null | grep -q "Exit"; then
+              echo "FAIL: A container exited!"
+              docker compose logs --tail=100 2>&1 || true
+              exit 1
+            fi
+          done
+          echo "=== Final healthcheck ==="
           for i in $(seq 1 20); do
             curl -sf http://localhost:8080/health && break || sleep 3
           done

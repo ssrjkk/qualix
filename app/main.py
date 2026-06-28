@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.exc import OperationalError
 
 from app.config import Settings
 from app.logging_config import configure_logging, get_logger
@@ -24,8 +26,26 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     from app.dependencies import get_engine
 
     engine = get_engine(settings)
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+
+    max_retries = 5
+    for attempt in range(1, max_retries + 1):
+        try:
+            async with engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            break
+        except OperationalError as e:
+            if attempt == max_retries:
+                logger.error("db_connection_failed", max_retries=max_retries, error=str(e))
+                raise
+            wait = 2 ** attempt
+            logger.warning(
+                "db_connection_retry",
+                attempt=attempt,
+                max_retries=max_retries,
+                wait_s=wait,
+                error=str(e),
+            )
+            await asyncio.sleep(wait)
 
     logger.info("app_started")
     yield

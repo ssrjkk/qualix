@@ -441,33 +441,28 @@ jobs:
 
       - name: Start app stack
         run: |
-          set -ex
-          docker compose up -d postgres redis kafka app
-          echo "=== docker compose ps ==="
-          docker compose ps || true
-          echo "=== Wait loop (up to 150s) ==="
-          for i in $(seq 1 30); do
-            sleep 5
-            echo "--- attempt $i/30 ---"
-            docker compose ps 2>&1 || true
-            STATE=$(docker ps -a --format '{{.Names}} {{.State}} {{.Status}}' 2>&1 || true)
-            echo "docker ps: $STATE"
-            if docker compose ps 2>/dev/null | grep -q "healthy" && \
-               ! docker compose ps 2>/dev/null | grep -Eq "(Exit|unhealthy)"; then
-              echo "All services running and healthy!"
-              break
+          docker compose up -d app
+          echo "=== Waiting for app health endpoint (up to 180s) ==="
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8080/health > /dev/null 2>&1; then
+              echo "App is healthy after $(( i * 3 ))s"
+              curl -f http://localhost:8080/health
+              exit 0
             fi
-            if docker compose ps 2>/dev/null | grep -q "Exit"; then
+            echo "Attempt $i/60 — app not ready yet"
+            EXITED=$(docker compose ps --status exited -q 2>/dev/null | wc -l)
+            if [ "$EXITED" -gt 0 ]; then
               echo "FAIL: A container exited!"
-              docker compose logs --tail=100 2>&1 || true
+              docker compose ps
+              docker compose logs --tail=100 || true
               exit 1
             fi
+            sleep 3
           done
-          echo "=== Final healthcheck ==="
-          for i in $(seq 1 20); do
-            curl -sf http://localhost:8080/health && break || sleep 3
-          done
-          curl -f http://localhost:8080/health
+          echo "Timeout waiting for app to become healthy"
+          docker compose ps
+          docker compose logs --tail=100 || true
+          exit 1
 
       - name: Run E2E tests
         run: |
@@ -915,9 +910,18 @@ jobs:
       # Для демо — поднимаем локально из только что собранного образа
       - name: Start app from built image
         run: |
-          docker compose up -d --wait
-          sleep 3
-          curl -f http://localhost:8080/health || (docker compose logs app && exit 1)
+          docker compose up -d app
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/health > /dev/null 2>&1; then
+              echo "App is healthy"
+              curl -f http://localhost:8080/health
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Timeout waiting for app"
+          docker compose logs app || true
+          exit 1
 
       - name: Smoke tests
         run: |
@@ -1019,8 +1023,18 @@ jobs:
 
       - name: Start app stack
         run: |
-          docker compose up -d --wait
-          curl -f http://localhost:8080/health
+          docker compose up -d app
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/health > /dev/null 2>&1; then
+              echo "App is healthy"
+              curl -f http://localhost:8080/health
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Timeout waiting for app"
+          docker compose logs app || true
+          exit 1
 
       - name: Run Locust load test (5 min)
         run: |

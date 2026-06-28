@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import sys
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
@@ -28,15 +29,18 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     engine = get_engine(settings)
 
     max_retries = 5
+    last_exc: Exception | None = None
     for attempt in range(1, max_retries + 1):
         try:
             async with engine.begin() as conn:
                 await conn.run_sync(Base.metadata.create_all)
+            last_exc = None
             break
         except OperationalError as e:
+            last_exc = e
             if attempt == max_retries:
                 logger.error("db_connection_failed", max_retries=max_retries, error=str(e))
-                raise
+                break
             wait = 2**attempt
             logger.warning(
                 "db_connection_retry",
@@ -46,6 +50,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                 error=str(e),
             )
             await asyncio.sleep(wait)
+
+    if last_exc is not None:
+        logger.error("lifespan_startup_failed", error=str(last_exc))
+        sys.stderr.write(f"FATAL: lifespan startup failed: {last_exc}\n")
+        sys.stderr.flush()
+        raise last_exc
 
     logger.info("app_started")
     yield

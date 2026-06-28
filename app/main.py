@@ -37,7 +37,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             if attempt == max_retries:
                 logger.error("db_connection_failed", max_retries=max_retries, error=str(e))
                 raise
-            wait = 2 ** attempt
+            wait = 2**attempt
             logger.warning(
                 "db_connection_retry",
                 attempt=attempt,

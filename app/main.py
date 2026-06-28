@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import sys
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
@@ -17,7 +18,6 @@ from app.models.db import Base
 
 logger = get_logger(__name__)
 
-import os
 print(f"[startup] QA Sentinel, Python {sys.version}", flush=True)
 print(f"[startup] CWD: {os.getcwd()}", flush=True)
 

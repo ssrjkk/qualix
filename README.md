@@ -1,6 +1,6 @@
 # QUALIX
 
-> Full-stack QA automation platform - Senior-level project 2026  
+> Full-stack QA automation platform 
 > **Ситников Сергей Алексеевич** · QA Automation Engineer 
 
 [![CI](https://github.com/ssrjkk/qualix/actions/workflows/ci.yml/badge.svg)](https://github.com/ssrjkk/qualix/actions)

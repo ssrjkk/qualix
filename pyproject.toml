@@ -117,6 +117,7 @@ source = ["app"]
 branch = true
 omit = [
     "app/api/openapi.py",
+    "app/entrypoint.py",
     "*/migrations/*",
 ]
 

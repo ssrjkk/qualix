@@ -1,0 +1,12 @@
+# Global owner
+* @ssrjkk
+
+# Test infrastructure — critical
+tests/conftest.py @ssrjkk
+tests/factories/ @ssrjkk
+.github/workflows/ @ssrjkk
+
+# Security-sensitive
+app/security.py @ssrjkk
+app/api/auth.py @ssrjkk
+app/middleware.py @ssrjkk

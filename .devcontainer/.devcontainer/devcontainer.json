@@ -1,0 +1,45 @@
+{
+  "name": "QA Sentinel",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/node:1": {}
+  },
+  "postCreateCommand": "pip install uv && uv pip install --system -e '.[test,load,lint]' && playwright install chromium && pre-commit install --install-hooks",
+  "containerEnv": {
+    "DATABASE_URL": "postgresql+asyncpg://qa:qa@localhost:5432/qa_sentinel",
+    "REDIS_URL": "redis://localhost:6379/0",
+    "ENVIRONMENT": "development",
+    "SECRET_KEY": "devcontainer-insecure-change-in-prod"
+  },
+  "forwardPorts": [8080, 4040, 3000, 9090],
+  "portsAttributes": {
+    "8080": { "label": "App", "onAutoForward": "openPreview" },
+    "4040": { "label": "Allure" },
+    "3000": { "label": "Grafana" },
+    "9090": { "label": "Prometheus" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "tamasfe.even-better-toml",
+        "redhat.vscode-yaml",
+        "ms-playwright.playwright",
+        "bierner.markdown-mermaid",
+        "streetsidesoftware.code-spell-checker",
+        "GitHub.vscode-github-actions"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.testing.pytestEnabled": true,
+        "ruff.enable": true,
+        "ruff.format": true,
+        "editor.formatOnSave": true,
+        "editor.rulers": [100]
+      }
+    }
+  }
+}

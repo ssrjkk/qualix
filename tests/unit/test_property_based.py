@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
-
 import pytest
 from hypothesis import HealthCheck, assume, given
 from hypothesis import settings as h_settings
@@ -17,6 +15,11 @@ from app.services.validators import sanitize_string, validate_amount, validate_p
 
 MAX_EXAMPLES = 200
 SLOW_EXAMPLES = 15  # bcrypt ~200ms per call
+SLOW_DL = {
+    "deadline": None,
+    "suppress_health_check": [HealthCheck.too_slow, HealthCheck.data_too_large],
+}
+SLOW = {"deadline": None, "suppress_health_check": [HealthCheck.too_slow]}
 
 
 # ── Secure hashing ────────────────────────────────────────────────────────────
@@ -25,13 +28,13 @@ SLOW_EXAMPLES = 15  # bcrypt ~200ms per call
 @pytest.mark.unit
 class TestPasswordHashing:
     @given(st.text(min_size=1, max_size=128))
-    @h_settings(max_examples=SLOW_EXAMPLES, deadline=None, suppress_health_check=[HealthCheck.too_slow, HealthCheck.data_too_large])
+    @h_settings(max_examples=SLOW_EXAMPLES, **SLOW_DL)
     def test_verify_round_trip(self, password: str) -> None:
         hashed = hash_password(password)
         assert verify_password(password, hashed) is True
 
     @given(st.text(max_size=128))
-    @h_settings(max_examples=SLOW_EXAMPLES, deadline=None, suppress_health_check=[HealthCheck.too_slow])
+    @h_settings(max_examples=SLOW_EXAMPLES, **SLOW)
     def test_hash_format(self, password: str) -> None:
         assume(len(password) >= 1)
         hashed = hash_password(password)
@@ -39,26 +42,26 @@ class TestPasswordHashing:
         assert len(hashed) == 60
 
     @given(st.text(min_size=1, max_size=128))
-    @h_settings(max_examples=SLOW_EXAMPLES, deadline=None, suppress_health_check=[HealthCheck.too_slow, HealthCheck.data_too_large])
+    @h_settings(max_examples=SLOW_EXAMPLES, **SLOW_DL)
     def test_different_salt_produces_different_hash(self, password: str) -> None:
         h1 = hash_password(password)
         h2 = hash_password(password)
         assert h1 != h2
 
     @given(st.text(min_size=1, max_size=128), st.text(max_size=64))
-    @h_settings(max_examples=SLOW_EXAMPLES, deadline=None, suppress_health_check=[HealthCheck.too_slow])
+    @h_settings(max_examples=SLOW_EXAMPLES, **SLOW)
     def test_verify_rejects_random_hash(self, password: str, random_hash: str) -> None:
         assume(len(random_hash) >= 1)
         assert verify_password(password, random_hash) is False
 
     @given(st.text(min_size=1, max_size=128))
-    @h_settings(max_examples=SLOW_EXAMPLES, deadline=None, suppress_health_check=[HealthCheck.too_slow, HealthCheck.data_too_large])
+    @h_settings(max_examples=SLOW_EXAMPLES, **SLOW_DL)
     def test_verify_empty_password_against_valid_hash(self, password: str) -> None:
         hashed = hash_password(password)
         assert verify_password("", hashed) is False
 
     @given(st.text(max_size=128))
-    @h_settings(max_examples=SLOW_EXAMPLES, deadline=None, suppress_health_check=[HealthCheck.too_slow])
+    @h_settings(max_examples=SLOW_EXAMPLES, **SLOW)
     def test_verify_never_raises(self, password: str) -> None:
         try:
             hashed = hash_password(password) if password else "$2b$12$invalid"
@@ -195,7 +198,11 @@ class TestPaymentRequestValidators:
         result = PaymentRequest.validate_currency(currency)
         assert result == currency.upper()
 
-    @given(st.text(min_size=1, max_size=10).filter(lambda s: s.upper() not in PaymentRequest.ALLOWED_CURRENCIES))
+    @given(
+        st.text(min_size=1, max_size=10).filter(
+            lambda s: s.upper() not in PaymentRequest.ALLOWED_CURRENCIES
+        )
+    )
     @h_settings(max_examples=MAX_EXAMPLES)
     def test_invalid_currency_raises(self, currency: str) -> None:
         import pydantic
@@ -254,24 +261,42 @@ class TestAmountValidator:
 
 @st.composite
 def topic_key_value(draw: st.DrawFn) -> tuple[str, str, dict]:
-    topic = draw(st.text(min_size=1, max_size=20, alphabet=st.characters(categories=("Ll", "Nd"), include_characters="._-")))
+    topic_chars = st.characters(categories=("Ll", "Nd"), include_characters="._-")
+    topic = draw(st.text(min_size=1, max_size=20, alphabet=topic_chars))
     key = draw(st.text(min_size=1, max_size=20))
-    value = draw(st.dictionaries(
-        keys=st.text(min_size=1, max_size=10),
-        values=st.one_of(st.integers(), st.text(max_size=20), st.booleans()),
-        min_size=1,
-        max_size=5,
-    ))
+    value = draw(
+        st.dictionaries(
+            keys=st.text(min_size=1, max_size=10),
+            values=st.one_of(st.integers(), st.text(max_size=20), st.booleans()),
+            min_size=1,
+            max_size=5,
+        )
+    )
     return topic, key, value
 
 
 @st.composite
 def two_msgs_same_topic(draw: st.DrawFn) -> tuple[tuple[str, str, dict], tuple[str, str, dict]]:
-    topic = draw(st.text(min_size=1, max_size=20, alphabet=st.characters(categories=("Ll", "Nd"), include_characters="._-")))
+    topic_chars = st.characters(categories=("Ll", "Nd"), include_characters="._-")
+    topic = draw(st.text(min_size=1, max_size=20, alphabet=topic_chars))
     key_a = draw(st.text(min_size=1, max_size=20))
     key_b = draw(st.text(min_size=1, max_size=20))
-    value_a = draw(st.dictionaries(keys=st.text(min_size=1, max_size=10), values=st.one_of(st.integers(), st.text(max_size=20), st.booleans()), min_size=1, max_size=3))
-    value_b = draw(st.dictionaries(keys=st.text(min_size=1, max_size=10), values=st.one_of(st.integers(), st.text(max_size=20), st.booleans()), min_size=1, max_size=3))
+    value_a = draw(
+        st.dictionaries(
+            keys=st.text(min_size=1, max_size=10),
+            values=st.one_of(st.integers(), st.text(max_size=20), st.booleans()),
+            min_size=1,
+            max_size=3,
+        )
+    )
+    value_b = draw(
+        st.dictionaries(
+            keys=st.text(min_size=1, max_size=10),
+            values=st.one_of(st.integers(), st.text(max_size=20), st.booleans()),
+            min_size=1,
+            max_size=3,
+        )
+    )
     return (topic, key_a, value_a), (topic, key_b, value_b)
 
 
@@ -301,8 +326,10 @@ class TestInMemoryKafka:
         await InMemoryKafka.produce(topic_b, key_b, value_b)
         msgs_a = await InMemoryKafka.consume(topic_a)
         msgs_b = await InMemoryKafka.consume(topic_b)
-        assert len(msgs_a) == 1 and msgs_a[0]["key"] == key_a
-        assert len(msgs_b) == 1 and msgs_b[0]["key"] == key_b
+        assert len(msgs_a) == 1
+        assert msgs_a[0]["key"] == key_a
+        assert len(msgs_b) == 1
+        assert msgs_b[0]["key"] == key_b
 
     @given(st.lists(topic_key_value(), min_size=1, max_size=10))
     @h_settings(max_examples=MAX_EXAMPLES)
@@ -321,7 +348,8 @@ class TestInMemoryKafka:
         topic, key, value = msg
         await InMemoryKafka.produce(topic, key, value)
         first = await InMemoryKafka.consume_one(topic)
-        assert first is not None and first["key"] == key
+        assert first is not None
+        assert first["key"] == key
         second = await InMemoryKafka.consume_one(topic)
         assert second is None
 
@@ -337,8 +365,10 @@ class TestInMemoryKafka:
         await InMemoryKafka.produce(*msg_b)
         first = await InMemoryKafka.consume_one(topic)
         second = await InMemoryKafka.consume_one(topic)
-        assert first is not None and first["key"] == msg_a[1]
-        assert second is not None and second["key"] == msg_b[1]
+        assert first is not None
+        assert first["key"] == msg_a[1]
+        assert second is not None
+        assert second["key"] == msg_b[1]
 
     @given(topic_key_value())
     @h_settings(max_examples=MAX_EXAMPLES)

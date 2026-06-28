@@ -1,4 +1,4 @@
-﻿"""Lightweight mutation testing for qualix core modules.
+"""Lightweight mutation testing for qualix core modules.
 
 Mutates the source file in-place (text-based), runs tests, restores original.
 
@@ -21,11 +21,20 @@ BASE_TEST_ARGS = "-x -q --no-header -o addopts= -o asyncio_mode=auto --timeout=1
 TARGETS: list[tuple[Path, list[str]]] = [
     (
         REPO / "app" / "services" / "validators.py",
-        ["-k", "validator", "tests/unit/test_validators.py", "tests/unit/test_validators_extended.py", "tests/unit/test_property_based.py"],
+        [
+            "-k",
+            "validator",
+            "tests/unit/test_validators.py",
+            "tests/unit/test_validators_extended.py",
+            "tests/unit/test_property_based.py",
+        ],
     ),
     (
         REPO / "app" / "security.py",
-        ["tests/unit/test_security.py", "tests/unit/test_property_based.py::TestPasswordHashing"],
+        [
+            "tests/unit/test_security.py",
+            "tests/unit/test_property_based.py::TestPasswordHashing",
+        ],
     ),
 ]
 
@@ -58,58 +67,70 @@ def test_module(module_path: Path, test_args: list[str]) -> list[dict]:
 
     # == -> !=
     for m in re.finditer(r"(?<=[^=!<>])==(?=[^=])", text):
-        mutations.append((f"eq_to_neq@L{m.string[:m.start()].count(chr(10))+1}", "==", "!="))
+        mutations.append((f"eq_to_neq@L{m.string[: m.start()].count(chr(10)) + 1}", "==", "!="))
         break  # just the first match
 
     # != -> ==
     for m in re.finditer(r"!==", text):
-        mutations.append((f"neq_to_eq@L{m.string[:m.start()].count(chr(10))+1}", "!=", "=="))
+        mutations.append((f"neq_to_eq@L{m.string[: m.start()].count(chr(10)) + 1}", "!=", "=="))
         break
 
     # and -> or
     for m in re.finditer(r"\band\b", text):
-        mutations.append((f"and_to_or@{text[:m.start()].count(chr(10))+1}", " and ", " or "))
+        mutations.append((f"and_to_or@{text[: m.start()].count(chr(10)) + 1}", " and ", " or "))
         break
 
     # or -> and
     for m in re.finditer(r"\bor\b", text):
-        mutations.append((f"or_to_and@{text[:m.start()].count(chr(10))+1}", " or ", " and "))
+        mutations.append((f"or_to_and@{text[: m.start()].count(chr(10)) + 1}", " or ", " and "))
         break
 
     # remove if body (replace block with pass)
     for m in re.finditer(r"^\s+if\s+", text, re.MULTILINE):
         line_start = m.start()
         indent = m.group()
-        mutations.append((f"remove_if@{text[:line_start].count(chr(10))+1}", m.group() + text[m.end(): text.index(":", line_start)] + ":", f"{indent}pass  # removed by mutator\n"))
+        cond = m.group() + text[m.end() : text.index(":", line_start)] + ":"
+        mutations.append(
+            (
+                f"remove_if@{text[:line_start].count(chr(10)) + 1}",
+                cond,
+                f"{indent}pass  # removed by mutator\n",
+            )
+        )
         break
 
     # flip boolean return True -> False
     for m in re.finditer(r"return\s+True", text):
-        mutations.append((f"ret_true_false@{text[:m.start()].count(chr(10))+1}", "return True", "return False"))
+        line = text[: m.start()].count(chr(10)) + 1
+        mutations.append((f"ret_true_false@{line}", "return True", "return False"))
         break
 
     # flip boolean return False -> True
     for m in re.finditer(r"return\s+False", text):
-        mutations.append((f"ret_false_true@{text[:m.start()].count(chr(10))+1}", "return False", "return True"))
+        line = text[: m.start()].count(chr(10)) + 1
+        mutations.append((f"ret_false_true@{line}", "return False", "return True"))
         break
 
     # flip > to <
     for m in re.finditer(r"(?<![=<])\>(?=[^=])", text):
-        mutations.append((f"gt_to_lt@{text[:m.start()].count(chr(10))+1}", ">", "<"))
+        line = text[: m.start()].count(chr(10)) + 1
+        mutations.append((f"gt_to_lt@{line}", ">", "<"))
         break
 
     # flip < to >
     for m in re.finditer(r"(?<![=<])\<(?=[^=])", text):
-        mutations.append((f"lt_to_gt@{text[:m.start()].count(chr(10))+1}", "<", ">"))
+        line = text[: m.start()].count(chr(10)) + 1
+        mutations.append((f"lt_to_gt@{line}", "<", ">"))
         break
 
     # remove not
     for m in re.finditer(r"not\s+", text):
-        mutations.append((f"remove_not@{text[:m.start()].count(chr(10))+1}", m.group(), ""))
+        line = text[: m.start()].count(chr(10)) + 1
+        mutations.append((f"remove_not@{line}", m.group(), ""))
         break
 
     # Pre-check
-    print(f"\n  Pre-check: original tests...", end=" ", flush=True)
+    print("\n  Pre-check: original tests...", end=" ", flush=True)
     ok, out, _ = run_tests(test_args)
     if not ok:
         print(f"FAILED: {out[:300]}")
@@ -138,9 +159,9 @@ def main() -> None:
     all_survived = 0
     all_killed = 0
     for module_path, test_args in TARGETS:
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"Module: {module_path.relative_to(REPO)}")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
         results = test_module(module_path, test_args)
         survived = [r for r in results if r["status"] == "SURVIVED"]
         killed = [r for r in results if r["status"] == "KILLED"]
@@ -148,8 +169,9 @@ def main() -> None:
         all_killed += len(killed)
         print(f"\n  => {len(results)} mutants: {len(survived)} survived, {len(killed)} killed")
 
-    score = 100.0 * all_killed / (all_survived + all_killed) if (all_survived + all_killed) else 100.0
-    print(f"\n{'='*60}")
+    total = all_survived + all_killed
+    score = 100.0 * all_killed / total if total else 100.0
+    print(f"\n{'=' * 60}")
     print(f"TOTAL: {all_survived} survived, {all_killed} killed")
     print(f"Mutation score: {score:.1f}%")
     if all_survived > 0:

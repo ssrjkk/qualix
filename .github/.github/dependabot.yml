@@ -1,0 +1,42 @@
+version: 2
+updates:
+  # Python зависимости
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: "Europe/Moscow"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "python"]
+    groups:
+      # Группируем test зависимости в один PR
+      test-dependencies:
+        patterns:
+          - "pytest*"
+          - "hypothesis"
+          - "playwright"
+          - "factory-boy"
+          - "faker"
+          - "respx"
+          - "time-machine"
+      # Безопасность — отдельно и срочно
+      security:
+        dependency-type: direct
+        update-types: ["version-update:semver-patch"]
+
+  # GitHub Actions
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    labels: ["dependencies", "github-actions"]
+
+  # Docker
+  - package-ecosystem: docker
+    directory: "/"
+    schedule:
+      interval: weekly
+    labels: ["dependencies", "docker"]

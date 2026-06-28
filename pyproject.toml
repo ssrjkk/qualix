@@ -135,6 +135,15 @@ exclude_lines = [
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+exclude = [
+    "check_*.py",
+    "get_*.py",
+    "parse_*.py",
+    "list_*.py",
+    "download_*.py",
+    "fetch_*.py",
+    "raw_dump.py",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "B", "C4", "PT"]

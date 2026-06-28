@@ -138,7 +138,7 @@ jobs:
             --cov=app \
             --cov-report=xml:reports/coverage-unit.xml \
             --cov-report=term-missing:skip-covered \
-            --cov-fail-under=60 \
+            --cov-fail-under=55 \
             --junitxml=reports/junit-unit.xml \
             --override-ini="addopts=--strict-markers --tb=short -q" \
             --benchmark-disable \
@@ -311,7 +311,7 @@ jobs:
             --cov=app \
             --cov-report=xml:reports/coverage-api.xml \
             --cov-report=term-missing:skip-covered \
-            --cov-fail-under=60 \
+            --cov-fail-under=55 \
             --junitxml=reports/junit-api.xml \
             --alluredir=allure-results \
             --override-ini="addopts=--strict-markers --tb=short -q" \

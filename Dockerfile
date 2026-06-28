@@ -12,4 +12,4 @@ RUN uv pip install --system -e "."
 
 EXPOSE 8080
 
-CMD ["python", "-m", "app.entrypoint"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080", "--log-level", "debug"]

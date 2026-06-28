@@ -17,6 +17,10 @@ from app.models.db import Base
 
 logger = get_logger(__name__)
 
+import os
+print(f"[startup] QA Sentinel, Python {sys.version}", flush=True)
+print(f"[startup] CWD: {os.getcwd()}", flush=True)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:

@@ -8,7 +8,6 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.exc import OperationalError
 
 from app.config import Settings
 from app.logging_config import configure_logging, get_logger
@@ -35,7 +34,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                 await conn.run_sync(Base.metadata.create_all)
             last_exc = None
             break
-        except OperationalError as e:
+        except Exception as e:
             last_exc = e
             if attempt == max_retries:
                 logger.error("db_connection_failed", max_retries=max_retries, error=str(e))

@@ -2,13 +2,13 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/* && pip install uv --no-cache-dir
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml .
 COPY app/ app/
 COPY frontend/ frontend/
 
-RUN uv pip install --system -e "."
+RUN pip install --no-cache-dir -e "."
 
 EXPOSE 8080
 

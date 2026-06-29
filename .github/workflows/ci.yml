@@ -439,10 +439,14 @@ jobs:
       - name: Install Playwright chromium
         run: playwright install chromium --with-deps
 
+      - name: Build app image
+        run: docker compose build --progress=plain app 2>&1
+
       - name: Start app stack
         run: |
-          docker compose up -d app
+          docker compose up -d app 2>&1
           echo "=== Waiting for app health endpoint (up to 180s) ==="
+          mkdir -p reports
           for i in $(seq 1 60); do
             if curl -sf http://localhost:8080/health > /dev/null 2>&1; then
               echo "App is healthy after $(( i * 3 ))s"
@@ -450,22 +454,24 @@ jobs:
               exit 0
             fi
             echo "Attempt $i/60 — app not ready yet"
-            # Only check app container exit (kafka may OOM on constrained runners — app falls back to InMemoryKafka)
             APP_CID=$(docker compose ps -q app 2>/dev/null)
             if [ -n "$APP_CID" ]; then
               APP_EXIT=$(docker inspect "$APP_CID" --format='{{.State.ExitCode}}' 2>/dev/null)
               if [ -n "$APP_EXIT" ] && [ "$APP_EXIT" != "0" ] && [ "$APP_EXIT" != "running" ]; then
                 echo "FAIL: app container exited (code=$APP_EXIT)"
-                docker compose ps
-                docker compose logs app --tail=100 || true
+                docker compose ps --all
+                docker compose logs app --tail=500 || true
+                docker compose logs postgres redis --tail=50 || true
+                docker compose logs app > reports/app-container.log 2>&1 || true
                 exit 1
               fi
             fi
             sleep 3
           done
           echo "Timeout waiting for app to become healthy"
-          docker compose ps
-          docker compose logs app --tail=100 || true
+          docker compose ps --all
+          docker compose logs app --tail=500 || true
+          docker compose logs postgres redis --tail=50 || true
           exit 1
 
       - name: Run E2E tests
@@ -561,7 +567,8 @@ jobs:
         run: |
           mkdir -p reports
           docker compose ps --all > reports/docker-compose-ps.log 2>&1 || true
-          docker compose logs --tail=200 > reports/docker-compose-logs.log 2>&1 || true
+          docker compose logs --tail=500 > reports/docker-compose-logs.log 2>&1 || true
+          docker compose logs app > reports/app-container.log 2>&1 || true
           docker compose config > reports/docker-compose-config.log 2>&1 || true
 
       - name: Upload debug logs
@@ -572,6 +579,7 @@ jobs:
           path: |
             reports/e2e-output.log
             reports/docker-compose-*.log
+            reports/app-container.log
           retention-days: 7
 
       - name: Publish test results

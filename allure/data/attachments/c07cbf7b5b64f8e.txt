@@ -1,0 +1,2 @@
+2026-06-29T10:57:20.246236Z [warning  ] health_redis_check_failed      error="Error Multiple exceptions: [Errno 111] Connect call failed ('::1', 6379, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 6379) connecting to localhost:6379." request_id=6928cea0-da5e-476e-aad4-2b267b3a1ccd
+2026-06-29T10:57:20.246798Z [info     ] http_request                   client=127.0.0.1 duration_ms=4.68 method=GET path=/health/ready request_id=6928cea0-da5e-476e-aad4-2b267b3a1ccd status_code=200

@@ -1,0 +1,1 @@
+2026-06-29T10:47:50.095219Z [info     ] http_request                   client=127.0.0.1 duration_ms=3.79 method=POST path=/api/v1/users request_id=633d4433-839d-4bd5-8a9e-f9c7d973248c status_code=422

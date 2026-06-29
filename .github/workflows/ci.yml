@@ -440,9 +440,17 @@ jobs:
         run: playwright install chromium --with-deps
 
       - name: Build app image
-        run: docker compose build --progress=plain app 2>&1
+        continue-on-error: true
+        run: |
+          mkdir -p reports
+          docker compose build --progress=plain app 2>&1 | tee reports/docker-build.log
+          BUILD_EXIT=$?
+          echo "BUILD_EXIT=$BUILD_EXIT" >> $GITHUB_ENV
+          echo "Build completed with exit code: $BUILD_EXIT"
+          # Don't fail the job so diagnostic uploads still run
 
       - name: Start app stack
+        if: env.BUILD_EXIT == '0'
         run: |
           docker compose up -d app 2>&1
           echo "=== Waiting for app health endpoint (up to 180s) ==="
@@ -566,6 +574,7 @@ jobs:
         if: always()
         run: |
           mkdir -p reports
+          echo "BUILD_EXIT=${{ env.BUILD_EXIT }}" > reports/build-exit.log
           docker compose ps --all > reports/docker-compose-ps.log 2>&1 || true
           docker compose logs --tail=500 > reports/docker-compose-logs.log 2>&1 || true
           docker compose logs app > reports/app-container.log 2>&1 || true
@@ -580,7 +589,16 @@ jobs:
             reports/e2e-output.log
             reports/docker-compose-*.log
             reports/app-container.log
+            reports/docker-build.log
           retention-days: 7
+
+      - name: Fail job if build failed
+        if: env.BUILD_EXIT != '' && env.BUILD_EXIT != '0'
+        run: |
+          echo "::error::Docker build failed (exit code: ${{ env.BUILD_EXIT }})"
+          echo "Last 30 lines of build log:"
+          tail -30 reports/docker-build.log 2>/dev/null || true
+          exit 1
 
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action@v2

@@ -26,32 +26,30 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     engine = get_engine(settings)
 
-    max_retries = 5
-    last_exc: Exception | None = None
+    max_retries = 10
     for attempt in range(1, max_retries + 1):
         try:
             async with engine.begin() as conn:
                 await conn.run_sync(Base.metadata.create_all)
-            last_exc = None
+            logger.info("db_ready")
             break
         except Exception as e:
-            last_exc = e
             if attempt == max_retries:
-                logger.error("db_connection_failed", max_retries=max_retries, error=str(e))
-                break
-            wait = 2**attempt
-            logger.warning(
-                "db_connection_retry",
-                attempt=attempt,
-                max_retries=max_retries,
-                wait_s=wait,
-                error=str(e),
-            )
-            await asyncio.sleep(wait)
-
-    if last_exc is not None:
-        logger.error("lifespan_startup_failed", error=str(last_exc))
-        raise last_exc
+                logger.error(
+                    "db_unavailable_startup",
+                    max_retries=max_retries,
+                    error=str(e),
+                )
+            else:
+                wait = 2**attempt
+                logger.warning(
+                    "db_connection_retry",
+                    attempt=attempt,
+                    max_retries=max_retries,
+                    wait_s=wait,
+                    error=str(e),
+                )
+                await asyncio.sleep(wait)
 
     logger.info("app_started")
     yield

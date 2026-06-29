@@ -1,0 +1,1 @@
+2026-06-29T12:15:18.386386Z [info     ] http_request                   client=127.0.0.1 duration_ms=1.5 method=GET path=/dashboard request_id=561c07ec-c4b8-4f32-af5e-022c7eaa71d5 status_code=200

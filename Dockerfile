@@ -8,8 +8,11 @@ COPY pyproject.toml .
 COPY app/ app/
 COPY frontend/ frontend/
 
-RUN uv pip install --system -e "."
+RUN uv pip install --system "."
+
+COPY docker-entrypoint.sh .
+RUN chmod +x docker-entrypoint.sh
 
 EXPOSE 8080
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080", "--log-level", "debug"]
+CMD ["/app/docker-entrypoint.sh"]

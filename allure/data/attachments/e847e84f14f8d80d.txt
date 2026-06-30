@@ -1,0 +1,1 @@
+2026-06-30T20:21:20.281998Z [info     ] http_request                   client=127.0.0.1 duration_ms=5.91 method=POST path=/api/v1/auth/login request_id=69832e88-9836-4ff2-9900-1b7ee79702f8 status_code=401

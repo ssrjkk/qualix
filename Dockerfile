@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/* && pip install uv --no-cache-dir
 
-COPY pyproject.toml .
+COPY pyproject.toml README.md .
 COPY app/ app/
 COPY frontend/ frontend/
 

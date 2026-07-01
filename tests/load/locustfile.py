@@ -5,6 +5,8 @@ Load тесты — Locust с кастомными метриками в Prometh
 
 from __future__ import annotations
 
+import random
+import string
 import time
 
 from locust import HttpUser, between, events, task
@@ -98,7 +100,19 @@ class RegularUser(HttpUser):
 
     @task(3)
     def get_user_by_id(self) -> None:
-        self.client.get("/api/v1/users/1", headers=self.headers, name="/api/v1/users/{id}")
+        resp = self.client.get(
+            "/api/v1/users?limit=10", headers=self.headers, name="/api/v1/users"
+        )
+        if resp.status_code != 200:
+            return
+        users = resp.json()
+        if isinstance(users, list) and users:
+            user_id = random.choice(users)["id"]
+            self.client.get(
+                f"/api/v1/users/{user_id}",
+                headers=self.headers,
+                name="/api/v1/users/{id}",
+            )
 
     @task(2)
     def health_check(self) -> None:
@@ -121,9 +135,6 @@ class HeavyUser(HttpUser):
 
     @task
     def create_and_delete(self) -> None:
-        import random
-        import string
-
         suffix = "".join(random.choices(string.ascii_lowercase, k=8))
         resp = self.client.post(
             "/api/v1/users",

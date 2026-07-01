@@ -100,9 +100,7 @@ class RegularUser(HttpUser):
 
     @task(3)
     def get_user_by_id(self) -> None:
-        resp = self.client.get(
-            "/api/v1/users?limit=10", headers=self.headers, name="/api/v1/users"
-        )
+        resp = self.client.get("/api/v1/users?limit=10", headers=self.headers, name="/api/v1/users")
         if resp.status_code != 200:
             return
         users = resp.json()

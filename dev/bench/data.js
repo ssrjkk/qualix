@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784441352796,
+  "lastUpdate": 1784528830959,
   "repoUrl": "https://github.com/ssrjkk/qualix",
   "entries": {
     "QA Sentinel Benchmarks": [
@@ -3319,6 +3319,98 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 9.453546571773522e-7",
             "extra": "mean: 3.3516667716041004 usec\nrounds: 6353"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "ssrjkk",
+            "username": "ssrjkk",
+            "email": "ssrjkk@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "ssrjkk",
+            "username": "ssrjkk",
+            "email": "ssrjkk@users.noreply.github.com"
+          },
+          "id": "9c866cdd361d5e9e1be7b998e1da8bb41a063ffb",
+          "message": "fix: ruff format",
+          "timestamp": "2026-07-01T16:38:31Z",
+          "url": "https://github.com/ssrjkk/qualix/commit/9c866cdd361d5e9e1be7b998e1da8bb41a063ffb"
+        },
+        "date": 1784528828795,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_hash_password",
+            "value": 3.7365432160640744,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0003207258534994373",
+            "extra": "mean: 267.6270398 msec\nrounds: 5"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_verify_password",
+            "value": 3.7280499353976686,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0011809898773113433",
+            "extra": "mean: 268.23675039999983 msec\nrounds: 5"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_verify_wrong_password",
+            "value": 3.739239466258213,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00007440662390338582",
+            "extra": "mean: 267.4340622000017 msec\nrounds: 5"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_create_token",
+            "value": 282947.95919895946,
+            "unit": "iter/sec",
+            "range": "stddev: 7.523982159914942e-7",
+            "extra": "mean: 3.534218811229643 usec\nrounds: 21434"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_verify_token",
+            "value": 490995.4397859372,
+            "unit": "iter/sec",
+            "range": "stddev: 5.060924850975085e-7",
+            "extra": "mean: 2.036678793668587 usec\nrounds: 94967"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_validate_email",
+            "value": 12625.747590039804,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000011691545309410412",
+            "extra": "mean: 79.20323076859859 usec\nrounds: 26"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_sanitize_string",
+            "value": 505994.5946681541,
+            "unit": "iter/sec",
+            "range": "stddev: 5.171565695083884e-7",
+            "extra": "mean: 1.976305696814467 usec\nrounds: 120541"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_validate_amount",
+            "value": 8855711.352581559,
+            "unit": "iter/sec",
+            "range": "stddev: 1.1969937608819743e-8",
+            "extra": "mean: 112.92147634288989 nsec\nrounds: 87859"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_user_create_model",
+            "value": 11887.651552890604,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0000068979788103549185",
+            "extra": "mean: 84.12090441503896 usec\nrounds: 4394"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_user_response_model",
+            "value": 308783.10186397244,
+            "unit": "iter/sec",
+            "range": "stddev: 7.688972694482108e-7",
+            "extra": "mean: 3.238519186974577 usec\nrounds: 5707"
           }
         ]
       }

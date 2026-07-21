@@ -1,4 +1,4 @@
-"""FastAPI application factory."""
+"""FastAPI application factory — QUALIX by ssrjkk."""
 
 from __future__ import annotations
 

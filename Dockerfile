@@ -1,5 +1,7 @@
 FROM python:3.12-slim
 
+LABEL maintainer="ssrjkk" org.opencontainers.image.authors="ssrjkk"
+
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/* && pip install uv --no-cache-dir

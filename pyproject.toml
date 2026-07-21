@@ -12,7 +12,7 @@ description = "Full-stack QA automation platform — Sitnikov Sergey"
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [
-    {name = "Sitnikov Sergey", email = "ray013lefe@gmail.com"},
+    {name = "ssrjkk", email = "ray013lefe@gmail.com"},
 ]
 license = {text = "MIT"}
 classifiers = [

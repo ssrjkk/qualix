@@ -10,7 +10,9 @@ COPY pyproject.toml uv.lock README.md .
 COPY app/ app/
 COPY frontend/ frontend/
 
-RUN uv pip install --system "." --locked
+RUN uv export --locked --no-dev --no-hashes -o /tmp/requirements.txt \
+ && uv pip install --system -r /tmp/requirements.txt \
+ && uv pip install --system --no-deps "."
 
 COPY docker-entrypoint.sh .
 RUN chmod +x docker-entrypoint.sh

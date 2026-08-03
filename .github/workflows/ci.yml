@@ -58,20 +58,20 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ env.UV_CACHE_DIR }}
-          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
           restore-keys: uv-${{ runner.os }}-
 
-      - run: uv pip install --system -e ".[lint]" bandit[toml] safety
+      - run: uv sync --locked --extra lint
 
       - name: Ruff lint
-        run: ruff check . --output-format=github
+        run: uv run ruff check . --output-format=github
 
       - name: Ruff format
-        run: ruff format --check .
+        run: uv run ruff format --check .
 
       - name: Mypy
         run: |
-          mypy app --no-error-summary 2>&1
+          uv run mypy app --no-error-summary 2>&1
           STATUS=$?
           echo "mypy exit=$STATUS"
           exit $STATUS
@@ -79,12 +79,12 @@ jobs:
       - name: Bandit SAST
         run: |
           mkdir -p reports
-          bandit -r app/ --severity-level high -f txt
-          bandit -r app/ -f json -o reports/bandit.json || true
+          uv run bandit -r app/ --severity-level high -f txt
+          uv run bandit -r app/ -f json -o reports/bandit.json || true
 
       - name: Safety check
         run: |
-          safety check --short-report || true
+          uv run safety check --short-report || true
         # continue-on-error потому что safety часто даёт false positive на dev зависимостях
 
       - uses: actions/upload-artifact@v4
@@ -126,15 +126,15 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ env.UV_CACHE_DIR }}
-          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
           restore-keys: uv-${{ runner.os }}-
 
-      - run: uv pip install --system -e ".[test]"
+      - run: uv sync --locked --extra test
 
       - name: Run unit tests
         run: |
           mkdir -p reports
-          pytest tests/unit/ -m unit \
+          uv run pytest tests/unit/ -m unit \
             --cov=app \
             --cov-report=xml:reports/coverage-unit.xml \
             --cov-report=term-missing:skip-covered \
@@ -147,7 +147,7 @@ jobs:
       - name: Extract coverage %
         id: cov
         run: |
-          python -c "
+          uv run python -c "
           import xml.etree.ElementTree as ET, os
           tree = ET.parse('reports/coverage-unit.xml')
           pct = round(float(tree.getroot().attrib['line-rate']) * 100, 1)
@@ -223,16 +223,16 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ env.UV_CACHE_DIR }}
-          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
           restore-keys: uv-${{ runner.os }}-
 
-      - run: uv pip install --system -e ".[test]"
+      - run: uv sync --locked --extra test
 
       - name: Run integration tests
         run: |
           mkdir -p reports
-          python scripts/check_db.py 2>&1 | tee reports/db-check.log
-          python -m pytest tests/integration/ -m integration \
+          uv run python scripts/check_db.py 2>&1 | tee reports/db-check.log
+          uv run python -m pytest tests/integration/ -m integration \
             --junitxml=reports/junit-integration.xml \
             --override-ini="addopts=--strict-markers --tb=long -q" \
             --benchmark-disable \
@@ -295,19 +295,19 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ env.UV_CACHE_DIR }}
-          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
           restore-keys: uv-${{ runner.os }}-
 
-      - run: uv pip install --system -e ".[test]"
+      - run: uv sync --locked --extra test
 
       - name: Generate OpenAPI schema
         run: |
           mkdir -p reports allure-results
-          python -m app.api.openapi > openapi.json
+          uv run python -m app.api.openapi > openapi.json
 
       - name: Run API + Contract tests
         run: |
-          pytest tests/api/ tests/contract/ \
+          uv run pytest tests/api/ tests/contract/ \
             --cov=app \
             --cov-report=xml:reports/coverage-api.xml \
             --cov-report=term-missing:skip-covered \
@@ -321,7 +321,7 @@ jobs:
       - name: Extract coverage %
         id: cov
         run: |
-          python -c "
+          uv run python -c "
           import xml.etree.ElementTree as ET, os
           tree = ET.parse('reports/coverage-api.xml')
           pct = round(float(tree.getroot().attrib['line-rate']) * 100, 1)
@@ -378,15 +378,15 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ env.UV_CACHE_DIR }}
-          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
           restore-keys: uv-${{ runner.os }}-
 
-      - run: uv pip install --system -e ".[test]"
+      - run: uv sync --locked --extra test
 
       - name: Run external tests
         run: |
           mkdir -p reports
-          pytest tests/external/ \
+          uv run pytest tests/external/ \
             --junitxml=reports/junit-external.xml \
             --override-ini="addopts=--strict-markers --tb=short -q" \
             --benchmark-disable \
@@ -424,10 +424,10 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ env.UV_CACHE_DIR }}
-          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
           restore-keys: uv-${{ runner.os }}-
 
-      - run: uv pip install --system -e ".[test]"
+      - run: uv sync --locked --extra test
 
       - name: Cache Playwright browsers
         uses: actions/cache@v4
@@ -437,7 +437,7 @@ jobs:
           key: playwright-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
 
       - name: Install Playwright chromium
-        run: playwright install chromium --with-deps
+        run: uv run playwright install chromium --with-deps
 
       - name: Start app stack
         run: |
@@ -476,7 +476,7 @@ jobs:
       - name: Run E2E tests
         run: |
           mkdir -p allure-results reports
-          E2E_TRACE=1 pytest tests/e2e/ -m e2e \
+          E2E_TRACE=1 uv run pytest tests/e2e/ -m e2e \
             --no-cov \
             --alluredir=allure-results \
             --junitxml=reports/junit-e2e.xml \
@@ -515,7 +515,7 @@ jobs:
         if: failure()
         run: |
           if [ -f reports/junit-e2e.xml ]; then
-            python3 -c "
+            uv run python -c "
           import xml.etree.ElementTree as ET, sys, os
           tree = ET.parse('reports/junit-e2e.xml')
           root = tree.getroot()
@@ -689,15 +689,15 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ env.UV_CACHE_DIR }}
-          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
           restore-keys: uv-${{ runner.os }}-
 
-      - run: uv pip install --system -e ".[test]"
+      - run: uv sync --locked --extra test
 
       - name: Run benchmarks
         run: |
           mkdir -p reports
-          pytest tests/unit/test_performance.py \
+          uv run pytest tests/unit/test_performance.py \
             --benchmark-only \
             --benchmark-json=reports/benchmark.json \
             --benchmark-sort=mean \
@@ -707,7 +707,7 @@ jobs:
 
       - name: Print benchmark summary
         run: |
-          python3 -c "
+          uv run python -c "
           import json
           b = json.load(open('reports/benchmark.json'))
           print('| Test | Mean (ms) | OPS |')
@@ -815,16 +815,16 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ env.UV_CACHE_DIR }}
-          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
           restore-keys: uv-${{ runner.os }}-
 
-      - run: uv pip install --system -e ".[test]" genbadge[coverage]
+      - run: uv sync --locked --extra test --extra report
 
       - name: Full coverage run for badge
         run: |
           mkdir -p reports .github/badges
-          python -m app.api.openapi > openapi.json
-          pytest tests/unit/ tests/api/ tests/contract/ tests/external/ \
+          uv run python -m app.api.openapi > openapi.json
+          uv run pytest tests/unit/ tests/api/ tests/contract/ tests/external/ \
             --cov=app \
             --cov-report=xml:reports/coverage.xml \
             --override-ini="addopts=--strict-markers --tb=short -q" \
@@ -834,7 +834,7 @@ jobs:
           DATABASE_URL: sqlite+aiosqlite:///./test.db
 
       - name: Generate badge SVG
-        run: genbadge coverage -i reports/coverage.xml -o .github/badges/coverage.svg
+        run: uv run genbadge coverage -i reports/coverage.xml -o .github/badges/coverage.svg
 
       - name: Commit badge
         run: |
@@ -942,7 +942,7 @@ jobs:
 
       - uses: astral-sh/setup-uv@v3
 
-      - run: uv pip install --system httpx
+      - run: uv sync --locked --extra test
 
       # В реальном деплое здесь был бы kubectl rollout / helm upgrade
       # Для демо — поднимаем локально из только что собранного образа
@@ -974,7 +974,7 @@ jobs:
 
       - name: Smoke tests
         run: |
-          python3 - << 'SMOKE'
+          uv run python - << 'SMOKE'
           import httpx, sys
 
           BASE = "http://localhost:8080"
@@ -1068,7 +1068,7 @@ jobs:
 
       - uses: astral-sh/setup-uv@v3
 
-      - run: uv pip install --system -e ".[test,load]"
+      - run: uv sync --locked --extra test --extra load
 
       - name: Start app stack
         run: |
@@ -1099,7 +1099,7 @@ jobs:
       - name: Run Locust load test (5 min)
         run: |
           mkdir -p reports
-          locust -f tests/load/locustfile.py \
+          uv run locust -f tests/load/locustfile.py \
             --headless \
             -u 100 -r 10 -t 5m \
             --host http://localhost:8080 \
@@ -1109,7 +1109,7 @@ jobs:
 
       - name: Check p99 latency threshold
         run: |
-          python3 -c "
+          uv run python -c "
           import csv, sys
           with open('reports/load_stats.csv') as f:
               for row in csv.DictReader(f):

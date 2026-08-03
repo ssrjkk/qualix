@@ -46,8 +46,9 @@ test_verify_token_expired_returns_none
 # ❌ Плохо
 payload = {"username": "user1", "email": "user1@test.com", "password": "Pass1!"}
 
-# ✅ Хорошо  
+# ✅ Хорошо
 from tests.factories.user_factory import UserPayloadFactory
+
 payload = UserPayloadFactory()
 ```
 

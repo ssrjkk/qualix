@@ -8,6 +8,7 @@ on:
 env:
   PYTHON_VERSION: "3.12"
   UV_CACHE_DIR: ~/.cache/uv
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   full-suite:
@@ -34,14 +35,14 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ env.UV_CACHE_DIR }}
-          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
-      - run: uv pip install --system -e ".[test,load]"
+          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+      - run: uv sync --locked --extra test --extra load
 
       - name: Full test suite
         run: |
           mkdir -p reports
-          python -m app.api.openapi > openapi.json
-          pytest tests/ \
+          uv run python -m app.api.openapi > openapi.json
+          uv run pytest tests/ \
             --ignore=tests/e2e/ \
             --cov=app \
             --cov-report=xml:reports/coverage.xml \
@@ -53,7 +54,7 @@ jobs:
           REDIS_URL: redis://localhost:6379/0
 
       - name: Live API tests (real dummyjson.com)
-        run: pytest tests/external/ --live-api -q --no-cov
+        run: uv run pytest tests/external/ --live-api -q --no-cov
         continue-on-error: true  # сеть может быть нестабильной
 
       - name: Load test
@@ -64,7 +65,7 @@ jobs:
             sleep 3
           done
           curl -f http://localhost:8080/health
-          locust -f tests/load/locustfile.py \
+          uv run locust -f tests/load/locustfile.py \
             --headless -u 50 -r 5 -t 2m \
             --host http://localhost:8080 \
             --html reports/load-nightly.html \

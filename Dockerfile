@@ -6,11 +6,11 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/* && pip install uv --no-cache-dir
 
-COPY pyproject.toml README.md .
+COPY pyproject.toml uv.lock README.md .
 COPY app/ app/
 COPY frontend/ frontend/
 
-RUN uv pip install --system "."
+RUN uv pip install --system "." --locked
 
 COPY docker-entrypoint.sh .
 RUN chmod +x docker-entrypoint.sh

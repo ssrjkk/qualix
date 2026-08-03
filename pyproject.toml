@@ -83,11 +83,17 @@ load = [
 lint = [
     "ruff>=0.6",
     "mypy>=1.11",
+    "bandit[toml]>=1.7",
+    "safety>=3.2",
+]
+report = [
+    "genbadge[coverage]>=1.1",
 ]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
 testpaths = ["tests"]
 addopts = [
     "--strict-markers",

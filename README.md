@@ -12,7 +12,7 @@
 ## Обзор
 
 QA Sentinel - полноценная QA-платформа для мониторинга деградации API и UI.
-Не просто набор тестов - отдельный продукт с архитектурой уровня Senior.
+Не просто набор тестов - отдельный продукт.
 
 **Стек 2026:** Python 3.12 · pytest 8.3 · Playwright · Locust · FastAPI · SQLAlchemy · Docker · k8s · GitHub Actions · Allure · Prometheus · Grafana
 

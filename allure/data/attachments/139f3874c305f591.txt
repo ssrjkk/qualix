@@ -1,0 +1,5 @@
+2026-08-06T05:57:33.524847Z [info     ] app_starting                   environment=test
+2026-08-06T05:57:33.591259Z [info     ] db_ready
+2026-08-06T05:57:33.591357Z [info     ] app_started
+2026-08-06T05:57:34.359465Z [info     ] http_request                   client=127.0.0.1 duration_ms=343.96 method=POST path=/api/v1/users request_id=f1a68a81-a532-4450-8188-0921334f7fd0 status_code=201
+2026-08-06T05:57:34.648657Z [info     ] http_request                   client=127.0.0.1 duration_ms=284.6 method=POST path=/api/v1/auth/login request_id=2496c00e-25a7-4ffa-bbf0-af5ebe21263b status_code=200

@@ -1,0 +1,2 @@
+2026-08-20T03:54:17.278492Z [info     ] http_request                   client=127.0.0.1 duration_ms=3.42 method=POST path=/api/v1/auth/login request_id=6e1de259-cfd5-4abf-b54a-d77105ac98ed status_code=200
+2026-08-20T03:54:17.284908Z [info     ] http_request                   client=127.0.0.1 duration_ms=3.55 method=DELETE path=/api/v1/users/999999999 request_id=de2fe918-bccf-44e5-9cb4-16e1e9c62374 status_code=404

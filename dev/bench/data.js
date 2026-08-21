@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787198167992,
+  "lastUpdate": 1787284738906,
   "repoUrl": "https://github.com/ssrjkk/qualix",
   "entries": {
     "QA Sentinel Benchmarks": [
@@ -5439,6 +5439,98 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 5.702334012136519e-7",
             "extra": "mean: 3.258227272728291 usec\nrounds: 6204"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "ssrjkk",
+            "username": "ssrjkk",
+            "email": "ssrjkk@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "ssrjkk",
+            "username": "ssrjkk",
+            "email": "ssrjkk@users.noreply.github.com"
+          },
+          "id": "873fac2da0db8b0c0bfbb7975cefe934cf55c45a",
+          "message": "fix: Dockerfile image build - use uv export --locked (uv pip install has no --locked flag)",
+          "timestamp": "2026-08-03T21:51:57Z",
+          "url": "https://github.com/ssrjkk/qualix/commit/873fac2da0db8b0c0bfbb7975cefe934cf55c45a"
+        },
+        "date": 1787284736266,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_hash_password",
+            "value": 3.738948768560283,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0000951667001139427",
+            "extra": "mean: 267.4548548000189 msec\nrounds: 5"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_verify_password",
+            "value": 3.7382907490815125,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00008883995534911207",
+            "extra": "mean: 267.5019325999983 msec\nrounds: 5"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_verify_wrong_password",
+            "value": 3.7368693408651414,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00023342742237048307",
+            "extra": "mean: 267.60368339998877 msec\nrounds: 5"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_create_token",
+            "value": 271990.2148845511,
+            "unit": "iter/sec",
+            "range": "stddev: 8.661061802434111e-7",
+            "extra": "mean: 3.676602852880056 usec\nrounds: 20471"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_verify_token",
+            "value": 475398.41321760375,
+            "unit": "iter/sec",
+            "range": "stddev: 4.819526889972614e-7",
+            "extra": "mean: 2.1034988174061713 usec\nrounds: 85823"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_validate_email",
+            "value": 12683.123531299936,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000012355404858563664",
+            "extra": "mean: 78.84493102445613 usec\nrounds: 29"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_sanitize_string",
+            "value": 355598.34712133487,
+            "unit": "iter/sec",
+            "range": "stddev: 5.381934322870458e-7",
+            "extra": "mean: 2.8121615527610615 usec\nrounds: 120555"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_validate_amount",
+            "value": 9089100.586698849,
+            "unit": "iter/sec",
+            "range": "stddev: 1.0735578700365661e-8",
+            "extra": "mean: 110.02188725509515 nsec\nrounds: 91233"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_user_create_model",
+            "value": 11984.927399563323,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000006905517863533496",
+            "extra": "mean: 83.43813580684981 usec\nrounds: 4337"
+          },
+          {
+            "name": "tests/unit/test_performance.py::test_benchmark_user_response_model",
+            "value": 308703.99058705743,
+            "unit": "iter/sec",
+            "range": "stddev: 6.831413136717129e-7",
+            "extra": "mean: 3.239349119194462 usec\nrounds: 6356"
           }
         ]
       }

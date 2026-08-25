@@ -1,0 +1,2 @@
+2026-08-25T03:55:58.779911Z [info     ] http_request                   client=127.0.0.1 duration_ms=549.68 method=POST path=/api/v1/users request_id=ca313b5f-921c-4c61-b85f-33391eb4108c status_code=201
+2026-08-25T03:55:59.004012Z [info     ] http_request                   client=127.0.0.1 duration_ms=222.46 method=POST path=/api/v1/users request_id=5d96ab08-b818-4952-99e0-a3c4c37d5828 status_code=409

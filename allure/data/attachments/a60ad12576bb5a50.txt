@@ -1,0 +1,2 @@
+2026-09-02T07:51:20.140885Z [error    ] health_db_check_failed         error='Connection refused'
+2026-09-02T07:51:20.143499Z [warning  ] health_redis_check_failed      error="Error Multiple exceptions: [Errno 111] Connect call failed ('::1', 9999, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 9999) connecting to localhost:9999."

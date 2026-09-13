@@ -1,0 +1,2 @@
+2026-09-13T08:13:51.041540Z [info     ] http_request                   client=127.0.0.1 duration_ms=3.47 method=POST path=/api/v1/auth/login request_id=6324c7c9-2856-4c2d-91ad-957624072868 status_code=200
+2026-09-13T08:13:51.049559Z [info     ] http_request                   client=127.0.0.1 duration_ms=4.42 method=GET path=/api/v1/users request_id=494bef74-a597-44d5-92f8-8afc1b4ab4b2 status_code=200

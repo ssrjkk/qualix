@@ -1,0 +1,1 @@
+2026-09-20T08:30:31.043979Z [info     ] http_request                   client=127.0.0.1 duration_ms=1.36 method=GET path=/health request_id=bd8b1f7f-f8cf-46ae-bda4-1f4ec4ac35f1 status_code=200

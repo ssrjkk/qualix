@@ -1,0 +1,1 @@
+2026-09-24T08:22:21.673120Z [info     ] http_request                   client=127.0.0.1 duration_ms=1.4 method=GET path=/api/v1/users/1 request_id=14071892-39bc-4a7a-bce5-5411470e30cc status_code=401

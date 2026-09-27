@@ -39,7 +39,7 @@ make cov           # coverage report
 qualix/
 ├── app/                                         # FastAPI SUT (System Under Test)
 │   ├── api/
-│   │   ├── auth.py                              # JWT-like auth, login endpoint
+│   │   ├── auth.py                              # HMAC-SHA256 auth, login endpoint
 │   │   ├── users.py                             # CRUD users
 │   │   └── health.py                            # /health (liveness) + /health/ready (readiness)
 │   ├── models/     
@@ -121,7 +121,7 @@ qualix/
 | Contract | `tests/contract/` | JSON Schema contracts | 11 | - |
 | E2E | `tests/e2e/` | Playwright POM · AI assertions · tracing | 7 | - |
 | Load | `tests/load/` | Locust · Prometheus · p99 auto-stop | - | - |
-| **Total** | | | **~205+** | **100%** |
+| **Total** | | | **317** | **100%** |
 
 ## Ключевые фичи
 
@@ -135,10 +135,13 @@ qualix/
 - **AI assertions** - `BasePage.ai_assert()` через Claude Sonnet для semantic UI checks
 
 ### Архитектура приложения
+- **HMAC-SHA256 tokens** - constant-time comparison, expiry validation, username regex enforcement
 - **bcrypt rounds=12** - OWASP-compliant password hashing, constant-time verify
 - **structlog** - structured JSON logging с request_id в каждом логе
 - **RequestIDMiddleware** - `X-Request-ID` для distributed tracing
-- **RateLimitMiddleware** - sliding window, 100 req/min per IP
+- **RateLimitMiddleware** - sliding window, 100 req/min per IP, bounded memory
+- **CORS hardening** - per-environment origins (production: none, dev: localhost only)
+- **Decimal for money** - PaymentRequest.amount uses Decimal, not float
 - **`/health` + `/health/ready`** - liveness + readiness probes для k8s
 
 ### Dev Experience

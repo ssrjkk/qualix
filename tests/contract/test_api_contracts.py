@@ -15,7 +15,7 @@ import pytest
 from httpx import AsyncClient
 
 # ── JSON Schema контракты (Consumer perspective) ──────────────────────────────
-# Описываем что QA Sentinel ожидает от User Service API
+# Описываем что qualix ожидает от User Service API
 
 CONTRACTS: dict[str, dict] = {
     "user_response": {
@@ -118,7 +118,7 @@ def _validate_contract(data: Any, contract_name: str) -> None:
 @pytest.mark.contract
 class TestUserServiceContract:
     """
-    Consumer (QA Sentinel) проверяет что Provider (User Service)
+    Consumer (qualix) проверяет что Provider (User Service)
     соответствует ожидаемому контракту.
     """
 

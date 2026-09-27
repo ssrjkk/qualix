@@ -22,7 +22,7 @@ class TestFrontendRoutes:
 
     async def test_login_page_contains_form(self, client: AsyncClient) -> None:
         resp = await client.get("/login")
-        assert b"QA Sentinel" in resp.content
+        assert b"qualix" in resp.content
 
     async def test_dashboard_has_logout_element(self, client: AsyncClient) -> None:
         resp = await client.get("/dashboard")

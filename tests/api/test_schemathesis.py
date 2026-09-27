@@ -17,7 +17,7 @@ def test_openapi_schema_structure() -> None:
     assert schema.get("openapi", "").startswith("3.")
     assert "paths" in schema
     assert "info" in schema
-    assert schema["info"]["title"] == "QA Sentinel"
+    assert schema["info"]["title"] == "qualix"
 
 
 @pytest.mark.api

@@ -1,4 +1,4 @@
-# Contributing to QA Sentinel
+# Contributing to qualix
 
 ## Быстрый старт
 

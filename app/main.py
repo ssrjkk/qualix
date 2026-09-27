@@ -67,7 +67,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     deps._shared_engine = None
 
     application = FastAPI(
-        title="QA Sentinel",
+        title="qualix",
         version="1.0.0",
         description="Full-stack QA automation platform",
         lifespan=lifespan,

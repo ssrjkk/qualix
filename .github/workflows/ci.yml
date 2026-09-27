@@ -1005,7 +1005,7 @@ jobs:
           r = httpx.get(f"{BASE}/openapi.json")
           check("GET /openapi.json → 200", r.status_code == 200)
           check("OpenAPI title correct",
-                r.json().get("info", {}).get("title") == "QA Sentinel")
+                r.json().get("info", {}).get("title") == "qualix")
 
           # Auth
           r = httpx.post(f"{BASE}/api/v1/auth/login",
@@ -1036,7 +1036,7 @@ jobs:
           # Frontend
           r = httpx.get(f"{BASE}/login")
           check("GET /login → 200", r.status_code == 200)
-          check("frontend contains QA Sentinel", b"QA Sentinel" in r.content)
+          check("frontend contains qualix", b"qualix" in r.content)
 
           # Summary
           passed = sum(1 for _, ok, _ in results if ok)

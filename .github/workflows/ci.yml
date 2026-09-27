@@ -729,11 +729,11 @@ jobs:
       - name: Store/compare benchmark
         uses: benchmark-action/github-action-benchmark@v1
         with:
-          name: "QA Sentinel Benchmarks"
+          name: "qualix Benchmarks"
           tool: pytest
           output-file-path: reports/benchmark.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          auto-push: ${{ github.ref == 'refs/heads/main' }}
+          auto-push: false  # disabled — single branch policy (main only)
           alert-threshold: "150%"
           comment-on-alert: true
           fail-on-alert: false

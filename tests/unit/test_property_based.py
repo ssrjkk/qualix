@@ -73,11 +73,14 @@ class TestPasswordHashing:
 
 # ── Auth token round-trip ─────────────────────────────────────────────────────
 
+_VALID_USERNAME_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-"
+_valid_username = st.text(alphabet=_VALID_USERNAME_CHARS, min_size=2, max_size=50)
+
 
 @pytest.mark.unit
 class TestAuthToken:
     @given(
-        username=st.text(min_size=1, max_size=50).filter(lambda s: ":" not in s),
+        username=_valid_username,
         secret=st.text(min_size=1, max_size=64),
         expires=st.integers(min_value=1, max_value=1440),
     )
@@ -88,7 +91,7 @@ class TestAuthToken:
         assert result == username
 
     @given(
-        username=st.text(min_size=1, max_size=50).filter(lambda s: ":" not in s),
+        username=_valid_username,
         secret=st.text(min_size=1, max_size=64),
         wrong_secret=st.text(min_size=1, max_size=64),
         expires=st.integers(min_value=1, max_value=1440),
@@ -102,7 +105,7 @@ class TestAuthToken:
         assert _verify_token(token, wrong_secret) is None
 
     @given(
-        username=st.text(min_size=1, max_size=50).filter(lambda s: ":" not in s),
+        username=_valid_username,
         secret=st.text(min_size=1, max_size=64),
     )
     @h_settings(max_examples=MAX_EXAMPLES)
@@ -111,7 +114,7 @@ class TestAuthToken:
         assert _verify_token(token, secret) is None
 
     @given(
-        username=st.text(min_size=1, max_size=50).filter(lambda s: ":" not in s),
+        username=_valid_username,
         secret=st.text(min_size=1, max_size=64),
         expires=st.integers(min_value=1, max_value=1440),
     )

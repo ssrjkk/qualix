@@ -7,9 +7,9 @@ Middleware стек:
 
 from __future__ import annotations
 
+import re
 import time
 import uuid
-from collections import defaultdict
 from collections.abc import Awaitable, Callable
 
 import structlog
@@ -19,19 +19,21 @@ from starlette.types import ASGIApp
 
 logger = structlog.get_logger(__name__)
 
+_REQUEST_ID_RE = re.compile(r"^[a-zA-Z0-9\-_]{1,64}$")
+
 
 class RequestIDMiddleware(BaseHTTPMiddleware):
     """
     Добавляет X-Request-ID к каждому запросу/ответу.
-    Если клиент передал свой ID — используем его (для distributed tracing).
+    Клиентский ID валидируется; если невалиден — генерируем server-side.
     """
 
     async def dispatch(
         self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
-        request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
+        client_id = request.headers.get("X-Request-ID", "")
+        request_id = client_id if _REQUEST_ID_RE.match(client_id) else str(uuid.uuid4())
 
-        # Кладём в structlog context — все логи в рамках запроса получат request_id
         structlog.contextvars.clear_contextvars()
         structlog.contextvars.bind_contextvars(request_id=request_id)
 
@@ -63,7 +65,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """
-    Простой sliding window rate limiter — in-memory.
+    Sliding window rate limiter — in-memory.
     Production: заменить на Redis-based (sliding window counter).
     Лимит: 100 req/min per IP. Исключения: /health.
     """
@@ -71,12 +73,21 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     LIMIT = 100
     WINDOW = 60.0
     EXEMPT_PATHS = {"/health", "/docs", "/openapi.json", "/redoc"}
+    _MAX_ENTRIES = 10_000
+    _CLEANUP_INTERVAL = 100
 
     def __init__(self, app: ASGIApp, limit: int = 100, window: float = 60.0) -> None:
         super().__init__(app)
         self.limit = limit
         self.window = window
-        self._requests: dict[str, list[float]] = defaultdict(list)
+        self._requests: dict[str, list[float]] = {}
+        self._request_count = 0
+
+    def _cleanup_stale(self, now: float) -> None:
+        cutoff = now - self.window
+        stale_keys = [k for k, v in self._requests.items() if not v or v[-1] <= cutoff]
+        for k in stale_keys:
+            del self._requests[k]
 
     async def dispatch(
         self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
@@ -85,11 +96,19 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         client_ip = request.client.host if request.client else "unknown"
-        now = time.time()
+        now = time.monotonic()
 
-        # Удаляем старые записи за пределами окна
+        self._request_count += 1
+        if self._request_count % self._CLEANUP_INTERVAL == 0:
+            self._cleanup_stale(now)
+            if len(self._requests) > self._MAX_ENTRIES:
+                self._cleanup_stale(now)
+
         window_start = now - self.window
-        self._requests[client_ip] = [t for t in self._requests[client_ip] if t > window_start]
+        if client_ip in self._requests:
+            self._requests[client_ip] = [t for t in self._requests[client_ip] if t > window_start]
+        else:
+            self._requests[client_ip] = []
 
         if len(self._requests[client_ip]) >= self.limit:
             logger.warning(

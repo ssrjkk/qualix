@@ -10,7 +10,10 @@ from app.models.db import Base
 
 async def check():
     url = os.environ["DATABASE_URL"]
-    print(f"Connecting to: {url}")
+    from sqlalchemy.engine import make_url
+
+    safe_url = make_url(url)
+    print(f"Connecting to: {safe_url}")
 
     engine = create_async_engine(url)
     async with engine.connect() as conn:

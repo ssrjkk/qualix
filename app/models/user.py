@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+import re
 from datetime import datetime
+from decimal import Decimal
 from typing import ClassVar
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
+
+_USERNAME_RE = re.compile(r"^[a-zA-Z0-9_.\-]+$")
 
 
 class UserCreate(BaseModel):
@@ -17,6 +21,15 @@ class UserCreate(BaseModel):
     @classmethod
     def strip_username(cls, v: str) -> str:
         return v.strip()
+
+    @field_validator("username")
+    @classmethod
+    def validate_username_chars(cls, v: str) -> str:
+        if not _USERNAME_RE.match(v):
+            raise ValueError(
+                "username may only contain letters, digits, dots, hyphens, underscores"
+            )
+        return v
 
     @field_validator("email", mode="before")
     @classmethod
@@ -51,7 +64,7 @@ class UserListResponse(BaseModel):
 
 
 class PaymentRequest(BaseModel):
-    amount: float = Field(gt=0, le=1_000_000)
+    amount: Decimal = Field(gt=0, le=1_000_000)
     currency: str = Field(min_length=3, max_length=4)
     description: str = Field(max_length=256)
 

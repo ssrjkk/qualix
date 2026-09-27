@@ -67,7 +67,7 @@ async def readiness(
         db_latency = round((time.perf_counter() - t0) * 1000, 2)
         components["database"] = ComponentStatus(status="ok", latency_ms=db_latency)
     except Exception as e:
-        components["database"] = ComponentStatus(status="down", detail=str(e)[:100])
+        components["database"] = ComponentStatus(status="down", detail="Database check failed")
         overall = "down"
         logger.error("health_db_check_failed", error=str(e))
 
@@ -77,8 +77,10 @@ async def readiness(
         import redis.asyncio as aioredis
 
         r = aioredis.from_url(settings.redis_url, socket_connect_timeout=1)
-        await r.ping()
-        await r.aclose()
+        try:
+            await r.ping()
+        finally:
+            await r.aclose()
         redis_latency = round((time.perf_counter() - t0) * 1000, 2)
         components["redis"] = ComponentStatus(status="ok", latency_ms=redis_latency)
     except Exception as e:

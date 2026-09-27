@@ -30,6 +30,7 @@ def _mock_settings(secret: str = "test-secret-key-32chars!") -> MagicMock:
     s = MagicMock()
     s.secret_key = secret
     s.access_token_expire_minutes = 30
+    s.environment = "test"
     return s
 
 

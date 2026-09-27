@@ -8,6 +8,7 @@ Root conftest.py
 
 from __future__ import annotations
 
+import platform
 import socket
 from collections.abc import AsyncGenerator, Generator
 from typing import Any
@@ -21,10 +22,27 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from app.config import Settings
 from app.models.db import Base
 
+
+def pytest_addoption(parser: pytest.Parser) -> None:
+    parser.addoption(
+        "--live-api",
+        action="store_true",
+        default=False,
+        help="Run against real dummyjson.com (requires internet)",
+    )
+
+
 # ── Docker detection ──────────────────────────────────────────────────────────
 
 
 def _docker_available() -> bool:
+    if platform.system() == "Windows":
+        try:
+            s = socket.create_connection(("localhost", 2375), timeout=2)
+            s.close()
+            return True
+        except OSError:
+            pass
     if not hasattr(socket, "AF_UNIX"):
         return False
     try:

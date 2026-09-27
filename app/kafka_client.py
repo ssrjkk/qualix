@@ -7,8 +7,11 @@ Kafka client — publish/consume events.
 from __future__ import annotations
 
 import json
+import logging
 from collections import defaultdict
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 class InMemoryKafka:
@@ -63,7 +66,8 @@ class KafkaProducer:
             )
             await self._producer.start()
         except Exception:
-            self._mock = True  # fallback to mock if Kafka unavailable
+            logger.warning("kafka_unavailable_falling_back_to_mock: %s", self.bootstrap_servers)
+            self._mock = True
 
     async def stop(self) -> None:
         if self._producer:

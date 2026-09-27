@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-import hashlib
+import hmac
+import re
 from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings
@@ -16,10 +17,12 @@ from app.security import verify_password
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
+_USERNAME_RE = re.compile(r"^[a-zA-Z0-9_.-]{2,64}$")
+
 
 class LoginRequest(BaseModel):
-    username: str
-    password: str
+    username: str = Field(min_length=1, max_length=128)
+    password: str = Field(min_length=1, max_length=256)
 
 
 class TokenResponse(BaseModel):
@@ -28,22 +31,26 @@ class TokenResponse(BaseModel):
 
 
 def _create_token(username: str, secret: str, expires_minutes: int = 30) -> str:
-    """Минималистичный токен для тестового SUT (не production)."""
+    """HMAC-SHA256 token for SUT."""
     expires = datetime.now(UTC) + timedelta(minutes=expires_minutes)
     payload = f"{username}:{expires.isoformat()}"
-    sig = hashlib.sha256(f"{payload}:{secret}".encode()).hexdigest()
+    sig = hmac.new(secret.encode(), payload.encode(), "sha256").hexdigest()
     return f"{payload}:{sig}"
 
 
 def _verify_token(token: str, secret: str) -> str | None:
-    """Вернуть username если токен валиден, иначе None."""
+    """Return username if token is valid, else None."""
     try:
         parts = token.rsplit(":", 1)
-        payload, sig = ":".join(parts[:-1]), parts[-1]
-        expected = hashlib.sha256(f"{payload}:{secret}".encode()).hexdigest()
-        if sig != expected:
+        if len(parts) != 2:
+            return None
+        payload, sig = parts
+        expected = hmac.new(secret.encode(), payload.encode(), "sha256").hexdigest()
+        if not hmac.compare_digest(sig, expected):
             return None
         username, expires_str = payload.split(":", 1)
+        if not _USERNAME_RE.match(username):
+            return None
         expires = datetime.fromisoformat(expires_str)
         if datetime.now(UTC) > expires:
             return None
@@ -58,17 +65,17 @@ async def login(
     db: AsyncSession = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> TokenResponse:
-    # Специальные тестовые пользователи
-    test_users = {
-        "test_user": "test_pass",
-        "admin": "admin_pass",
-        "load_user": "pass",
-    }
-    if data.username in test_users and test_users[data.username] == data.password:
-        token = _create_token(
-            data.username, settings.secret_key, settings.access_token_expire_minutes
-        )
-        return TokenResponse(access_token=token)
+    if settings.environment in ("test", "development"):
+        test_users = {
+            "test_user": "test_pass",
+            "admin": "admin_pass",
+            "load_user": "pass",
+        }
+        if data.username in test_users and test_users[data.username] == data.password:
+            token = _create_token(
+                data.username, settings.secret_key, settings.access_token_expire_minutes
+            )
+            return TokenResponse(access_token=token)
 
     repo = UserRepository(db)
     user = await repo.get_by_email(data.username)

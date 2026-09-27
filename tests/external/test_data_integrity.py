@@ -41,7 +41,7 @@ class TestCrossEntityIntegrity:
         Pagination: total не меняется при разных skip.
         """
         page1 = await dummyjson.get_products(limit=2, skip=0)
-        page2 = await dummyjson.get_products(limit=2, skip=0)
+        page2 = await dummyjson.get_products(limit=2, skip=2)
         assert page1.total == page2.total
 
     async def test_users_unique_emails(self, dummyjson: DummyJSONClient) -> None:
@@ -72,8 +72,7 @@ class TestPaginationConsistency:
 
     async def test_products_page_no_overlap(self, dummyjson: DummyJSONClient) -> None:
         page1 = await dummyjson.get_products(limit=2, skip=0)
-        page2 = await dummyjson.get_products(limit=2, skip=0)
-        # Базовая проверка структуры
+        page2 = await dummyjson.get_products(limit=2, skip=2)
         assert page1.total == page2.total
         assert isinstance(page1.products, list)
         assert isinstance(page2.products, list)

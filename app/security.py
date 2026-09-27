@@ -38,5 +38,5 @@ def verify_password(plain: str, hashed: str) -> bool:
     """Constant-time сравнение — защита от timing attacks."""
     try:
         return bcrypt.checkpw(_normalize_password(plain), hashed.encode())
-    except Exception:
+    except (ValueError, TypeError):
         return False

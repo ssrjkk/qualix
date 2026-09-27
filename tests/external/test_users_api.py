@@ -41,7 +41,7 @@ class TestGetUsers:
 
     async def test_pagination_skip(self, dummyjson: DummyJSONClient) -> None:
         all_users = await dummyjson.get_users(limit=10, skip=0)
-        skipped = await dummyjson.get_users(limit=10, skip=0)
+        skipped = await dummyjson.get_users(limit=10, skip=10)
         assert all_users.total == skipped.total
 
     async def test_total_reflects_full_dataset(self, dummyjson: DummyJSONClient) -> None:

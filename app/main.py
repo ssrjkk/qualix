@@ -40,6 +40,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                     max_retries=max_retries,
                     error=str(e),
                 )
+                raise RuntimeError("Database unavailable after retries") from e
             else:
                 wait = 2**attempt
                 logger.warning(
@@ -76,11 +77,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # ── Middleware (порядок важен: первый добавленный — последний выполняется) ─
     from app.middleware import LoggingMiddleware, RateLimitMiddleware, RequestIDMiddleware
 
+    allowed_origins: list[str] = []
+    if settings.environment == "production":
+        allowed_origins = []
+    elif settings.environment == "development":
+        allowed_origins = ["http://localhost:3000", "http://localhost:5173"]
+    elif settings.environment == "test":
+        allowed_origins = ["*"]
+
     application.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"] if settings.environment != "production" else [],
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_origins=allowed_origins,
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
+        allow_credentials=True,
     )
     rate_limit = 10000 if settings.environment == "test" else 100
     application.add_middleware(RateLimitMiddleware, limit=rate_limit, window=60.0)

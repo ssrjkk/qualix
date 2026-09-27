@@ -224,12 +224,12 @@ class TestAuth:
         )
         assert resp.status_code == 401
 
-    async def test_401_empty_credentials(self, client: AsyncClient) -> None:
+    async def test_422_empty_credentials(self, client: AsyncClient) -> None:
         resp = await client.post(
             "/api/v1/auth/login",
             json={"username": "", "password": ""},
         )
-        assert resp.status_code == 401
+        assert resp.status_code == 422
 
 
 # ── Health ────────────────────────────────────────────────────────────────────

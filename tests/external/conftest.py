@@ -27,15 +27,6 @@ def _load(name: str) -> Any:
     return json.loads((FIXTURES_DIR / f"{name}.json").read_text())
 
 
-def pytest_addoption(parser: pytest.Parser) -> None:
-    parser.addoption(
-        "--live-api",
-        action="store_true",
-        default=False,
-        help="Run against real dummyjson.com (requires internet)",
-    )
-
-
 @pytest.fixture
 def live_api(request: pytest.FixtureRequest) -> bool:
     return bool(request.config.getoption("--live-api"))

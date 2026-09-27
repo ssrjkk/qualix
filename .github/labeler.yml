@@ -17,13 +17,3 @@
 "area: ci":
   - changed-files:
       - any-glob-to-any-file: [".github/**"]
-
-"size: small":
-  - changed-files:
-      - any-glob-to-any-file: ["**"]
-    max-files: 5
-
-"size: large":
-  - changed-files:
-      - any-glob-to-any-file: ["**"]
-    min-files: 20

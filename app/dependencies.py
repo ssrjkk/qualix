@@ -17,7 +17,8 @@ from app.config import Settings
 
 # Переопределяется через create_app для тестов
 _test_settings: Settings | None = None
-_shared_engine: AsyncEngine | None = None  # один engine на всё приложение
+_shared_engine: AsyncEngine | None = None
+_session_factory: async_sessionmaker[AsyncSession] | None = None
 
 
 def get_settings() -> Settings:
@@ -40,9 +41,11 @@ def get_engine(settings: Settings) -> AsyncEngine:
 async def get_db(
     settings: Settings = Depends(get_settings),
 ) -> AsyncGenerator[AsyncSession, None]:
+    global _session_factory
     engine = get_engine(settings)
-    factory = async_sessionmaker(engine, expire_on_commit=False, autoflush=False)
-    async with factory() as session:
+    if _session_factory is None:
+        _session_factory = async_sessionmaker(engine, expire_on_commit=False, autoflush=False)
+    async with _session_factory() as session:
         yield session
 
 

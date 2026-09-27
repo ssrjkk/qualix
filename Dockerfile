@@ -4,7 +4,8 @@ LABEL maintainer="ssrjkk" org.opencontainers.image.authors="ssrjkk"
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/* && pip install uv --no-cache-dir
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/* && pip install uv --no-cache-dir \
+    && adduser --disabled-password --gecos "" appuser
 
 COPY pyproject.toml uv.lock README.md .
 COPY app/ app/
@@ -16,6 +17,8 @@ RUN uv export --locked --no-dev --no-hashes -o /tmp/requirements.txt \
 
 COPY docker-entrypoint.sh .
 RUN chmod +x docker-entrypoint.sh
+
+USER appuser
 
 EXPOSE 8080
 

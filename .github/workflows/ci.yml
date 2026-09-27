@@ -786,15 +786,16 @@ jobs:
           allure generate allure-results -o allure-report --clean 2>/dev/null || true
         continue-on-error: true
 
-      - name: Deploy to GitHub Pages
-        if: steps.check.outputs.has_results == 'true'
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: allure-report
-          destination_dir: allure
-          keep_files: true
-        continue-on-error: true
+      # Allure deployment to gh-pages disabled — single branch policy (main only)
+      # - name: Deploy to GitHub Pages
+      #   if: steps.check.outputs.has_results == 'true'
+      #   uses: peaceiris/actions-gh-pages@v4
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: allure-report
+      #     destination_dir: allure
+      #     keep_files: true
+      #   continue-on-error: true
 
   # ── 12. COVERAGE BADGE ─────────────────────────────────────────────────────
   coverage-badge:

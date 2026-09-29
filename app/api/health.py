@@ -45,7 +45,7 @@ def _get_redis_client(redis_url: str) -> Any:
     if _redis_client is None:
         import redis.asyncio as aioredis
 
-        _redis_client = aioredis.from_url(  # type: ignore[no-untyped-call]
+        _redis_client = aioredis.from_url(
             redis_url,
             socket_connect_timeout=2,
             socket_timeout=2,

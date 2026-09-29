@@ -225,7 +225,9 @@ class TestRateLimitMemoryGuard:
 
         assert list(mw._requests) == ["fresh"]
 
-    async def test_dispatch_prunes_on_cleanup_interval(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    async def test_dispatch_prunes_on_cleanup_interval(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         from unittest.mock import AsyncMock
 
         from app.middleware import RateLimitMiddleware

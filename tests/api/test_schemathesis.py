@@ -1,19 +1,23 @@
 from __future__ import annotations
 
-import json
-from pathlib import Path
 from typing import Any
 
 import pytest
 import schemathesis
+from fastapi import FastAPI
 from httpx import AsyncClient
 
-SCHEMA_PATH = Path(__file__).parent.parent.parent / "openapi.json"
+
+@pytest.fixture(scope="module")
+def schema(app: FastAPI) -> dict:
+    # Схема берётся из того же приложения, которое обслуживает тестовые запросы.
+    # create_app() здесь не вызываем: он пересоздаёт shared engine и подменяет
+    # глобальные настройки, чем ломал бы session-фикстуры других тестов.
+    return app.openapi()
 
 
 @pytest.mark.api
-def test_openapi_schema_structure() -> None:
-    schema = json.loads(SCHEMA_PATH.read_text())
+def test_openapi_schema_structure(schema: dict) -> None:
     assert schema.get("openapi", "").startswith("3.")
     assert "paths" in schema
     assert "info" in schema
@@ -21,8 +25,7 @@ def test_openapi_schema_structure() -> None:
 
 
 @pytest.mark.api
-def test_openapi_all_endpoints_present() -> None:
-    schema = json.loads(SCHEMA_PATH.read_text())
+def test_openapi_all_endpoints_present(schema: dict) -> None:
     paths = schema["paths"]
     required = {"/health", "/api/v1/users", "/api/v1/users/{user_id}", "/api/v1/auth/login"}
     missing = required - set(paths.keys())
@@ -30,8 +33,7 @@ def test_openapi_all_endpoints_present() -> None:
 
 
 @pytest.mark.api
-def test_openapi_endpoints_have_responses() -> None:
-    schema = json.loads(SCHEMA_PATH.read_text())
+def test_openapi_endpoints_have_responses(schema: dict) -> None:
     for path, methods in schema["paths"].items():
         for method, spec in methods.items():
             if method == "parameters":
@@ -41,8 +43,7 @@ def test_openapi_endpoints_have_responses() -> None:
 
 
 @pytest.mark.api
-def test_openapi_post_endpoints_have_request_body() -> None:
-    schema = json.loads(SCHEMA_PATH.read_text())
+def test_openapi_post_endpoints_have_request_body(schema: dict) -> None:
     for path, methods in schema["paths"].items():
         if "post" in methods:
             spec = methods["post"]
@@ -50,9 +51,9 @@ def test_openapi_post_endpoints_have_request_body() -> None:
 
 
 @pytest.mark.api
-def test_schemathesis_loads_all_operations() -> None:
-    schema = schemathesis.openapi.from_path(str(SCHEMA_PATH))
-    ops = [r.ok() for r in schema.get_all_operations()]
+def test_schemathesis_loads_all_operations(schema: dict) -> None:
+    st_schema = schemathesis.openapi.from_dict(schema)
+    ops = [r.ok() for r in st_schema.get_all_operations()]
     assert len(ops) >= 6, f"Expected >=6 operations, got {len(ops)}"
     methods_paths = {(o.method.upper(), o.path) for o in ops}
     assert any(path.startswith("/health") for _, path in methods_paths)
@@ -63,9 +64,9 @@ def test_schemathesis_loads_all_operations() -> None:
 
 @pytest.mark.api
 @pytest.mark.slow
-async def test_schemathesis_no_5xx(client: AsyncClient) -> None:
-    schema = schemathesis.openapi.from_path(str(SCHEMA_PATH))
-    ops = [r.ok() for r in schema.get_all_operations()]
+async def test_schemathesis_no_5xx(client: AsyncClient, schema: dict) -> None:
+    st_schema = schemathesis.openapi.from_dict(schema)
+    ops = [r.ok() for r in st_schema.get_all_operations()]
 
     for op in ops:
         test_cases = _build_test_cases(op)

@@ -18,7 +18,7 @@ jobs:
     services:
       postgres:
         image: postgres:16-alpine
-        env: { POSTGRES_USER: qa, POSTGRES_PASSWORD: qa, POSTGRES_DB: qa_sentinel }
+        env: { POSTGRES_USER: qa, POSTGRES_PASSWORD: qa, POSTGRES_DB: qualix }
         options: >-
           --health-cmd pg_isready --health-interval 5s --health-retries 5
         ports: ["5432:5432"]
@@ -50,7 +50,7 @@ jobs:
             --junitxml=reports/junit-full.xml \
             -q --no-header
         env:
-          DATABASE_URL: postgresql+asyncpg://qa:qa@localhost:5432/qa_sentinel
+          DATABASE_URL: postgresql+asyncpg://qa:qa@localhost:5432/qualix
           REDIS_URL: redis://localhost:6379/0
 
       - name: Live API tests (real dummyjson.com)

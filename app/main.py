@@ -27,30 +27,31 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     engine = get_engine(settings)
 
     max_retries = 10
-    for attempt in range(1, max_retries + 1):
+    attempt = 0
+    while True:
+        attempt += 1
         try:
             async with engine.begin() as conn:
                 await conn.run_sync(Base.metadata.create_all)
             logger.info("db_ready")
             break
         except Exception as e:
-            if attempt == max_retries:
+            if attempt >= max_retries:
                 logger.error(
                     "db_unavailable_startup",
                     max_retries=max_retries,
                     error=str(e),
                 )
                 raise RuntimeError("Database unavailable after retries") from e
-            else:
-                wait = 2**attempt
-                logger.warning(
-                    "db_connection_retry",
-                    attempt=attempt,
-                    max_retries=max_retries,
-                    wait_s=wait,
-                    error=str(e),
-                )
-                await asyncio.sleep(wait)
+            wait = 2**attempt
+            logger.warning(
+                "db_connection_retry",
+                attempt=attempt,
+                max_retries=max_retries,
+                wait_s=wait,
+                error=str(e),
+            )
+            await asyncio.sleep(wait)
 
     logger.info("app_started")
     yield
@@ -75,7 +76,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.state.settings = settings
 
     # ── Middleware (порядок важен: первый добавленный — последний выполняется) ─
-    from app.middleware import LoggingMiddleware, RateLimitMiddleware, RequestIDMiddleware
+    from app.middleware import (
+        LoggingMiddleware,
+        RateLimitMiddleware,
+        RequestIDMiddleware,
+        SecurityHeadersMiddleware,
+    )
 
     allowed_origins: list[str] = []
     if settings.environment == "production":
@@ -83,7 +89,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     elif settings.environment == "development":
         allowed_origins = ["http://localhost:3000", "http://localhost:5173"]
     elif settings.environment == "test":
-        allowed_origins = ["*"]
+        allowed_origins = ["http://testserver"]
 
     application.add_middleware(
         CORSMiddleware,
@@ -92,6 +98,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
         allow_credentials=True,
     )
+    application.add_middleware(SecurityHeadersMiddleware)
     rate_limit = 10000 if settings.environment == "test" else 100
     application.add_middleware(RateLimitMiddleware, limit=rate_limit, window=60.0)
     application.add_middleware(LoggingMiddleware)
@@ -100,9 +107,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # ── Routers ───────────────────────────────────────────────────────────────
     from app.api.auth import router as auth_router
     from app.api.health import router as health_router
+    from app.api.metrics import router as metrics_router
     from app.api.users import router as users_router
 
     application.include_router(health_router)
+    application.include_router(metrics_router)
     application.include_router(auth_router)
     application.include_router(users_router)
 

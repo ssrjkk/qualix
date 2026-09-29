@@ -16,7 +16,7 @@ class TestConfigureLogging:
         assert logger is not None
 
     def test_production_mode(self) -> None:
-        """line 19: environment == 'production' → JSONRenderer."""
+        """production → машинный JSON-лог."""
         configure_logging("production")
         logger = get_logger("test")
         assert logger is not None

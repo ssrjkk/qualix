@@ -78,7 +78,7 @@ class TestHealthRouterDirect:
     """Прямые unit тесты health роутера — покрываем DB-down и Redis-ok пути."""
 
     async def test_db_down_sets_overall_down(self) -> None:
-        """health.py:68-71 — DB exception → overall = 'down'."""
+        """DB unavailable → overall = 'down'."""
         from unittest.mock import AsyncMock, MagicMock
 
         from app.api.health import readiness
@@ -97,7 +97,7 @@ class TestHealthRouterDirect:
         assert result.components["database"].detail is not None
 
     async def test_redis_ok_when_available(self) -> None:
-        """health.py:78-81 — Redis ping ok."""
+        """Redis доступен в health-пробе."""
         from unittest.mock import AsyncMock, MagicMock, patch
 
         from app.api.health import readiness

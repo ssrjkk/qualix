@@ -10,7 +10,7 @@ import pytest
 @pytest.mark.unit
 class TestGetSettings:
     def test_get_settings_without_override_returns_defaults(self) -> None:
-        """line 24: return Settings() — когда _test_settings is None."""
+        """Без подменённых настроек берутся реальные Settings из окружения."""
         import app.dependencies as deps
 
         original = deps._test_settings
@@ -25,7 +25,7 @@ class TestGetSettings:
             deps._test_settings = original  # восстанавливаем
 
     def test_get_settings_with_override_returns_override(self) -> None:
-        """line 22-23: _test_settings is not None → return it."""
+        """Подменённые настройки возвращаются как есть."""
         import app.dependencies as deps
         from app.config import Settings
 

@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 packages = ["app"]
 
 [project]
-name = "qa-sentinel"
+name = "qualix"
 version = "1.0.0"
 description = "Full-stack QA automation platform — Sitnikov Sergey"
 readme = "README.md"
@@ -36,7 +36,15 @@ dependencies = [
     "pydantic-settings>=2.14.2",
     "structlog>=24.4",
     "bcrypt>=4.2",
+    "prometheus-client>=0.21",
 ]
+
+[project.urls]
+Homepage = "https://github.com/ssrjkk/qualix"
+Repository = "https://github.com/ssrjkk/qualix"
+Documentation = "https://github.com/ssrjkk/qualix#readme"
+Issues = "https://github.com/ssrjkk/qualix/issues"
+Changelog = "https://github.com/ssrjkk/qualix/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 test = [
@@ -71,7 +79,6 @@ test = [
     "allure-pytest>=2.16",
     # ai assertions
     "anthropic>=0.34",
-    "aiokafka>=0.11",
     "aiofiles>=24.1",
     # mutation testing
     "mutmut>=3.6",

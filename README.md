@@ -1,210 +1,507 @@
-# QUALIX
+<div align="center">
 
-> Full-stack QA automation platform 
-> **Ситников Сергей Алексеевич** · QA Automation Engineer 
+# 🎯 QUALIX
+
+**Production-grade QA automation platform**
+
+[🇬🇧 English](README.md) | [🇷🇺 Русский](README.ru.md)
 
 [![CI](https://github.com/ssrjkk/qualix/actions/workflows/ci.yml/badge.svg)](https://github.com/ssrjkk/qualix/actions)
 [![Coverage](https://codecov.io/gh/ssrjkk/qualix/branch/main/graph/badge.svg)](https://codecov.io/gh/ssrjkk/qualix)
-[![Python](https://img.shields.io/badge/python-3.12-blue)](https://python.org)
-[![pytest](https://img.shields.io/badge/pytest-8.3-green)](https://pytest.org)
+[![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white)](https://python.org)
+[![pytest](https://img.shields.io/badge/pytest-8.3-green?logo=pytest)](https://pytest.org)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000)](https://github.com/astral-sh/ruff)
+[![Security](https://img.shields.io/badge/security-bandit-green)](https://github.com/PyCQA/bandit)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-## Обзор
+[Quick Start](#-quick-start) • [Architecture](#-architecture) • [Tests](#-test-layers) • [Docs](#-documentation)
 
-qualix - полноценная QA-платформа для мониторинга деградации API и UI.
-Не просто набор тестов - отдельный продукт.
+**Sergey Sitnikov** · QA Automation Engineer · [Telegram](https://t.me/ssrjkk)
 
-**Стек 2026:** Python 3.12 · pytest 8.3 · Playwright · Locust · FastAPI · SQLAlchemy · Docker · k8s · GitHub Actions · Allure · Prometheus · Grafana
+</div>
 
-## Быстрый старт
+---
+
+## 📋 What's Inside?
+
+qualix is not just a test suite. It's a **complete product** for monitoring API and UI degradation with production-grade architecture.
+
+<table>
+<tr>
+<td width="50%">
+
+### 🏗️ Application
+- FastAPI + HMAC-SHA256 auth
+- bcrypt (rounds=12, OWASP)
+- Rate limiting + Security headers
+- Prometheus metrics
+- Kubernetes-ready
+
+</td>
+<td width="50%">
+
+### 🧪 Testing
+- 317 tests, 100% coverage
+- Full test pyramid
+- Hypothesis property-based
+- Playwright E2E + AI assertions
+- Locust load testing
+
+</td>
+</tr>
+</table>
+
+## 🚀 Quick Start
 
 ```bash
-# 1. Клонируем
+# 1. Clone
 git clone git@github.com:ssrjkk/qualix.git && cd qualix
 
-# 2. Полная настройка (deps + pre-commit)
+# 2. Install dependencies
 make setup
 
-# 3. Инфраструктура (опционально - без Docker тоже работает)
+# 3. Start infrastructure (optional)
 make up
 
-# 4. Тесты
-make test          # полный suite
+# 4. Run tests
+make test          # full suite
 make cov           # coverage report
 ```
 
-## Структура проекта
+<details>
+<summary><b>📦 What gets installed?</b></summary>
+
+- ✅ All dependencies from `pyproject.toml`
+- ✅ Pre-commit hooks (ruff, mypy, bandit)
+- ✅ Playwright chromium browser
+- ✅ 20+ Makefile commands
+
+</details>
+
+## 💡 Use Cases
+
+### For QA Engineers
+**Learn modern testing practices:**
+- Study the full test pyramid: unit → integration → API → contract → E2E → load
+- See real-world examples of `Hypothesis` property-based testing (500+ cases per validator)
+- Learn `Playwright` Page Object Model with AI-powered assertions
+- Understand `pytest-benchmark` for performance regression detection
+
+**Use as a reference implementation:**
+- Copy patterns for your own projects: factory_boy, time-machine, fakeredis
+- Adapt the flaky test tracker plugin for automatic GitHub Issue creation
+- Reuse the security hardening checklist (see [SECURITY.md](SECURITY.md))
+
+### For DevOps Engineers
+**Production-ready deployment patterns:**
+- Kubernetes manifests with HPA, rolling updates, health probes
+- Prometheus + Grafana monitoring stack (dashboard included)
+- Docker multi-stage build with security scanning (Trivy)
+- 17-job CI/CD pipeline with quality gates
+
+**Infrastructure as code examples:**
+- `infra/k8s/` — deployment, service, HPA, secrets
+- `infra/prometheus.yml` — scrape configs for app + dependencies
+- `infra/grafana/` — pre-configured dashboard with 6 panels
+
+### For Developers
+**FastAPI best practices:**
+- Clean architecture: repository pattern, dependency injection, layered structure
+- Middleware stack: RequestID, logging, rate limiting, security headers
+- HMAC-SHA256 authentication with constant-time verification
+- bcrypt password hashing (OWASP compliant)
+
+**Type-safe code:**
+- mypy strict mode enabled
+- Pydantic validation for all request/response models
+- Decimal for monetary values (no float precision issues)
+
+### For Security Researchers
+**Defense-in-depth implementation:**
+- Custom token auth with timing attack protection
+- Strict password policy enforcement
+- CORS per-environment (production: no origins, dev: localhost only)
+- Rate limiting: sliding window, bounded memory
+- Security headers on every response
+
+**Audit the code:**
+- No secrets in repository (environment variables only)
+- Bandit SAST + Safety dependency scan in CI
+- pre-commit hooks for private key detection
+- See [SECURITY.md](SECURITY.md) for full security policy
+
+## 🏛️ Architecture
+
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        Browser[Browser / Playwright]
+        Locust[Locust Load Generator]
+    end
+
+    subgraph "FastAPI Application"
+        subgraph "Middleware Stack"
+            ReqID[RequestID Middleware]
+            Log[Logging Middleware]
+            Rate[Rate Limit Middleware]
+            Sec[Security Headers]
+            CORS[CORS Middleware]
+        end
+
+        subgraph "API Layer"
+            Auth[Auth Router<br/>HMAC-SHA256]
+            Users[Users Router<br/>CRUD]
+            Health[Health Router<br/>Liveness + Readiness]
+            Metrics[Metrics Router<br/>Prometheus]
+        end
+
+        subgraph "Business Logic"
+            Validators[Validators<br/>Email, Phone, Amount]
+            Security[Security<br/>bcrypt rounds=12]
+        end
+
+        subgraph "Data Layer"
+            Repo[User Repository]
+            Models[Pydantic Schemas]
+            ORM[SQLAlchemy ORM]
+        end
+    end
+
+    subgraph "Infrastructure"
+        PG[(PostgreSQL 16)]
+        Redis[(Redis 7)]
+        Kafka[Kafka<br/>KRaft Mode]
+    end
+
+    subgraph "Monitoring"
+        Prometheus[Prometheus]
+        Grafana[Grafana]
+        Allure[Allure Reports]
+    end
+
+    Browser -->|HTTP/HTTPS| ReqID
+    Locust -->|Load Test| ReqID
+    ReqID --> Log --> Rate --> Sec --> CORS
+    CORS --> Auth & Users & Health & Metrics
+    Auth --> Security --> Repo
+    Users --> Validators --> Repo
+    Repo --> ORM
+    ORM --> PG
+    Auth -.->|Session cache| Redis
+    Users -.->|Events| Kafka
+    Metrics -->|/metrics| Prometheus
+    Prometheus --> Grafana
+    Browser -.->|E2E Tests| Allure
+```
+
+<details>
+<summary><b>🔍 Component details</b></summary>
+
+**Middleware Stack** (execution order):
+1. `RequestIDMiddleware` — generates `X-Request-ID` for distributed tracing
+2. `LoggingMiddleware` — structlog JSON logging with request_id
+3. `RateLimitMiddleware` — sliding window, 100 req/min per IP
+4. `SecurityHeadersMiddleware` — X-Frame-Options, X-Content-Type-Options, etc.
+5. `CORSMiddleware` — per-environment origins
+
+**API Endpoints**:
+- `POST /api/v1/auth/login` — HMAC-SHA256 token
+- `GET/POST/PUT/DELETE /api/v1/users` — CRUD operations
+- `GET /health` — liveness probe (k8s)
+- `GET /health/ready` — readiness probe (k8s)
+- `GET /metrics` — Prometheus metrics
+
+</details>
+
+## 🧪 Test Layers
+
+```mermaid
+graph TB
+    subgraph "Test Pyramid"
+        Load[Load Testing<br/>Locust · Prometheus<br/>p99 auto-stop]
+        E2E[E2E Tests<br/>Playwright POM<br/>AI assertions · 7 tests]
+        API[API Tests<br/>httpx · schemathesis<br/>48 tests]
+        Contract[Contract Tests<br/>JSON Schema<br/>11 tests]
+        Integration[Integration Tests<br/>testcontainers · fakeredis<br/>17 tests]
+        Unit[Unit Tests<br/>Hypothesis · time-machine<br/>122 tests]
+    end
+
+    Load --> E2E --> API --> Contract --> Integration --> Unit
+
+    style Unit fill:#4CAF50,color:#fff
+    style Integration fill:#8BC34A,color:#fff
+    style Contract fill:#CDDC39,color:#000
+    style API fill:#FFC107,color:#000
+    style E2E fill:#FF9800,color:#fff
+    style Load fill:#F44336,color:#fff
+```
+
+| Layer | Tests | Tools | What it validates |
+|-------|-------|-------|-------------------|
+| **Unit** | 122 | pytest · Hypothesis · time-machine · benchmark | Validators, models, auth internals |
+| **Integration** | 17 | testcontainers · fakeredis · SQLite | Repository pattern, DB ops |
+| **API** | 48 | httpx · factory_boy · schemathesis | CRUD, auth flows, OpenAPI fuzzing |
+| **Contract** | 11 | JSON Schema | API contracts, security constraints |
+| **E2E** | 7 | Playwright POM · AI assertions | Login flow, UI interactions |
+| **Load** | - | Locust · Prometheus · p99 auto-stop | Performance, latency, throughput |
+| **Total** | **317** | | **100% coverage** |
+
+<details>
+<summary><b>🎯 Key testing features</b></summary>
+
+**Data generation**:
+- `factory_boy` — `UserCreateFactory`, `UserPayloadFactory` with traits
+- `Hypothesis` — 500+ property-based cases for validators
+- `Faker` — realistic test data
+
+**Time control**:
+- `time-machine` — deterministic token expiry tests
+- `pytest-benchmark` — performance regression for bcrypt, token ops
+
+**Isolation**:
+- `fakeredis` — Redis tests without Docker
+- `SQLite fallback` — tests without PostgreSQL
+- `AsyncMock` — mocks for unit tests
+
+**AI-powered**:
+- `Claude Sonnet` — semantic UI assertions in E2E
+- `Flaky tracker` — automatic GitHub Issue creation
+
+</details>
+
+## 🛡️ Security
+
+qualix implements **defense-in-depth**:
+
+<table>
+<tr>
+<td width="33%">
+
+### 🔐 Authentication
+- HMAC-SHA256 tokens
+- Constant-time verification
+- bcrypt (rounds=12)
+- Strict password policy
+
+</td>
+<td width="33%">
+
+### 🌐 Network
+- Security headers
+- CORS per-environment
+- Rate limiting (100 req/min)
+- Request ID tracking
+
+</td>
+<td width="33%">
+
+### 🏗️ Infrastructure
+- Bandit SAST
+- Safety dependency scan
+- Trivy container scan
+- Dependabot weekly
+
+</td>
+</tr>
+</table>
+
+<details>
+<summary><b>📊 Security checklist</b></summary>
+
+**Authentication**:
+- ✅ Custom HMAC-SHA256 tokens with constant-time comparison
+- ✅ bcrypt password hashing (OWASP compliant)
+- ✅ Strict password policy: uppercase + lowercase + digit + special character
+- ✅ Empty token rejection
+
+**Network**:
+- ✅ Security headers: X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
+- ✅ CORS per-environment (production: no origins, dev: localhost only)
+- ✅ Rate limiting: 100 req/min per IP, sliding window, bounded memory
+
+**Data**:
+- ✅ No secrets in code (environment variables + sealed-secrets)
+- ✅ Decimal for money (PaymentRequest.amount uses Decimal)
+- ✅ SQL injection prevention (SQLAlchemy ORM)
+
+**CI/CD**:
+- ✅ Bandit SAST + Safety dependency scan
+- ✅ Trivy container scanning
+- ✅ Dependabot weekly updates
+- ✅ pre-commit hooks (bandit + detect-private-key)
+
+Learn more: [SECURITY.md](SECURITY.md)
+
+</details>
+
+## 📊 Monitoring
+
+```bash
+# Prometheus metrics
+curl http://localhost:8080/metrics
+
+# Grafana dashboard
+open http://localhost:3000  # admin:changeme
+
+# Allure reports
+open http://localhost:4040
+```
+
+**Grafana dashboard** includes:
+- HTTP request rate by status
+- Latency percentiles (p50, p95, p99)
+- Error rate (5xx)
+- App version and environment
+
+## 📚 Documentation
+
+| Resource | Description |
+|----------|-------------|
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
+| [SECURITY.md](SECURITY.md) | Security policy |
+| [CHANGELOG.md](CHANGELOG.md) | Change history |
+| [docs/adr/](docs/adr/) | Architecture Decision Records |
+| [docs/case-studies/](docs/case-studies/) | Postmortems and lessons learned |
+
+### ADR (Architecture Decision Records)
+
+- [001](docs/adr/001-custom-token-vs-jwt.md) — Why custom tokens instead of JWT
+- [002](docs/adr/002-sqlite-fallback-for-tests.md) — Why SQLite fallback
+- [003](docs/adr/003-bcrypt-for-passwords.md) — Why bcrypt instead of SHA-256
+- [004](docs/adr/004-fakeredis-in-tests.md) — Why fakeredis instead of mocks
+- [005](docs/adr/005-json-schema-contracts-vs-pact.md) — Why JSON Schema instead of Pact
+
+## 🔧 Commands
+
+<details>
+<summary><b>📋 All Makefile commands</b></summary>
+
+```bash
+# Tests
+make test              # full suite
+make test-unit         # unit + coverage
+make test-integration  # integration (fakeredis + SQLite)
+make test-api          # API + schemathesis
+make test-contract     # JSON Schema contracts
+make test-e2e          # Playwright (requires make up)
+make test-load         # Locust 30s smoke
+
+# Coverage
+make cov               # term + html + xml
+make cov-open          # open html in browser
+
+# Quality
+make lint              # ruff + mypy
+make fmt               # auto-formatting
+make security-scan     # SAST + dependency scan
+
+# CI
+make ci                # lint + unit + integration + api + contract
+
+# Dev environment
+make setup             # full setup (deps + pre-commit)
+make install           # dependencies only
+make pre-commit        # check all files
+
+# Utilities
+make changelog         # update CHANGELOG from git-cliff
+make schema            # regenerate openapi.json
+make clean             # remove artifacts
+```
+
+</details>
+
+## 🚢 CI/CD
+
+**17-job GitHub Actions pipeline**:
+
+```
+lint → unit (+codecov) → integration → api → contract → e2e → allure → 
+coverage-badge → docker → staging → load → release
+```
+
+- ✅ **Coverage enforcement** — `fail_under=80`, branch coverage
+- ✅ **Zero-downtime deploy** — k8s RollingUpdate + `maxUnavailable=0`
+- ✅ **HPA** — autoscaling by CPU/Memory (min=2, max=10)
+- ✅ **Dependabot** — weekly updates for pip, Docker, GitHub Actions
+
+<details>
+<summary><b>🔍 Kubernetes manifests</b></summary>
+
+```yaml
+infra/k8s/
+├── namespace.yaml
+├── deployment.yaml      # RollingUpdate, liveness/readiness probes
+├── service.yaml         # ClusterIP
+├── hpa.yaml             # CPU + memory autoscaling
+├── configmap.yaml       # Environment variables
+└── sealed-secret.yaml   # Encrypted secrets (kubeseal)
+```
+
+</details>
+
+## 📦 Project Structure
+
+<details>
+<summary><b>🌳 Show tree</b></summary>
 
 ```
 qualix/
-├── app/                                         # FastAPI SUT (System Under Test)
-│   ├── api/
-│   │   ├── auth.py                              # HMAC-SHA256 auth, login endpoint
-│   │   ├── users.py                             # CRUD users
-│   │   └── health.py                            # /health (liveness) + /health/ready (readiness)
-│   ├── models/     
-│   │   ├── db.py                                # SQLAlchemy ORM
-│   │   └── user.py                              # Pydantic schemas + validators
-│   ├── repositories/
-│   │   └── user_repo.py                         # Data access layer
-│   ├── services/
-│   │   └── validators.py                        # Pure business logic validators
-│   ├── middleware.py                            # RequestID · Logging · RateLimit
-│   ├── security.py                              # bcrypt password hashing
-│   ├── logging_config.py                        # structlog structured logging
-│   ├── dependencies.py                          # FastAPI DI: db, auth, settings
-│   └── config.py                                # pydantic-settings
+├── app/                          # FastAPI SUT
+│   ├── api/                      # Routes: auth, users, health, metrics
+│   ├── models/                   # SQLAlchemy ORM + Pydantic schemas
+│   ├── repositories/             # Data access layer
+│   ├── services/                 # Business logic validators
+│   ├── middleware.py             # RequestID · Logging · RateLimit · Security
+│   ├── security.py               # bcrypt password hashing
+│   ├── logging_config.py         # structlog structured logging
+│   ├── dependencies.py           # FastAPI DI
+│   └── config.py                 # pydantic-settings
 │
 ├── tests/
-│   ├── conftest.py                              # Session fixtures, Docker detection, SQLite fallback
-│   ├── factories/
-│   │   └── user_factory.py                      # factory_boy: UserCreate, UserPayload, Payment
-│   ├── unit/                                    # Без IO - мгновенный запуск
-│   │   ├── test_validators.py                   # Email, phone, amount + Hypothesis 500 cases
-│   │   ├── test_models.py                       # Pydantic validation, normalization
-│   │   ├── test_auth_internals.py               # _create_token, _verify_token branches
-│   │   ├── test_auth_router.py                  # Auth router с AsyncMock
-│   │   ├── test_users_router.py                 # Users router с AsyncMock
-│   │   ├── test_user_repo.py                    # UserRepository с AsyncMock сессией
-│   │   ├── test_dependencies.py                 # get_settings, get_engine
-│   │   ├── test_performance.py                  # pytest-benchmark: bcrypt, token, validators
-│   │   └── test_time_dependent.py               # time-machine: token expiry
-│   ├── integration/                             # SQLite/Postgres + fakeredis
-│   │   └── test_database.py                     # UserRepository end-to-end + Redis ops
-│   ├── api/                                     # HTTP тесты через AsyncClient
-│   │   ├── test_users_api.py                    # CRUD + auth + pagination + edge cases
-│   │   ├── test_auth_flows.py                   # DB-path login, expired token, wrong secret
-│   │   └── test_schemathesis.py                 # OpenAPI fuzzing: schema validation + no-5xx
-│   ├── contract/
-│   │   └── test_api_contracts.py                # JSON Schema контракты + security constraints
-│   ├── e2e/                                     # Playwright
-│   │   ├── conftest.py                          # Browser ctx, tracing, logged_in_page
-│   │   ├── pages/                               # Page Objects
-│   │   └── test_auth_flow.py                    # Login flow E2E
-│   ├── load/
-│   │   └── locustfile.py                        # Locust + Prometheus metrics + p99 auto-stop
-│   └── plugins/
-│       └── flaky_tracker.py                     # Авто-создание GitHub Issues для flaky тестов
+│   ├── unit/                     # 122 tests (Hypothesis, time-machine)
+│   ├── integration/              # 17 tests (testcontainers, fakeredis)
+│   ├── api/                      # 48 tests (httpx, schemathesis)
+│   ├── contract/                 # 11 tests (JSON Schema)
+│   ├── e2e/                      # 7 tests (Playwright POM)
+│   ├── load/                     # Locust + Prometheus
+│   └── plugins/                  # Flaky tracker
 │
 ├── infra/
-│   ├── k8s/                                     # Kubernetes манифесты
-│   │   ├── namespace.yaml
-│   │   ├── deployment.yaml                      # RollingUpdate, liveness/readiness probes
-│   │   ├── service.yaml     
-│   │   ├── hpa.yaml                             # HPA: CPU/Memory autoscaling
-│   │   └── secret.yaml                          # Placeholder - use sealed-secrets в prod
-│   ├── prometheus.yml                           # Scrape: app + locust + postgres + redis
-│   └── grafana/                                 # Provisioning: datasource + dashboard
+│   ├── k8s/                      # Kubernetes manifests
+│   ├── prometheus.yml            # Scrape configs
+│   └── grafana/                  # Dashboard provisioning
 │
-├── docs/adr/                                    # Architecture Decision Records
-│   ├── 001-custom-token-vs-jwt.md
-│   ├── 002-sqlite-fallback-for-tests.md
-│   ├── 003-bcrypt-for-passwords.md
-│   ├── 004-fakeredis-in-tests.md
-│   └── 005-json-schema-contracts-vs-pact.md
-│
-├── .github/workflows/ci.yml                     # 8-stage CI: lint->unit->integration->api->contract->e2e->allure->badge
-├── docker-compose.yml                           # app + postgres + redis + kafka + allure + prometheus + grafana
-├── Dockerfile
-├── Makefile                                     # 15 команд с документацией
-├── pyproject.toml                               # Все зависимости + coverage + ruff + mypy
-└── CONTRIBUTING.md     
+├── docs/adr/                     # Architecture Decision Records
+├── .github/workflows/ci.yml      # 17-job pipeline
+├── docker-compose.yml            # 7 services
+├── Makefile                      # 20+ commands
+└── pyproject.toml                # Dependencies + tool configs
 ```
 
-## Тест-слои
+</details>
 
-| Слой | Файлы | Инструменты | Тестов | Coverage |
-|------|-------|-------------|--------|----------|
-| Unit | `tests/unit/` | pytest · Hypothesis · time-machine · benchmark | 122 | - |
-| Integration | `tests/integration/` | testcontainers · fakeredis · SQLite | 17 | - |
-| API | `tests/api/` | httpx · factory_boy · schemathesis | 48 | - |
-| Contract | `tests/contract/` | JSON Schema contracts | 11 | - |
-| E2E | `tests/e2e/` | Playwright POM · AI assertions · tracing | 7 | - |
-| Load | `tests/load/` | Locust · Prometheus · p99 auto-stop | - | - |
-| **Total** | | | **317** | **100%** |
+## 🤝 Contributing
 
-## Ключевые фичи
+1. Fork the repo
+2. Create a feature branch (`git checkout -b feature/amazing`)
+3. Run tests (`make ci`)
+4. Commit changes (`git commit -m 'feat: add amazing feature'`)
+5. Push (`git push origin feature/amazing`)
+6. Open a Pull Request
 
-### Тест-инфраструктура
-- **factory_boy** - `UserCreateFactory`, `UserPayloadFactory` с traits (invalid_email, weak_password)
-- **Hypothesis** - 500+ property-based cases для каждого валидатора
-- **time-machine** - детерминированные тесты token expiry без зависимости от system clock
-- **pytest-benchmark** - performance регрессии для bcrypt, token ops, Pydantic parsing
-- **fakeredis** - Redis тесты без Docker (TTL, INCR, HSET, pub/sub)
-- **Flaky tracker** - кастомный pytest plugin, авто-создание GitHub Issues
-- **AI assertions** - `BasePage.ai_assert()` через Claude Sonnet для semantic UI checks
+Learn more: [CONTRIBUTING.md](CONTRIBUTING.md)
 
-### Архитектура приложения
-- **HMAC-SHA256 tokens** - constant-time comparison, expiry validation, username regex enforcement
-- **bcrypt rounds=12** - OWASP-compliant password hashing, constant-time verify
-- **structlog** - structured JSON logging с request_id в каждом логе
-- **RequestIDMiddleware** - `X-Request-ID` для distributed tracing
-- **RateLimitMiddleware** - sliding window, 100 req/min per IP, bounded memory
-- **CORS hardening** - per-environment origins (production: none, dev: localhost only)
-- **Decimal for money** - PaymentRequest.amount uses Decimal, not float
-- **`/health` + `/health/ready`** - liveness + readiness probes для k8s
+## 📄 License
 
-### Dev Experience
-- **pre-commit** - автоматический ruff + mypy + bandit перед каждым коммитом
-- **.editorconfig** - единый стиль файлов независимо от редактора
-- **VSCode** - workspace settings + recommended extensions
-- **Makefile** - 20+ команд с документацией
+MIT © [ssrjkk](https://github.com/ssrjkk)
 
-### CI/CD
-- **17-job GitHub Actions** - lint -> unit (+codecov) -> integration -> api -> contract -> e2e -> allure -> coverage-badge -> docker -> staging -> load -> release
-- **Coverage enforcement** - `fail_under=80`, branch coverage, XML report
-- **Zero-downtime deploy** - k8s RollingUpdate + `maxUnavailable=0`
-- **HPA** - автомасштабирование по CPU/Memory (min=2, max=10)
-- **Dependabot** - weekly updates для pip, Docker, GitHub Actions
-- **Security** - Bandit SAST + Safety dependency scan в CI
+---
 
-## Команды
+<div align="center">
 
-```bash
-make help                   # все доступные команды
+**⭐ Star this repo if you found it useful!**
 
-# Тесты по слоям
-make test-unit              # unit + coverage
-make test-integration       # integration (fakeredis + SQLite)
-make test-api               # API + schemathesis
-make test-contract          # JSON Schema contracts
-make test-e2e               # Playwright (нужен make up)
-make test-load              # Locust 30s smoke
+[GitHub](https://github.com/ssrjkk/qualix) · [Telegram](https://t.me/ssrjkk) · [Email](mailto:ray013lefe@gmail.com)
 
-# Coverage
-make cov                    # term + html + xml
-make cov-open               # открыть html в браузере
-
-# Dev-окружение
-make setup                  # полная настройка (deps + pre-commit)
-make pre-commit             # проверить все файлы
-make install                # только зависимости
-
-# Качество
-make lint                   # ruff + mypy
-make fmt                    # авто-форматирование
-make security-scan          # SAST + dependency scan
-
-# CI
-make ci                     # lint + unit + integration + api + contract
-make clean                  # удалить артефакты
-
-# Утилиты
-make changelog              # обновить CHANGELOG из git-cliff
-make schema                 # регенерировать openapi.json
-```
-
-## ADR
-
-Архитектурные решения задокументированы в [`docs/adr/`](docs/adr/):
-- Почему custom token вместо JWT
-- Почему SQLite fallback для тестов
-- Почему bcrypt вместо SHA-256
-- Почему fakeredis вместо mock
-- Почему JSON Schema вместо Pact
-
-## Автор
-
-**Ситников Сергей Алексеевич**  
-QA Automation Engineer · Saint Petersburg  
-[GitHub](https://github.com/ssrjkk) · [Telegram](https://t.me/ssrjkk) · ray013lefe@gmail.com
+</div>

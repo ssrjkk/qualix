@@ -3,20 +3,27 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: "qa-sentinel-app"
+  # FastAPI application metrics
+  - job_name: "qualix-app"
     static_configs:
       - targets: ["app:8080"]
     metrics_path: /metrics
 
-  - job_name: "qa-sentinel-locust"
+  # Locust load testing metrics (Docker Desktop only)
+  # For Linux, use host.docker.internal or configure network_mode
+  - job_name: "qualix-locust"
     static_configs:
       - targets: ["host.docker.internal:9646"]
     metrics_path: /metrics
 
-  - job_name: "postgres"
-    static_configs:
-      - targets: ["postgres-exporter:9187"]
+  # PostgreSQL metrics (requires postgres-exporter service)
+  # Uncomment when postgres-exporter is added to docker-compose.yml
+  # - job_name: "postgres"
+  #   static_configs:
+  #     - targets: ["postgres-exporter:9187"]
 
-  - job_name: "redis"
-    static_configs:
-      - targets: ["redis-exporter:9121"]
+  # Redis metrics (requires redis-exporter service)
+  # Uncomment when redis-exporter is added to docker-compose.yml
+  # - job_name: "redis"
+  #   static_configs:
+  #     - targets: ["redis-exporter:9121"]

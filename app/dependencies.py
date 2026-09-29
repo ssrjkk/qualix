@@ -56,6 +56,8 @@ async def get_current_user(
     if not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing or invalid token")
     token = authorization.removeprefix("Bearer ")
+    if not token:
+        raise HTTPException(status_code=401, detail="Missing or invalid token")
     from app.api.auth import _verify_token
 
     username = _verify_token(token, settings.secret_key)

@@ -1,0 +1,60 @@
+# Dependencies
+.venv/
+node_modules/
+
+# Git
+.git/
+.github/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Environment
+.env
+.env.local
+
+# Test artifacts
+.pytest_cache/
+.coverage
+coverage.xml
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+.benchmarks/
+allure-results/
+allure-reports/
+reports/
+test*.db
+*.db
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Documentation (not needed in image)
+docs/
+*.md
+!README.md
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Kubernetes
+infra/k8s/
+
+# Misc
+pacts/
+trivy-results.sarif

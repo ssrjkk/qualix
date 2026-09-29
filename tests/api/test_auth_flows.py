@@ -14,11 +14,11 @@ from httpx import AsyncClient
 class TestAuthDBPath:
     """
     Тесты логина через реального DB-пользователя.
-    Покрывают строки auth.py:71-78 (не hardcoded тест-юзеры).
+    Логин по реальным учётным данным из БД, не через hardcoded тест-юзеров.
     """
 
     async def test_login_as_real_db_user(self, client: AsyncClient) -> None:
-        """Создаём юзера, логинимся через email — покрывает DB путь auth.py:63-78."""
+        """Юзер в БД: логин по email выдаёт токен."""
         uid = uuid.uuid4().hex[:8]
         email = f"real_{uid}@db.com"
         password = "RealPass1!"
@@ -30,7 +30,7 @@ class TestAuthDBPath:
         )
         assert create.status_code == 201
 
-        # Логинимся через email как username — покрывает строки 63-78
+        # Логинимся через email как username — логин по email как username
         resp = await client.post(
             "/api/v1/auth/login",
             json={"username": email, "password": password},
@@ -39,7 +39,7 @@ class TestAuthDBPath:
         assert "access_token" in resp.json()
 
     async def test_login_db_user_wrong_password(self, client: AsyncClient) -> None:
-        """DB юзер + неверный пароль → 401. Покрывает auth.py:74-75."""
+        """DB юзер + неверный пароль → 401."""
         uid = uuid.uuid4().hex[:8]
         email = f"wrong_{uid}@db.com"
 
@@ -55,7 +55,7 @@ class TestAuthDBPath:
         assert resp.status_code == 401
 
     async def test_login_nonexistent_db_user(self, client: AsyncClient) -> None:
-        """Email не существует в DB → 401. Покрывает auth.py:71-72."""
+        """Email не существует в DB → 401."""
         resp = await client.post(
             "/api/v1/auth/login",
             json={"username": "nobody_xyz@notexist.com", "password": "AnyPass1!"},
@@ -63,7 +63,7 @@ class TestAuthDBPath:
         assert resp.status_code == 401
 
     async def test_expired_token_returns_401(self, client: AsyncClient) -> None:
-        """Expired token → 401. Покрывает _verify_token line 47."""
+        """Expired token → 401."""
         from app.api.auth import _create_token
 
         expired = _create_token("test_user", "test-secret-key-32chars!", expires_minutes=-5)
@@ -88,11 +88,11 @@ class TestAuthDBPath:
 @pytest.mark.api
 class TestUsersAPICoverage:
     """
-    Целевые тесты для покрытия непокрытых строк users.py.
+    Поведенческие тесты users router: happy paths и коды ошибок.
     """
 
     async def test_create_user_success_path(self, client: AsyncClient) -> None:
-        """Явно проверяем успешный create — users.py:24 (return UserResponse)."""
+        """Успешный create возвращает все поля UserResponse."""
         uid = uuid.uuid4().hex[:8]
         resp = await client.post(
             "/api/v1/users",
@@ -112,7 +112,7 @@ class TestUsersAPICoverage:
         assert "created_at" in data
 
     async def test_create_duplicate_triggers_409(self, client: AsyncClient) -> None:
-        """IntegrityError → HTTPException 409 — users.py:25-26."""
+        """Повторный email → IntegrityError → 409."""
         uid = uuid.uuid4().hex[:8]
         payload = {
             "username": f"dup_{uid}",
@@ -128,7 +128,7 @@ class TestUsersAPICoverage:
     async def test_list_users_returns_response(
         self, client: AsyncClient, auth_headers: dict
     ) -> None:
-        """list_users return — users.py:39."""
+        """list_users возвращает items/total/limit/offset."""
         resp = await client.get("/api/v1/users", headers=auth_headers)
         assert resp.status_code == 200
         data = resp.json()
@@ -142,7 +142,7 @@ class TestUsersAPICoverage:
         assert data["offset"] == 0  # default
 
     async def test_get_user_found_path(self, client: AsyncClient, auth_headers: dict) -> None:
-        """get_user happy path — users.py:55-57."""
+        """get_user возвращает созданного юзера."""
         uid = uuid.uuid4().hex[:8]
         create = await client.post(
             "/api/v1/users",
@@ -158,7 +158,7 @@ class TestUsersAPICoverage:
         assert resp.json()["id"] == user_id
 
     async def test_get_user_not_found_path(self, client: AsyncClient, auth_headers: dict) -> None:
-        """get_user 404 — users.py:55-56 (not found branch)."""
+        """get_user для несуществующего id → 404."""
         resp = await client.get("/api/v1/users/999888777", headers=auth_headers)
         assert resp.status_code == 404
         assert "not found" in resp.json()["detail"].lower()
@@ -166,13 +166,13 @@ class TestUsersAPICoverage:
     async def test_delete_user_not_found_path(
         self, client: AsyncClient, auth_headers: dict
     ) -> None:
-        """delete_user 404 — users.py:68-69."""
+        """delete_user для несуществующего id → 404."""
         resp = await client.delete("/api/v1/users/999888777", headers=auth_headers)
         assert resp.status_code == 404
         assert "not found" in resp.json()["detail"].lower()
 
     async def test_delete_user_success_path(self, client: AsyncClient, auth_headers: dict) -> None:
-        """delete_user 204 — users.py полный happy path."""
+        """delete_user для существующего id → 204."""
         uid = uuid.uuid4().hex[:8]
         create = await client.post(
             "/api/v1/users",

@@ -9,6 +9,7 @@ import pytest
 from fastapi import HTTPException
 
 from app.api import auth as auth_module
+from app.config import Settings
 from app.models.db import UserORM
 
 
@@ -107,3 +108,30 @@ class TestLoginRouter:
         # Верифицируем полученный токен
         username = auth_module._verify_token(resp.access_token, "test-secret-key-32chars!")
         assert username == "testuser"
+
+
+@pytest.mark.unit
+class TestProductionDisablesTestUsers:
+    """test/development backdoor не должен работать в production."""
+
+    @pytest.mark.parametrize(
+        ("username", "password"),
+        [
+            ("test_user", "test_pass"),
+            ("admin", "admin_pass"),
+            ("load_user", "pass"),
+        ],
+    )
+    async def test_production_disables_hardcoded_users(self, username: str, password: str) -> None:
+        prod = Settings(environment="production", secret_key="prod-secret-key-for-tests-only!!")
+        with patch("app.api.auth.UserRepository") as repo:
+            repo.return_value.get_by_email = AsyncMock(return_value=None)
+            with pytest.raises(HTTPException) as exc:
+                await auth_module.login(
+                    data=auth_module.LoginRequest(username=username, password=password),
+                    db=AsyncMock(),
+                    settings=prod,
+                )
+        assert exc.value.status_code == 401
+        # запрос ушёл в реальные креды, а не в hardcoded-словарь
+        repo.return_value.get_by_email.assert_awaited_once_with(username)

@@ -55,7 +55,7 @@ def _verify_token(token: str, secret: str) -> str | None:
         if datetime.now(UTC) > expires:
             return None
         return username
-    except Exception:
+    except (ValueError, IndexError):
         return None
 
 

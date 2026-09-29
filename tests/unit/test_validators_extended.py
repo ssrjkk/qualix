@@ -12,7 +12,7 @@ from app.services.validators import validate_amount
 @pytest.mark.unit
 class TestValidateAmountEdgeCases:
     def test_none_returns_false(self) -> None:
-        """line 38: amount is None → return False."""
+        """amount is None → валидация не падает, False."""
         assert validate_amount(None) is False  # type: ignore[arg-type]
 
     def test_nan_returns_false(self) -> None:

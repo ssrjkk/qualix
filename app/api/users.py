@@ -60,7 +60,7 @@ async def get_user(
     return UserResponse.model_validate(user)
 
 
-@router.delete("/{user_id}", status_code=204)
+@router.delete("/{user_id}", status_code=204, response_model=None)
 async def delete_user(
     user_id: int,
     db: AsyncSession = Depends(get_db),

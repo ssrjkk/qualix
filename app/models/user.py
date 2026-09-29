@@ -41,8 +41,12 @@ class UserCreate(BaseModel):
     def password_complexity(cls, v: str) -> str:
         if not any(c.isupper() for c in v):
             raise ValueError("password must contain at least one uppercase letter")
+        if not any(c.islower() for c in v):
+            raise ValueError("password must contain at least one lowercase letter")
         if not any(c.isdigit() for c in v):
             raise ValueError("password must contain at least one digit")
+        if not any(c in "!@#$%^&*()_+-=[]{}|;:',.<>?/`~\"\\" for c in v):
+            raise ValueError("password must contain at least one special character")
         return v
 
 

@@ -34,8 +34,9 @@ class PaymentRequestFactory(factory.Factory):
     class Meta:
         model = PaymentRequest
 
+    # Decimal, а не float: amount в модели — Decimal, деньги не должны проходить через float.
     amount = factory.LazyFunction(
-        lambda: round(fake.pyfloat(min_value=0.01, max_value=999_999, right_digits=2), 2)
+        lambda: fake.pydecimal(min_value=0.01, max_value=999_999, right_digits=2)
     )
     currency = factory.Iterator(["USD", "EUR", "RUB", "GBP"])
     description = factory.LazyFunction(lambda: fake.sentence(nb_words=4))

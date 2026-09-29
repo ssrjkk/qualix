@@ -21,6 +21,7 @@ reports/
 pacts/
 logs/
 *.log
+layer_report.txt
 
 # DB files
 *.db

@@ -225,10 +225,12 @@ class TestRateLimitMemoryGuard:
 
         assert list(mw._requests) == ["fresh"]
 
-    async def test_dispatch_prunes_on_cleanup_interval(self) -> None:
+    async def test_dispatch_prunes_on_cleanup_interval(self, monkeypatch: pytest.MonkeyPatch) -> None:
         from unittest.mock import AsyncMock
 
         from app.middleware import RateLimitMiddleware
+
+        monkeypatch.setattr("app.middleware.time.monotonic", lambda: 1000.0)
 
         mw = RateLimitMiddleware(app=MagicMock(), limit=100, window=60.0)
         mw._requests = {f"10.0.{i}.1": [0.0] for i in range(200)}
@@ -240,14 +242,17 @@ class TestRateLimitMemoryGuard:
         assert list(mw._requests) == ["127.0.0.1"]
         assert call_next.await_count == 1
 
-    async def test_dispatch_runs_second_cleanup_when_over_capacity(self) -> None:
-        import time
+    async def test_dispatch_runs_second_cleanup_when_over_capacity(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         from unittest.mock import AsyncMock
 
         from app.middleware import RateLimitMiddleware
 
+        now = 1000.0
+        monkeypatch.setattr("app.middleware.time.monotonic", lambda: now)
+
         mw = RateLimitMiddleware(app=MagicMock(), limit=100, window=60.0)
-        now = time.monotonic()
         mw._requests = {
             f"10.0.{i // 256}.{i % 256}": [now] for i in range(RateLimitMiddleware._MAX_ENTRIES + 1)
         }

@@ -2,7 +2,7 @@
 
 # 🎯 QUALIX
 
-**Production-grade QA automation platform**
+**QA-платформа production-уровня для мониторинга деградации API и UI**
 
 [🇬🇧 English](README.md) | [🇷🇺 Русский](README.ru.md)
 
@@ -14,71 +14,71 @@
 [![Security](https://img.shields.io/badge/security-bandit-green)](https://github.com/PyCQA/bandit)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-[Quick Start](#-quick-start) • [Architecture](#-architecture) • [Tests](#-test-layers) • [Docs](#-documentation)
+[Быстрый старт](#-быстрый-старт) • [Архитектура](#-архитектура) • [Тесты](#-слои-тестирования) • [Документация](#-документация)
 
-**Sergey Sitnikov** · QA Automation Engineer · [Telegram](https://t.me/ssrjkk)
+**Сергей Ситников** · QA Automation Engineer · [Telegram](https://t.me/ssrjkk)
 
 </div>
 
 ---
 
-## 📋 What's Inside?
+## 📋 Что внутри?
 
-qualix is not just a test suite. It's a **complete product** for monitoring API and UI degradation with production-grade architecture.
+qualix — это не просто набор тестов. Это **полноценный продукт** для мониторинга деградации API и UI с production-grade архитектурой.
 
 <table>
 <tr>
 <td width="50%">
 
-### 🏗️ Application
-- FastAPI + HMAC-SHA256 auth
+### 🏗️ Приложение
+- FastAPI + HMAC-SHA256 аутентификация
 - bcrypt (rounds=12, OWASP)
 - Rate limiting + Security headers
-- Prometheus metrics
+- Prometheus метрики
 - Kubernetes-ready
 
 </td>
 <td width="50%">
 
-### 🧪 Testing
-- 317 tests, 100% coverage
-- Full test pyramid
+### 🧪 Тестирование
+- 317 тестов, 100% coverage
+- Полная тест-пирамида
 - Hypothesis property-based
 - Playwright E2E + AI assertions
-- Locust load testing
+- Locust нагрузочное тестирование
 
 </td>
 </tr>
 </table>
 
-## 🚀 Quick Start
+## 🚀 Быстрый старт
 
 ```bash
-# 1. Clone
+# 1. Клонируем
 git clone git@github.com:ssrjkk/qualix.git && cd qualix
 
-# 2. Install dependencies
+# 2. Устанавливаем зависимости
 make setup
 
-# 3. Start infrastructure (optional)
+# 3. Поднимаем инфраструктуру (опционально)
 make up
 
-# 4. Run tests
-make test          # full suite
-make cov           # coverage report
+# 4. Запускаем тесты
+make test          # полный suite
+make cov           # отчёт по coverage
 ```
 
 <details>
-<summary><b>📦 What gets installed?</b></summary>
+<summary><b>📦 Что устанавливается?</b></summary>
 
-- ✅ All dependencies from `pyproject.toml`
-- ✅ Pre-commit hooks (ruff, mypy, bandit)
-- ✅ Playwright chromium browser
-- ✅ 20+ Makefile commands
+- ✅ Все зависимости из `pyproject.toml`
+- ✅ Pre-commit хуки (ruff, mypy, bandit)
+- ✅ Playwright chromium браузер
+- ✅ 20+ команд в Makefile
 
 </details>
 
-## 🏛️ Architecture
+## 🏛️ Архитектура
 
 ```mermaid
 graph TB
@@ -143,25 +143,25 @@ graph TB
 ```
 
 <details>
-<summary><b>🔍 Component details</b></summary>
+<summary><b>🔍 Детали компонентов</b></summary>
 
-**Middleware Stack** (execution order):
-1. `RequestIDMiddleware` — generates `X-Request-ID` for distributed tracing
-2. `LoggingMiddleware` — structlog JSON logging with request_id
+**Middleware Stack** (порядок выполнения):
+1. `RequestIDMiddleware` — генерирует `X-Request-ID` для distributed tracing
+2. `LoggingMiddleware` — structlog JSON логирование с request_id
 3. `RateLimitMiddleware` — sliding window, 100 req/min per IP
-4. `SecurityHeadersMiddleware` — X-Frame-Options, X-Content-Type-Options, etc.
-5. `CORSMiddleware` — per-environment origins
+4. `SecurityHeadersMiddleware` — X-Frame-Options, X-Content-Type-Options, и т.д.
+5. `CORSMiddleware` — origins для каждого окружения
 
 **API Endpoints**:
-- `POST /api/v1/auth/login` — HMAC-SHA256 token
-- `GET/POST/PUT/DELETE /api/v1/users` — CRUD operations
+- `POST /api/v1/auth/login` — HMAC-SHA256 токен
+- `GET/POST/PUT/DELETE /api/v1/users` — CRUD операции
 - `GET /health` — liveness probe (k8s)
 - `GET /health/ready` — readiness probe (k8s)
-- `GET /metrics` — Prometheus metrics
+- `GET /metrics` — Prometheus метрики
 
 </details>
 
-## 🧪 Test Layers
+## 🧪 Слои тестирования
 
 ```mermaid
 graph TB
@@ -184,57 +184,57 @@ graph TB
     style Load fill:#F44336,color:#fff
 ```
 
-| Layer | Tests | Tools | What it validates |
-|-------|-------|-------|-------------------|
-| **Unit** | 122 | pytest · Hypothesis · time-machine · benchmark | Validators, models, auth internals |
+| Слой | Тестов | Инструменты | Что валидирует |
+|------|--------|-------------|----------------|
+| **Unit** | 122 | pytest · Hypothesis · time-machine · benchmark | Валидаторы, модели, auth |
 | **Integration** | 17 | testcontainers · fakeredis · SQLite | Repository pattern, DB ops |
 | **API** | 48 | httpx · factory_boy · schemathesis | CRUD, auth flows, OpenAPI fuzzing |
-| **Contract** | 11 | JSON Schema | API contracts, security constraints |
-| **E2E** | 7 | Playwright POM · AI assertions | Login flow, UI interactions |
-| **Load** | - | Locust · Prometheus · p99 auto-stop | Performance, latency, throughput |
+| **Contract** | 11 | JSON Schema | API контракты, security constraints |
+| **E2E** | 7 | Playwright POM · AI assertions | Login flow, UI взаимодействия |
+| **Load** | - | Locust · Prometheus · p99 auto-stop | Производительность, латентность |
 | **Total** | **317** | | **100% coverage** |
 
 <details>
-<summary><b>🎯 Key testing features</b></summary>
+<summary><b>🎯 Ключевые возможности тестирования</b></summary>
 
-**Data generation**:
-- `factory_boy` — `UserCreateFactory`, `UserPayloadFactory` with traits
-- `Hypothesis` — 500+ property-based cases for validators
-- `Faker` — realistic test data
+**Генерация данных**:
+- `factory_boy` — `UserCreateFactory`, `UserPayloadFactory` с traits
+- `Hypothesis` — 500+ property-based кейсов для валидаторов
+- `Faker` — реалистичные тестовые данные
 
-**Time control**:
-- `time-machine` — deterministic token expiry tests
-- `pytest-benchmark` — performance regression for bcrypt, token ops
+**Контроль времени**:
+- `time-machine` — детерминированные тесты token expiry
+- `pytest-benchmark` — performance регрессии для bcrypt, token ops
 
-**Isolation**:
-- `fakeredis` — Redis tests without Docker
-- `SQLite fallback` — tests without PostgreSQL
-- `AsyncMock` — mocks for unit tests
+**Изоляция**:
+- `fakeredis` — Redis тесты без Docker
+- `SQLite fallback` — тесты без PostgreSQL
+- `AsyncMock` — моки для unit тестов
 
 **AI-powered**:
-- `Claude Sonnet` — semantic UI assertions in E2E
-- `Flaky tracker` — automatic GitHub Issue creation
+- `Claude Sonnet` — семантические UI assertions в E2E
+- `Flaky tracker` — автоматическое создание GitHub Issues
 
 </details>
 
-## 🛡️ Security
+## 🛡️ Безопасность
 
-qualix implements **defense-in-depth**:
+qualix реализует **defense-in-depth** подход:
 
 <table>
 <tr>
 <td width="33%">
 
-### 🔐 Authentication
-- HMAC-SHA256 tokens
+### 🔐 Аутентификация
+- HMAC-SHA256 токены
 - Constant-time verification
 - bcrypt (rounds=12)
-- Strict password policy
+- Строгая политика паролей
 
 </td>
 <td width="33%">
 
-### 🌐 Network
+### 🌐 Сеть
 - Security headers
 - CORS per-environment
 - Rate limiting (100 req/min)
@@ -243,7 +243,7 @@ qualix implements **defense-in-depth**:
 </td>
 <td width="33%">
 
-### 🏗️ Infrastructure
+### 🏗️ Инфраструктура
 - Bandit SAST
 - Safety dependency scan
 - Trivy container scan
@@ -254,23 +254,23 @@ qualix implements **defense-in-depth**:
 </table>
 
 <details>
-<summary><b>📊 Security checklist</b></summary>
+<summary><b>📊 Security чеклист</b></summary>
 
-**Authentication**:
-- ✅ Custom HMAC-SHA256 tokens with constant-time comparison
-- ✅ bcrypt password hashing (OWASP compliant)
-- ✅ Strict password policy: uppercase + lowercase + digit + special character
-- ✅ Empty token rejection
+**Аутентификация**:
+- ✅ Custom HMAC-SHA256 токены с constant-time сравнением
+- ✅ bcrypt хеширование паролей (OWASP compliant)
+- ✅ Строгая политика паролей: uppercase + lowercase + digit + special character
+- ✅ Отклонение пустых токенов
 
-**Network**:
+**Сеть**:
 - ✅ Security headers: X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
 - ✅ CORS per-environment (production: no origins, dev: localhost only)
 - ✅ Rate limiting: 100 req/min per IP, sliding window, bounded memory
 
-**Data**:
-- ✅ No secrets in code (environment variables + sealed-secrets)
-- ✅ Decimal for money (PaymentRequest.amount uses Decimal)
-- ✅ SQL injection prevention (SQLAlchemy ORM)
+**Данные**:
+- ✅ Нет секретов в коде (environment variables + sealed-secrets)
+- ✅ Decimal для денег (PaymentRequest.amount использует Decimal)
+- ✅ Защита от SQL injection (SQLAlchemy ORM)
 
 **CI/CD**:
 - ✅ Bandit SAST + Safety dependency scan
@@ -278,83 +278,83 @@ qualix implements **defense-in-depth**:
 - ✅ Dependabot weekly updates
 - ✅ pre-commit hooks (bandit + detect-private-key)
 
-Learn more: [SECURITY.md](SECURITY.md)
+Подробнее: [SECURITY.md](SECURITY.md)
 
 </details>
 
-## 📊 Monitoring
+## 📊 Мониторинг
 
 ```bash
-# Prometheus metrics
+# Prometheus метрики
 curl http://localhost:8080/metrics
 
-# Grafana dashboard
+# Grafana дашборд
 open http://localhost:3000  # admin:changeme
 
-# Allure reports
+# Allure отчёты
 open http://localhost:4040
 ```
 
-**Grafana dashboard** includes:
-- HTTP request rate by status
-- Latency percentiles (p50, p95, p99)
+**Grafana дашборд** включает:
+- HTTP request rate по статусам
+- Percentiles латентности (p50, p95, p99)
 - Error rate (5xx)
-- App version and environment
+- Версия приложения и окружение
 
-## 📚 Documentation
+## 📚 Документация
 
-| Resource | Description |
-|----------|-------------|
-| [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
-| [SECURITY.md](SECURITY.md) | Security policy |
-| [CHANGELOG.md](CHANGELOG.md) | Change history |
+| Ресурс | Описание |
+|--------|----------|
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Как внести вклад |
+| [SECURITY.md](SECURITY.md) | Политика безопасности |
+| [CHANGELOG.md](CHANGELOG.md) | История изменений |
 | [docs/adr/](docs/adr/) | Architecture Decision Records |
-| [docs/case-studies/](docs/case-studies/) | Postmortems and lessons learned |
+| [docs/case-studies/](docs/case-studies/) | Постмортемы и выводы |
 
 ### ADR (Architecture Decision Records)
 
-- [001](docs/adr/001-custom-token-vs-jwt.md) — Why custom tokens instead of JWT
-- [002](docs/adr/002-sqlite-fallback-for-tests.md) — Why SQLite fallback
-- [003](docs/adr/003-bcrypt-for-passwords.md) — Why bcrypt instead of SHA-256
-- [004](docs/adr/004-fakeredis-in-tests.md) — Why fakeredis instead of mocks
-- [005](docs/adr/005-json-schema-contracts-vs-pact.md) — Why JSON Schema instead of Pact
+- [001](docs/adr/001-custom-token-vs-jwt.md) — Почему custom tokens вместо JWT
+- [002](docs/adr/002-sqlite-fallback-for-tests.md) — Почему SQLite fallback
+- [003](docs/adr/003-bcrypt-for-passwords.md) — Почему bcrypt вместо SHA-256
+- [004](docs/adr/004-fakeredis-in-tests.md) — Почему fakeredis вместо моков
+- [005](docs/adr/005-json-schema-contracts-vs-pact.md) — Почему JSON Schema вместо Pact
 
-## 🔧 Commands
+## 🔧 Команды
 
 <details>
-<summary><b>📋 All Makefile commands</b></summary>
+<summary><b>📋 Все команды Makefile</b></summary>
 
 ```bash
-# Tests
-make test              # full suite
+# Тесты
+make test              # полный suite
 make test-unit         # unit + coverage
 make test-integration  # integration (fakeredis + SQLite)
 make test-api          # API + schemathesis
 make test-contract     # JSON Schema contracts
-make test-e2e          # Playwright (requires make up)
+make test-e2e          # Playwright (требует make up)
 make test-load         # Locust 30s smoke
 
 # Coverage
 make cov               # term + html + xml
-make cov-open          # open html in browser
+make cov-open          # открыть html в браузере
 
-# Quality
+# Качество
 make lint              # ruff + mypy
-make fmt               # auto-formatting
+make fmt               # авто-форматирование
 make security-scan     # SAST + dependency scan
 
 # CI
 make ci                # lint + unit + integration + api + contract
 
-# Dev environment
-make setup             # full setup (deps + pre-commit)
-make install           # dependencies only
-make pre-commit        # check all files
+# Окружение
+make setup             # полная настройка (deps + pre-commit)
+make install           # только зависимости
+make pre-commit        # проверить все файлы
 
-# Utilities
-make changelog         # update CHANGELOG from git-cliff
-make schema            # regenerate openapi.json
-make clean             # remove artifacts
+# Утилиты
+make changelog         # обновить CHANGELOG из git-cliff
+make schema            # регенерировать openapi.json
+make clean             # удалить артефакты
 ```
 
 </details>
@@ -370,11 +370,11 @@ coverage-badge → docker → staging → load → release
 
 - ✅ **Coverage enforcement** — `fail_under=80`, branch coverage
 - ✅ **Zero-downtime deploy** — k8s RollingUpdate + `maxUnavailable=0`
-- ✅ **HPA** — autoscaling by CPU/Memory (min=2, max=10)
-- ✅ **Dependabot** — weekly updates for pip, Docker, GitHub Actions
+- ✅ **HPA** — автомасштабирование по CPU/Memory (min=2, max=10)
+- ✅ **Dependabot** — weekly updates для pip, Docker, GitHub Actions
 
 <details>
-<summary><b>🔍 Kubernetes manifests</b></summary>
+<summary><b>🔍 Kubernetes манифесты</b></summary>
 
 ```yaml
 infra/k8s/
@@ -388,10 +388,10 @@ infra/k8s/
 
 </details>
 
-## 📦 Project Structure
+## 📦 Структура проекта
 
 <details>
-<summary><b>🌳 Show tree</b></summary>
+<summary><b>🌳 Показать дерево</b></summary>
 
 ```
 qualix/
@@ -429,18 +429,18 @@ qualix/
 
 </details>
 
-## 🤝 Contributing
+## 🤝 Как внести вклад
 
-1. Fork the repo
-2. Create a feature branch (`git checkout -b feature/amazing`)
-3. Run tests (`make ci`)
-4. Commit changes (`git commit -m 'feat: add amazing feature'`)
-5. Push (`git push origin feature/amazing`)
-6. Open a Pull Request
+1. Форкните репозиторий
+2. Создайте feature branch (`git checkout -b feature/amazing`)
+3. Запустите тесты (`make ci`)
+4. Закоммитьте изменения (`git commit -m 'feat: add amazing feature'`)
+5. Запушьте (`git push origin feature/amazing`)
+6. Откройте Pull Request
 
-Learn more: [CONTRIBUTING.md](CONTRIBUTING.md)
+Подробнее: [CONTRIBUTING.md](CONTRIBUTING.md)
 
-## 📄 License
+## 📄 Лицензия
 
 MIT © [ssrjkk](https://github.com/ssrjkk)
 
@@ -448,8 +448,8 @@ MIT © [ssrjkk](https://github.com/ssrjkk)
 
 <div align="center">
 
-**⭐ Star this repo if you found it useful!**
+**⭐ Поставьте звезду, если проект был полезен!**
 
-[GitHub](https://github.com/ssrjkk/qualix) · [Telegram](https://t.me/ssrjkk) · [Email](mailto:ray013lefe@gmail.com)
+[GitHub](https://github.com/ssrjkk/qualix) · [Telegram](https://t.me/ssrjkk) · [Email](mailto:ray01lefe@gmail.com)
 
 </div>

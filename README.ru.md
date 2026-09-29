@@ -78,6 +78,58 @@ make cov           # отчёт по coverage
 
 </details>
 
+## 💡 Варианты использования
+
+### Для QA Engineers
+**Изучайте современные практики тестирования:**
+- Изучите полную тест-пирамиду: unit → integration → API → contract → E2E → load
+- Реальные примеры `Hypothesis` property-based тестирования (500+ кейсов на каждый валидатор)
+- `Playwright` Page Object Model с AI-powered assertions
+- `pytest-benchmark` для обнаружения performance регрессий
+
+**Используйте как эталонную реализацию:**
+- Копируйте паттерны для своих проектов: factory_boy, time-machine, fakeredis
+- Адаптируйте плагин flaky test tracker для автоматического создания GitHub Issues
+- Переиспользуйте чеклист security hardening (см. [SECURITY.md](SECURITY.md))
+
+### Для DevOps Engineers
+**Production-ready паттерны деплоя:**
+- Kubernetes манифесты с HPA, rolling updates, health probes
+- Prometheus + Grafana monitoring stack (дашборд включён)
+- Docker multi-stage build со security scanning (Trivy)
+- 17-job CI/CD pipeline с quality gates
+
+**Infrastructure as code примеры:**
+- `infra/k8s/` — deployment, service, HPA, secrets
+- `infra/prometheus.yml` — scrape configs для app + зависимостей
+- `infra/grafana/` — предрасконфигурированный дашборд с 6 панелями
+
+### Для разработчиков
+**Best practices FastAPI:**
+- Clean architecture: repository pattern, dependency injection, layered structure
+- Middleware stack: RequestID, logging, rate limiting, security headers
+- HMAC-SHA256 аутентификация с constant-time verification
+- bcrypt хеширование паролей (OWASP compliant)
+
+**Type-safe код:**
+- mypy strict mode включён
+- Pydantic валидация для всех request/response моделей
+- Decimal для денежных значений (без проблем с float precision)
+
+### Для Security Researchers
+**Реализация defense-in-depth:**
+- Custom token auth с защитой от timing attacks
+- Строгая политика паролей
+- CORS per-environment (production: no origins, dev: localhost only)
+- Rate limiting: sliding window, bounded memory
+- Security headers на каждом response
+
+**Аудируйте код:**
+- Нет секретов в репозитории (только environment variables)
+- Bandit SAST + Safety dependency scan в CI
+- pre-commit hooks для обнаружения private keys
+- См. [SECURITY.md](SECURITY.md) для полной security policy
+
 ## 🏛️ Архитектура
 
 ```mermaid

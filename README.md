@@ -78,6 +78,58 @@ make cov           # coverage report
 
 </details>
 
+## 💡 Use Cases
+
+### For QA Engineers
+**Learn modern testing practices:**
+- Study the full test pyramid: unit → integration → API → contract → E2E → load
+- See real-world examples of `Hypothesis` property-based testing (500+ cases per validator)
+- Learn `Playwright` Page Object Model with AI-powered assertions
+- Understand `pytest-benchmark` for performance regression detection
+
+**Use as a reference implementation:**
+- Copy patterns for your own projects: factory_boy, time-machine, fakeredis
+- Adapt the flaky test tracker plugin for automatic GitHub Issue creation
+- Reuse the security hardening checklist (see [SECURITY.md](SECURITY.md))
+
+### For DevOps Engineers
+**Production-ready deployment patterns:**
+- Kubernetes manifests with HPA, rolling updates, health probes
+- Prometheus + Grafana monitoring stack (dashboard included)
+- Docker multi-stage build with security scanning (Trivy)
+- 17-job CI/CD pipeline with quality gates
+
+**Infrastructure as code examples:**
+- `infra/k8s/` — deployment, service, HPA, secrets
+- `infra/prometheus.yml` — scrape configs for app + dependencies
+- `infra/grafana/` — pre-configured dashboard with 6 panels
+
+### For Developers
+**FastAPI best practices:**
+- Clean architecture: repository pattern, dependency injection, layered structure
+- Middleware stack: RequestID, logging, rate limiting, security headers
+- HMAC-SHA256 authentication with constant-time verification
+- bcrypt password hashing (OWASP compliant)
+
+**Type-safe code:**
+- mypy strict mode enabled
+- Pydantic validation for all request/response models
+- Decimal for monetary values (no float precision issues)
+
+### For Security Researchers
+**Defense-in-depth implementation:**
+- Custom token auth with timing attack protection
+- Strict password policy enforcement
+- CORS per-environment (production: no origins, dev: localhost only)
+- Rate limiting: sliding window, bounded memory
+- Security headers on every response
+
+**Audit the code:**
+- No secrets in repository (environment variables only)
+- Bandit SAST + Safety dependency scan in CI
+- pre-commit hooks for private key detection
+- See [SECURITY.md](SECURITY.md) for full security policy
+
 ## 🏛️ Architecture
 
 ```mermaid

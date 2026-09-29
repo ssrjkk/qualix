@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: qa-sentinel
-  namespace: qa-sentinel
+  name: qualix
+  namespace: qualix
   labels:
-    app: qa-sentinel
+    app: qualix
     version: "1.0.0"
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: qa-sentinel
+      app: qualix
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -19,7 +19,7 @@ spec:
   template:
     metadata:
       labels:
-        app: qa-sentinel
+        app: qualix
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "8080"
@@ -27,17 +27,17 @@ spec:
     spec:
       terminationGracePeriodSeconds: 30
       containers:
-        - name: qa-sentinel
-          image: ghcr.io/ssrjkk/qa-sentinel:latest
+        - name: qualix
+          image: ghcr.io/ssrjkk/qualix:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
               name: http
           envFrom:
             - configMapRef:
-                name: qa-sentinel-config
+                name: qualix-config
             - secretRef:
-                name: qa-sentinel-secret
+                name: qualix-secret
           resources:
             requests:
               cpu: "100m"
@@ -74,5 +74,5 @@ spec:
                   matchExpressions:
                     - key: app
                       operator: In
-                      values: [qa-sentinel]
+                      values: [qualix]
                 topologyKey: kubernetes.io/hostname

@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: qa-sentinel-config
-  namespace: qa-sentinel
+  name: qualix-config
+  namespace: qualix
 data:
   ENVIRONMENT: "production"
   KAFKA_BOOTSTRAP: "kafka:9092"

@@ -3,7 +3,7 @@
 ## Context
 
 This case study documents the process of diagnosing and fixing a failing CI pipeline
-for **qa-sentinel** — a full-stack QA automation platform with 7 testing layers
+for **qualix** — a full-stack QA automation platform with 7 testing layers
 (unit, API, integration, external, contract, E2E, load).
 
 The E2E tests were consistently failing in CI despite passing locally,

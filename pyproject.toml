@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 packages = ["app"]
 
 [project]
-name = "qa-sentinel"
+name = "qualix"
 version = "1.0.0"
 description = "Full-stack QA automation platform — Sitnikov Sergey"
 readme = "README.md"

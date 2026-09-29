@@ -3,8 +3,8 @@
 ## Быстрый старт
 
 ```bash
-git clone git@github.com:ssrjkk/qa-sentinel.git
-cd qa-sentinel
+git clone git@github.com:ssrjkk/qualix.git
+cd qualix
 make setup             # deps + playwright + pre-commit hooks
 make up                # поднять инфраструктуру
 make test              # запустить все тесты

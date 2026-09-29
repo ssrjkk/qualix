@@ -37,7 +37,7 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
 
 def _create_issues(flaky_tests: list[str]) -> None:
     token = os.environ.get("GITHUB_TOKEN")
-    repo = os.environ.get("GITHUB_REPOSITORY", "ssrjkk/qa-sentinel")
+    repo = os.environ.get("GITHUB_REPOSITORY", "ssrjkk/qualix")
     if not token:
         return
     import urllib.error

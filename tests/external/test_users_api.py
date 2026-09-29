@@ -99,7 +99,7 @@ class TestCreateUser:
             {
                 "firstName": "Sergey",
                 "lastName": "Sitnikov",
-                "email": "sergey@qa-sentinel.dev",
+                "email": "sergey@qualix.dev",
                 "age": 25,
                 "gender": "male",
                 "username": "ssrjkk",

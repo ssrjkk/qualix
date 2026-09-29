@@ -101,7 +101,7 @@ else:
     @pytest.fixture(scope="session")
     def test_settings() -> Settings:  # type: ignore
         return Settings(
-            database_url="sqlite+aiosqlite:///./test_sentinel.db",
+            database_url="sqlite+aiosqlite:///./test_qualix.db",
             redis_url="redis://localhost:6379/0",
             environment="test",
             secret_key="test-secret-key-32chars!",

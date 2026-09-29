@@ -5,11 +5,20 @@ Unit тесты внутренней логики auth — _create_token, _verif
 
 from __future__ import annotations
 
+import hmac
+
 import pytest
 
 from app.api.auth import _create_token, _verify_token
 
 SECRET = "test-secret-for-unit"
+
+
+def _signed(payload: str, secret: str = SECRET) -> str:
+    """Токен с валидной подписью, но произвольным payload — чтобы пройти
+    проверку подписи и попасть в нужную ветку разбора."""
+    sig = hmac.new(secret.encode(), payload.encode(), "sha256").hexdigest()
+    return f"{payload}:{sig}"
 
 
 @pytest.mark.unit
@@ -38,22 +47,18 @@ class TestVerifyToken:
 
     def test_wrong_secret_returns_none(self) -> None:
         token = _create_token("sergey", SECRET)
-        # line 43: sig != expected → return None
         result = _verify_token(token, "wrong-secret")
         assert result is None
 
     def test_expired_token_returns_none(self) -> None:
-        # line 47: datetime.now(utc) > expires → return None
         token = _create_token("sergey", SECRET, expires_minutes=-1)
         result = _verify_token(token, SECRET)
         assert result is None
 
     def test_completely_malformed_token_returns_none(self) -> None:
-        # line 49-50: Exception → return None
         assert _verify_token("not.a.token.at.all", SECRET) is None
 
     def test_empty_string_returns_none(self) -> None:
-        # line 49-50: Exception on split
         assert _verify_token("", SECRET) is None
 
     def test_garbage_bytes_returns_none(self) -> None:
@@ -70,19 +75,23 @@ class TestVerifyToken:
         assert _verify_token(tampered, SECRET) is None
 
     def test_invalid_date_triggers_exception_branch(self) -> None:
-        """lines 49-50: fromisoformat() бросает ValueError → except Exception."""
-        import hashlib
-
-        payload = "sergey:NOT_A_VALID_ISO_DATE"
-        sig = hashlib.sha256(f"{payload}:{SECRET}".encode()).hexdigest()
-        token = f"{payload}:{sig}"
-        assert _verify_token(token, SECRET) is None
+        """Подпись валидна, но fromisoformat() бросает ValueError → except → None."""
+        assert _verify_token(_signed("sergey:NOT_A_VALID_ISO_DATE"), SECRET) is None
 
     def test_no_colon_payload_triggers_exception_branch(self) -> None:
-        """username, expires_str = payload.split(':',1) — один элемент → ValueError."""
-        import hashlib
+        """Подпись валидна, но payload.split(':',1) даёт один элемент → ValueError."""
+        assert _verify_token(_signed("nocolonhere"), SECRET) is None
 
-        payload = "nocolonhere"
-        sig = hashlib.sha256(f"{payload}:{SECRET}".encode()).hexdigest()
-        token = f"{payload}:{sig}"
-        assert _verify_token(token, SECRET) is None
+    @pytest.mark.parametrize("username", ["a", "bad username", "bad!user", "user/name", "x" * 65])
+    def test_username_violating_pattern_is_rejected(self, username: str) -> None:
+        """Подпись валидна, но username не проходит _USERNAME_RE → None."""
+        payload = f"{username}:2099-01-01T00:00:00+00:00"
+        assert _verify_token(_signed(payload), SECRET) is None
+
+    def test_far_future_token_is_accepted(self) -> None:
+        payload = "sergey:2099-01-01T00:00:00+00:00"
+        assert _verify_token(_signed(payload), SECRET) == "sergey"
+
+    def test_signature_mismatch_on_multi_colon_payload(self) -> None:
+        """rsplit(':', 1) режет по последнему разделителю — подпись не сходится."""
+        assert _verify_token(f"sergey:extra:{'ab' * 32}", SECRET) is None

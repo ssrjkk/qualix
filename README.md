@@ -8,6 +8,8 @@
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://python.org)
 [![pytest](https://img.shields.io/badge/pytest-8.3-green)](https://pytest.org)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000)](https://github.com/astral-sh/ruff)
+[![Security](https://img.shields.io/badge/security-bandit-green)](https://github.com/PyCQA/bandit)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 ## Обзор
 
@@ -49,7 +51,7 @@ qualix/
 │   │   └── user_repo.py                         # Data access layer
 │   ├── services/
 │   │   └── validators.py                        # Pure business logic validators
-│   ├── middleware.py                            # RequestID · Logging · RateLimit
+│   ├── middleware.py                            # RequestID · Logging · RateLimit · SecurityHeaders
 │   ├── security.py                              # bcrypt password hashing
 │   ├── logging_config.py                        # structlog structured logging
 │   ├── dependencies.py                          # FastAPI DI: db, auth, settings
@@ -141,6 +143,8 @@ qualix/
 - **RequestIDMiddleware** - `X-Request-ID` для distributed tracing
 - **RateLimitMiddleware** - sliding window, 100 req/min per IP, bounded memory
 - **CORS hardening** - per-environment origins (production: none, dev: localhost only)
+- **Security headers** - X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy
+- **Password complexity** - uppercase + lowercase + digit + special character enforced
 - **Decimal for money** - PaymentRequest.amount uses Decimal, not float
 - **`/health` + `/health/ready`** - liveness + readiness probes для k8s
 

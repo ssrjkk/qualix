@@ -130,20 +130,20 @@ class TestRedisCache:
 
     async def test_set_and_get_fake(self) -> None:
         r = fakeredis.FakeRedis()
-        await r.set("sentinel:test", b"hello", ex=60)
-        assert await r.get("sentinel:test") == b"hello"
+        await r.set("qualix:test", b"hello", ex=60)
+        assert await r.get("qualix:test") == b"hello"
         await r.aclose()
 
     async def test_missing_key_returns_none_fake(self) -> None:
         r = fakeredis.FakeRedis()
-        assert await r.get("sentinel:nonexistent_xyz") is None
+        assert await r.get("qualix:nonexistent_xyz") is None
         await r.aclose()
 
     async def test_overwrite_key_fake(self) -> None:
         r = fakeredis.FakeRedis()
-        await r.set("sentinel:overwrite", b"v1")
-        await r.set("sentinel:overwrite", b"v2")
-        assert await r.get("sentinel:overwrite") == b"v2"
+        await r.set("qualix:overwrite", b"v1")
+        await r.set("qualix:overwrite", b"v2")
+        assert await r.get("qualix:overwrite") == b"v2"
         await r.aclose()
 
     async def test_ttl_expiry_fake(self) -> None:
@@ -151,41 +151,41 @@ class TestRedisCache:
         server = fakeredis.FakeServer()
         server.connected = True
         r = fakeredis.FakeRedis(server=server)
-        await r.set("sentinel:ttl", b"bye", ex=1)
+        await r.set("qualix:ttl", b"bye", ex=1)
         # fakeredis не реально истекает по времени без мокирования времени,
         # проверяем что TTL установлен
-        ttl = await r.ttl("sentinel:ttl")
+        ttl = await r.ttl("qualix:ttl")
         assert ttl > 0
         await r.aclose()
 
     async def test_incr_fake(self) -> None:
         r = fakeredis.FakeRedis()
-        await r.set("sentinel:counter", 0)
-        await r.incr("sentinel:counter")
-        await r.incr("sentinel:counter")
-        val = await r.get("sentinel:counter")
+        await r.set("qualix:counter", 0)
+        await r.incr("qualix:counter")
+        await r.incr("qualix:counter")
+        val = await r.get("qualix:counter")
         assert int(val) == 2
         await r.aclose()
 
     async def test_exists_fake(self) -> None:
         r = fakeredis.FakeRedis()
-        await r.set("sentinel:exists", b"yes")
-        assert await r.exists("sentinel:exists") == 1
-        assert await r.exists("sentinel:nokey") == 0
+        await r.set("qualix:exists", b"yes")
+        assert await r.exists("qualix:exists") == 1
+        assert await r.exists("qualix:nokey") == 0
         await r.aclose()
 
     async def test_delete_fake(self) -> None:
         r = fakeredis.FakeRedis()
-        await r.set("sentinel:del", b"x")
-        await r.delete("sentinel:del")
-        assert await r.get("sentinel:del") is None
+        await r.set("qualix:del", b"x")
+        await r.delete("qualix:del")
+        assert await r.get("qualix:del") is None
         await r.aclose()
 
     async def test_hset_hget_fake(self) -> None:
         """Hash операции — типичный паттерн для сессий."""
         r = fakeredis.FakeRedis()
-        await r.hset("sentinel:session:abc", mapping={"user_id": "42", "role": "admin"})
-        user_id = await r.hget("sentinel:session:abc", "user_id")
+        await r.hset("qualix:session:abc", mapping={"user_id": "42", "role": "admin"})
+        user_id = await r.hget("qualix:session:abc", "user_id")
         assert user_id == b"42"
         await r.aclose()
 
@@ -195,6 +195,6 @@ class TestRedisCache:
 
         r = aioredis.from_url(test_settings.redis_url)
         uid = _uid()
-        await r.set(f"sentinel:real:{uid}", b"real_hello", ex=60)
-        assert await r.get(f"sentinel:real:{uid}") == b"real_hello"
+        await r.set(f"qualix:real:{uid}", b"real_hello", ex=60)
+        assert await r.get(f"qualix:real:{uid}") == b"real_hello"
         await r.aclose()

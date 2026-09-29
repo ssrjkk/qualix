@@ -59,6 +59,20 @@ class TestUserCreate:
         with pytest.raises(ValidationError):
             UserCreate(username="a" * 65, email="a@b.com", password="ValidPass1!")
 
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "username", ["bad user", "bad!user", "user/name", "привет", "tab\tuser", "usr\x00"]
+    )
+    def test_username_invalid_chars_raises(self, username: str) -> None:
+        with pytest.raises(ValidationError, match="may only contain"):
+            UserCreate(username=username, email="a@b.com", password="ValidPass1!")
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("username", ["sergey.qa", "sergey-qa", "sergey_qa", "QA123"])
+    def test_username_allowed_characters(self, username: str) -> None:
+        u = UserCreate(username=username, email="a@b.com", password="ValidPass1!")
+        assert u.username == username
+
 
 class TestPaymentRequest:
     @pytest.mark.unit

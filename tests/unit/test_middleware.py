@@ -94,6 +94,32 @@ class TestRequestIDMiddleware:
 
 
 @pytest.mark.unit
+class TestSecurityHeadersMiddleware:
+    async def test_adds_security_headers(self) -> None:
+        from fastapi import FastAPI
+        from starlette.testclient import TestClient
+
+        from app.middleware import SecurityHeadersMiddleware
+
+        app = FastAPI()
+
+        @app.get("/test")
+        async def test_route() -> dict:
+            return {"ok": True}
+
+        app.add_middleware(SecurityHeadersMiddleware)
+
+        with TestClient(app) as client:
+            resp = client.get("/test")
+
+        assert resp.headers["x-content-type-options"] == "nosniff"
+        assert resp.headers["x-frame-options"] == "DENY"
+        assert resp.headers["referrer-policy"] == "strict-origin-when-cross-origin"
+        assert resp.headers["permissions-policy"] == "camera=(), microphone=(), geolocation=()"
+        assert resp.headers["x-xss-protection"] == "0"
+
+
+@pytest.mark.unit
 class TestRateLimitMiddleware:
     async def test_allows_requests_under_limit(self) -> None:
         from fastapi import FastAPI
@@ -115,7 +141,7 @@ class TestRateLimitMiddleware:
                 assert resp.status_code == 200
 
     async def test_blocks_requests_over_limit(self) -> None:
-        """lines 90-96: rate limit exceeded → 429."""
+        """превышение лимита → 429."""
         from fastapi import FastAPI
         from starlette.testclient import TestClient
 
@@ -178,6 +204,71 @@ class TestRateLimitMiddleware:
         assert resp.status_code == 429
         assert "x-ratelimit-limit" in resp.headers
         assert "retry-after" in resp.headers
+
+
+@pytest.mark.unit
+class TestRateLimitMemoryGuard:
+    """Ограничение памяти словаря с таймстампами — иначе лимитер течь при смене IP."""
+
+    def test_cleanup_stale_drops_expired_and_empty_keys(self) -> None:
+        from app.middleware import RateLimitMiddleware
+
+        mw = RateLimitMiddleware(app=MagicMock(), limit=100, window=60.0)
+        now = 1000.0
+        mw._requests = {
+            "fresh": [now],
+            "expired": [now - mw.window - 1],
+            "empty": [],
+        }
+
+        mw._cleanup_stale(now)
+
+        assert list(mw._requests) == ["fresh"]
+
+    async def test_dispatch_prunes_on_cleanup_interval(self) -> None:
+        from unittest.mock import AsyncMock
+
+        from app.middleware import RateLimitMiddleware
+
+        mw = RateLimitMiddleware(app=MagicMock(), limit=100, window=60.0)
+        mw._requests = {f"10.0.{i}.1": [0.0] for i in range(200)}
+        mw._request_count = RateLimitMiddleware._CLEANUP_INTERVAL - 1
+
+        call_next = AsyncMock(return_value=_make_response(200))
+        await mw.dispatch(_make_request(path="/api/v1/users"), call_next)
+
+        assert list(mw._requests) == ["127.0.0.1"]
+        assert call_next.await_count == 1
+
+    async def test_dispatch_runs_second_cleanup_when_over_capacity(self) -> None:
+        import time
+        from unittest.mock import AsyncMock
+
+        from app.middleware import RateLimitMiddleware
+
+        mw = RateLimitMiddleware(app=MagicMock(), limit=100, window=60.0)
+        now = time.monotonic()
+        mw._requests = {
+            f"10.0.{i // 256}.{i % 256}": [now] for i in range(RateLimitMiddleware._MAX_ENTRIES + 1)
+        }
+        mw._request_count = RateLimitMiddleware._CLEANUP_INTERVAL - 1
+
+        cleanups: list[float] = []
+        prune_stale = mw._cleanup_stale
+
+        def counting_prune(ts: float) -> None:
+            cleanups.append(ts)
+            prune_stale(ts)
+
+        mw._cleanup_stale = counting_prune
+
+        call_next = AsyncMock(return_value=_make_response(200))
+        await mw.dispatch(_make_request(path="/api/v1/users"), call_next)
+
+        # записи свежие, поэтому второй проход ничего не удаляет
+        assert len(cleanups) == 2
+        assert len(mw._requests) == RateLimitMiddleware._MAX_ENTRIES + 2
+        assert call_next.await_count == 1
 
 
 @pytest.mark.unit

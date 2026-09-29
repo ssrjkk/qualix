@@ -16,10 +16,10 @@ down: ## Остановить все сервисы
 
 # ── Тесты по слоям ───────────────────────────────────────────────────────────
 
-test: ## Полный прогон (unit + integration + api + contract)
+test: ## Полный прогон (unit + integration + api + contract + external)
 	mkdir -p reports
 	python -m app.api.openapi > openapi.json
-	pytest tests/unit/ tests/integration/ tests/api/ tests/contract/ \
+	pytest tests/unit/ tests/integration/ tests/api/ tests/contract/ tests/external/ \
 		-q --no-header --alluredir=allure-results
 
 test-unit: ## Unit тесты + coverage
@@ -54,15 +54,15 @@ test-load: ## Load тест (30s smoke, нужен make up)
 
 # ── Coverage ──────────────────────────────────────────────────────────────────
 
-cov: ## Полный coverage report (html + xml)
+cov: ## Полный coverage report (html + xml) — те же слои, что в CI
 	mkdir -p reports
 	python -m app.api.openapi > openapi.json
-	pytest tests/unit/ tests/api/ tests/contract/ \
+	pytest tests/unit/ tests/integration/ tests/api/ tests/contract/ tests/external/ \
 		--cov=app \
 		--cov-report=term-missing \
 		--cov-report=html:reports/coverage-html \
 		--cov-report=xml:reports/coverage.xml \
-		--cov-fail-under=80 \
+		--cov-fail-under=95 \
 		-q --no-header
 	@echo "✓ HTML: reports/coverage-html/index.html"
 	@echo "✓ XML:  reports/coverage.xml"

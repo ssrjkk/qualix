@@ -7,7 +7,7 @@
   },
   "postCreateCommand": "pip install uv && uv pip install --system -e '.[test,load,lint]' && playwright install chromium && pre-commit install --install-hooks",
   "containerEnv": {
-    "DATABASE_URL": "postgresql+asyncpg://qa:qa@localhost:5432/qa_sentinel",
+    "DATABASE_URL": "postgresql+asyncpg://qa:qa@localhost:5432/qualix",
     "REDIS_URL": "redis://localhost:6379/0",
     "ENVIRONMENT": "development",
     "SECRET_KEY": "devcontainer-insecure-change-in-prod"

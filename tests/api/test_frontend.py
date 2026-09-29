@@ -9,13 +9,13 @@ from httpx import AsyncClient
 @pytest.mark.api
 class TestFrontendRoutes:
     async def test_login_page_serves_html(self, client: AsyncClient) -> None:
-        """main.py:83-84 — /login route."""
+        """GET /login отдаёт SPA-страницу."""
         resp = await client.get("/login")
         assert resp.status_code == 200
         assert "text/html" in resp.headers.get("content-type", "")
 
     async def test_dashboard_page_serves_html(self, client: AsyncClient) -> None:
-        """main.py:87-88 — /dashboard route."""
+        """GET /dashboard отдаёт SPA-страницу."""
         resp = await client.get("/dashboard")
         assert resp.status_code == 200
         assert "text/html" in resp.headers.get("content-type", "")

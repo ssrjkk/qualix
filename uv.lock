@@ -2530,7 +2530,7 @@ wheels = [
 ]
 
 [[package]]
-name = "qa-sentinel"
+name = "qualix"
 version = "1.0.0"
 source = { editable = "." }
 dependencies = [

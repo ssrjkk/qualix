@@ -37,6 +37,20 @@ class HealthResponse(BaseModel):
 
 
 _start_time = time.time()
+_redis_client: Any = None
+
+
+def _get_redis_client(redis_url: str) -> Any:
+    global _redis_client
+    if _redis_client is None:
+        import redis.asyncio as aioredis
+
+        _redis_client = aioredis.from_url(
+            redis_url,
+            socket_connect_timeout=2,
+            socket_timeout=2,
+        )
+    return _redis_client
 
 
 @router.get("/health", response_model=dict[str, Any])
@@ -74,13 +88,8 @@ async def readiness(
     # ── Redis ─────────────────────────────────────────────────────────────────
     t0 = time.perf_counter()
     try:
-        import redis.asyncio as aioredis
-
-        r = aioredis.from_url(settings.redis_url, socket_connect_timeout=1)
-        try:
-            await r.ping()
-        finally:
-            await r.aclose()
+        r = _get_redis_client(settings.redis_url)
+        await r.ping()
         redis_latency = round((time.perf_counter() - t0) * 1000, 2)
         components["redis"] = ComponentStatus(status="ok", latency_ms=redis_latency)
     except Exception as e:

@@ -13,10 +13,36 @@
 
 ## Обзор
 
-qualix - полноценная QA-платформа для мониторинга деградации API и UI.
-Не просто набор тестов - отдельный продукт.
+**qualix** — полноценная QA-платформа для мониторинга деградации API и UI.
+
+Не просто набор тестов — **отдельный продукт** с production-grade архитектурой:
+- 🏗️ FastAPI приложение с HMAC-SHA256 аутентификацией
+- 🧪 Полный тест-пайрамид: unit → integration → API → contract → E2E → load
+- 🛡️ Security hardening: rate limiting, CORS, security headers, bcrypt
+- 📊 100% coverage + 317 тестов + CI/CD pipeline из 17 jobs
+- 🚀 Kubernetes-ready: Helm-style manifests, HPA, zero-downtime deploy
 
 **Стек 2026:** Python 3.12 · pytest 8.3 · Playwright · Locust · FastAPI · SQLAlchemy · Docker · k8s · GitHub Actions · Allure · Prometheus · Grafana
+
+## Почему qualix?
+
+### Для QA Engineers
+- **Полный test pyramid** — от unit до load testing в одном проекте
+- **Production-ready patterns** — factory_boy, Hypothesis, time-machine, pytest-benchmark
+- **AI-powered assertions** — semantic UI checks через Claude Sonnet
+- **Flaky test detection** — автоматическое создание GitHub Issues
+
+### Для DevOps
+- **17-job CI/CD** — lint → test → build → deploy → monitor
+- **Kubernetes-native** — HPA, rolling updates, health probes
+- **Observability** — Prometheus metrics + Grafana dashboards
+- **Security-first** — SAST, dependency scanning, security headers
+
+### Для разработчиков
+- **Clean architecture** — repository pattern, dependency injection, layered structure
+- **Type-safe** — mypy strict mode, Pydantic validation
+- **Fast iteration** — SQLite fallback для тестов без Docker
+- **Comprehensive docs** — ADR, CONTRIBUTING, inline documentation
 
 ## Быстрый старт
 
@@ -139,14 +165,37 @@ qualix/
 ### Архитектура приложения
 - **HMAC-SHA256 tokens** - constant-time comparison, expiry validation, username regex enforcement
 - **bcrypt rounds=12** - OWASP-compliant password hashing, constant-time verify
+- **Password complexity** - uppercase + lowercase + digit + special character enforced
 - **structlog** - structured JSON logging с request_id в каждом логе
 - **RequestIDMiddleware** - `X-Request-ID` для distributed tracing
 - **RateLimitMiddleware** - sliding window, 100 req/min per IP, bounded memory
+- **SecurityHeadersMiddleware** - X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy, X-XSS-Protection
 - **CORS hardening** - per-environment origins (production: none, dev: localhost only)
-- **Security headers** - X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy
-- **Password complexity** - uppercase + lowercase + digit + special character enforced
 - **Decimal for money** - PaymentRequest.amount uses Decimal, not float
 - **`/health` + `/health/ready`** - liveness + readiness probes для k8s
+
+### Безопасность
+
+qualix реализует defense-in-depth подход:
+
+**Аутентификация:**
+- Custom HMAC-SHA256 tokens с constant-time verification (timing attack resistant)
+- bcrypt password hashing (rounds=12, OWASP compliant)
+- Strict password policy: uppercase + lowercase + digit + special character
+- Empty token rejection
+
+**Сеть:**
+- Security headers на каждом response (X-Frame-Options, X-Content-Type-Options, etc.)
+- CORS per-environment (production: no origins, development: localhost only)
+- Rate limiting: 100 req/min per IP, sliding window, bounded memory
+
+**Инфраструктура:**
+- Bandit SAST + Safety dependency scan в CI
+- No secrets in code (environment variables + sealed-secrets для k8s)
+- Docker image scanning via Trivy
+- Dependabot weekly updates
+
+Подробнее: [SECURITY.md](SECURITY.md)
 
 ### Dev Experience
 - **pre-commit** - автоматический ruff + mypy + bandit перед каждым коммитом

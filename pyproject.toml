@@ -25,6 +25,13 @@ classifiers = [
 ]
 keywords = ["qa", "testing", "automation", "fastapi", "playwright"]
 
+[project.urls]
+Homepage = "https://github.com/ssrjkk/qualix"
+Repository = "https://github.com/ssrjkk/qualix"
+Documentation = "https://github.com/ssrjkk/qualix#readme"
+Issues = "https://github.com/ssrjkk/qualix/issues"
+Changelog = "https://github.com/ssrjkk/qualix/blob/main/CHANGELOG.md"
+
 dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",
@@ -36,6 +43,7 @@ dependencies = [
     "pydantic-settings>=2.14.2",
     "structlog>=24.4",
     "bcrypt>=4.2",
+    "prometheus-client>=0.21",
 ]
 
 [project.optional-dependencies]
@@ -71,7 +79,6 @@ test = [
     "allure-pytest>=2.16",
     # ai assertions
     "anthropic>=0.34",
-    "aiokafka>=0.11",
     "aiofiles>=24.1",
     # mutation testing
     "mutmut>=3.6",

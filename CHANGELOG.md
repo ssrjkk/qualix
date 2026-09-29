@@ -11,6 +11,21 @@
 - **dependencies**: add empty bearer token validation
 - **auth**: narrow exception handling (except Exception → ValueError, IndexError)
 
+### Infrastructure
+
+- **docker**: add .dockerignore to prevent secrets and artifacts in build context
+- **metrics**: add /metrics endpoint with Prometheus client integration
+- **prometheus**: fix scrape config (comment out non-existent exporters)
+- **grafana**: add comprehensive dashboard with HTTP metrics, latency percentiles, error rates
+- **docker-compose**: add detailed comments for all services
+- **pyproject**: add project.urls (Homepage, Repository, Documentation, Issues, Changelog)
+- **pyproject**: fix duplicate aiokafka dependency
+- **pyproject**: add prometheus-client to main dependencies
+- **env**: add GRAFANA_ADMIN_PASSWORD and PostgreSQL credentials to .env.example
+- **gitignore**: add .mypy_cache/, .ruff_cache/, .benchmarks/, *.log, trivy-results.sarif
+- **makefile**: add Windows compatibility for cov-open target
+- **users**: fix DELETE endpoint response_model for 204 status code
+
 ### CI/CD
 
 - **workflows**: make load test p99 threshold non-blocking (continue-on-error)
@@ -19,6 +34,8 @@
 ### Documentation
 
 - **SECURITY.md**: comprehensive security practices documentation
+- **README.md**: add Mermaid architecture diagram showing full system topology
+- **README.md**: add test pyramid visualization with color-coded layers
 - **README.md**: add security badges, update architecture section
 - **branding**: complete replacement of QA Sentinel references with qualix
 

@@ -107,9 +107,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # ── Routers ───────────────────────────────────────────────────────────────
     from app.api.auth import router as auth_router
     from app.api.health import router as health_router
+    from app.api.metrics import router as metrics_router
     from app.api.users import router as users_router
 
     application.include_router(health_router)
+    application.include_router(metrics_router)
     application.include_router(auth_router)
     application.include_router(users_router)
 

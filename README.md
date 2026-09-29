@@ -24,6 +24,70 @@
 
 **Стек 2026:** Python 3.12 · pytest 8.3 · Playwright · Locust · FastAPI · SQLAlchemy · Docker · k8s · GitHub Actions · Allure · Prometheus · Grafana
 
+## Архитектура
+
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        Browser[Browser / Playwright]
+        Locust[Locust Load Generator]
+    end
+
+    subgraph "FastAPI Application"
+        subgraph "Middleware Stack"
+            ReqID[RequestID Middleware]
+            Log[Logging Middleware]
+            Rate[Rate Limit Middleware]
+            Sec[Security Headers]
+            CORS[CORS Middleware]
+        end
+
+        subgraph "API Layer"
+            Auth[Auth Router<br/>HMAC-SHA256]
+            Users[Users Router<br/>CRUD]
+            Health[Health Router<br/>Liveness + Readiness]
+            Metrics[Metrics Router<br/>Prometheus]
+        end
+
+        subgraph "Business Logic"
+            Validators[Validators<br/>Email, Phone, Amount]
+            Security[Security<br/>bcrypt rounds=12]
+        end
+
+        subgraph "Data Layer"
+            Repo[User Repository]
+            Models[Pydantic Schemas]
+            ORM[SQLAlchemy ORM]
+        end
+    end
+
+    subgraph "Infrastructure"
+        PG[(PostgreSQL 16)]
+        Redis[(Redis 7)]
+        Kafka[Kafka<br/>KRaft Mode]
+    end
+
+    subgraph "Monitoring"
+        Prometheus[Prometheus]
+        Grafana[Grafana]
+        Allure[Allure Reports]
+    end
+
+    Browser -->|HTTP/HTTPS| ReqID
+    Locust -->|Load Test| ReqID
+    ReqID --> Log --> Rate --> Sec --> CORS
+    CORS --> Auth & Users & Health & Metrics
+    Auth --> Security --> Repo
+    Users --> Validators --> Repo
+    Repo --> ORM
+    ORM --> PG
+    Auth -.->|Session cache| Redis
+    Users -.->|Events| Kafka
+    Metrics -->|/metrics| Prometheus
+    Prometheus --> Grafana
+    Browser -.->|E2E Tests| Allure
+```
+
 ## Почему qualix?
 
 ### Для QA Engineers
@@ -140,6 +204,27 @@ qualix/
 ```
 
 ## Тест-слои
+
+```mermaid
+graph TB
+    subgraph "Test Pyramid"
+        Load[Load Testing<br/>Locust · Prometheus<br/>p99 auto-stop]
+        E2E[E2E Tests<br/>Playwright POM<br/>AI assertions · 7 tests]
+        API[API Tests<br/>httpx · schemathesis<br/>48 tests]
+        Contract[Contract Tests<br/>JSON Schema<br/>11 tests]
+        Integration[Integration Tests<br/>testcontainers · fakeredis<br/>17 tests]
+        Unit[Unit Tests<br/>Hypothesis · time-machine<br/>122 tests]
+    end
+
+    Load --> E2E --> API --> Contract --> Integration --> Unit
+
+    style Unit fill:#4CAF50,color:#fff
+    style Integration fill:#8BC34A,color:#fff
+    style Contract fill:#CDDC39,color:#000
+    style API fill:#FFC107,color:#000
+    style E2E fill:#FF9800,color:#fff
+    style Load fill:#F44336,color:#fff
+```
 
 | Слой | Файлы | Инструменты | Тестов | Coverage |
 |------|-------|-------------|--------|----------|

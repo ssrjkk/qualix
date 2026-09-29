@@ -68,7 +68,16 @@ cov: ## Полный coverage report (html + xml) — те же слои, что
 	@echo "✓ XML:  reports/coverage.xml"
 
 cov-open: cov ## Coverage report + открыть в браузере
-	open reports/coverage-html/index.html || xdg-open reports/coverage-html/index.html
+	@echo "Открытие coverage report..."
+	@if command -v start >/dev/null 2>&1; then \
+		start reports/coverage-html/index.html; \
+	elif command -v open >/dev/null 2>&1; then \
+		open reports/coverage-html/index.html; \
+	elif command -v xdg-open >/dev/null 2>&1; then \
+		xdg-open reports/coverage-html/index.html; \
+	else \
+		echo "Откройте вручную: reports/coverage-html/index.html"; \
+	fi
 
 # ── Качество кода ─────────────────────────────────────────────────────────────
 

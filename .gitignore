@@ -12,11 +12,15 @@ build/
 coverage.xml
 .hypothesis/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.benchmarks/
 allure-results/
 allure-reports/
 reports/
 pacts/
 logs/
+*.log
 
 # DB files
 *.db
@@ -24,6 +28,7 @@ logs/
 
 # Generated
 openapi.json
+trivy-results.sarif
 
 # Env
 .env

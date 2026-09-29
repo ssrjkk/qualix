@@ -1,7 +1,9 @@
 # QUALIX — QA automation platform by ssrjkk
+# Full-stack infrastructure: app + postgres + redis + kafka + monitoring
 version: "3.9"
 
 services:
+  # ── FastAPI Application ─────────────────────────────────────────────────────
   app:
     build: .
     ports: ["8080:8080"]
@@ -21,6 +23,7 @@ services:
       retries: 10
       start_period: 30s
 
+  # ── PostgreSQL Database ─────────────────────────────────────────────────────
   postgres:
     image: postgres:16-alpine
     environment: { POSTGRES_USER: qa, POSTGRES_PASSWORD: qa, POSTGRES_DB: qualix }
@@ -30,6 +33,7 @@ services:
       interval: 5s
       retries: 5
 
+  # ── Redis Cache ─────────────────────────────────────────────────────────────
   redis:
     image: redis:7-alpine
     expose: ["6379"]
@@ -38,6 +42,7 @@ services:
       interval: 5s
       retries: 5
 
+  # ── Kafka Message Broker (KRaft mode, no ZooKeeper) ─────────────────────────
   kafka:
     image: confluentinc/cp-kafka:7.7.0
     expose: ["9092"]
@@ -56,6 +61,7 @@ services:
       interval: 10s
       retries: 10
 
+  # ── Allure Test Reporting ───────────────────────────────────────────────────
   allure:
     image: frankescobar/allure-docker-service:2.27.0
     ports: ["4040:5050"]
@@ -66,11 +72,13 @@ services:
       - ./allure-results:/app/allure-results
       - ./allure-reports:/app/default-reports
 
+  # ── Prometheus Monitoring ───────────────────────────────────────────────────
   prometheus:
     image: prom/prometheus:v2.54.0
     ports: ["9090:9090"]
     volumes: ["./infra/prometheus.yml:/etc/prometheus/prometheus.yml"]
 
+  # ── Grafana Dashboards ──────────────────────────────────────────────────────
   grafana:
     image: grafana/grafana:11.2.0
     ports: ["3000:3000"]

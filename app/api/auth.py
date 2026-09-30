@@ -71,7 +71,8 @@ async def login(
             "admin": "admin_pass",
             "load_user": "pass",
         }
-        if data.username in test_users and test_users[data.username] == data.password:
+        expected_pw = test_users.get(data.username)
+        if expected_pw is not None and hmac.compare_digest(expected_pw, data.password):
             token = _create_token(
                 data.username, settings.secret_key, settings.access_token_expire_minutes
             )

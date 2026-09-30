@@ -57,7 +57,7 @@ async def metrics() -> Response:
     Prometheus metrics endpoint.
     Возвращает метрики в формате Prometheus exposition format.
     """
-    if not METRICS_AVAILABLE:
+    if not METRICS_AVAILABLE:  # pragma: no cover
         return Response(
             content="# Prometheus client not installed\n",
             media_type="text/plain",

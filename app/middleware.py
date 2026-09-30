@@ -144,4 +144,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             )
 
         self._requests[client_ip].append(now)
-        return await call_next(request)
+        response = await call_next(request)
+        remaining = max(0, self.limit - len(self._requests[client_ip]))
+        response.headers["X-RateLimit-Limit"] = str(self.limit)
+        response.headers["X-RateLimit-Remaining"] = str(remaining)
+        response.headers["X-RateLimit-Reset"] = str(int(now + self.window))
+        return response

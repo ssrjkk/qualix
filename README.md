@@ -1,5 +1,11 @@
 # QUALIX
 
+[![CI](https://github.com/ssrjkk/qualix/actions/workflows/ci.yml/badge.svg)](https://github.com/ssrjkk/qualix/actions/workflows/ci.yml)
+[![python-3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+
+
 QA automation platform for API and UI monitoring.
 
 [English](README.md) | [Русский](README.ru.md)
@@ -369,3 +375,18 @@ MIT © [ssrjkk](https://github.com/ssrjkk)
 ---
 
 **Author:** Sergey Sitnikov · QA Automation Engineer · [Telegram](https://t.me/ssrjkk)
+
+
+## Installation
+
+```bash
+git clone https://github.com/ssrjkk/qualix.git
+cd qualix
+pip install -r requirements.txt
+```
+
+## Usage
+
+```bash
+python main.py
+```

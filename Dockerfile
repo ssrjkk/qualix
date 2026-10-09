@@ -15,7 +15,7 @@ RUN uv export --locked --no-dev --no-hashes -o /tmp/requirements.txt \
  && uv pip install --system -r /tmp/requirements.txt \
  && uv pip install --system --no-deps "."
 
-COPY docker-entrypoint.sh .
+COPY scripts/docker-entrypoint.sh .
 RUN chmod +x docker-entrypoint.sh
 
 USER appuser

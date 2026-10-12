@@ -28,11 +28,11 @@ jobs:
           --health-cmd "redis-cli ping" --health-interval 5s
         ports: ["6379:6379"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with: { python-version: "${{ env.PYTHON_VERSION }}" }
-      - uses: astral-sh/setup-uv@v3
-      - uses: actions/cache@v4
+      - uses: astral-sh/setup-uv@v10
+      - uses: actions/cache@v6
         with:
           path: ${{ env.UV_CACHE_DIR }}
           key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
@@ -72,7 +72,7 @@ jobs:
             --csv reports/load-nightly
         continue-on-error: true
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: nightly-results

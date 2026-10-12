@@ -48,14 +48,14 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with: { python-version: "${{ env.PYTHON_VERSION }}" }
 
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v10
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ${{ env.UV_CACHE_DIR }}
           key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
@@ -87,7 +87,7 @@ jobs:
           uv run safety check --short-report || true
         # continue-on-error потому что safety часто даёт false positive на dev зависимостях
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: security-reports
@@ -100,8 +100,8 @@ jobs:
     runs-on: ubuntu-24.04
     if: github.event_name == 'pull_request'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/dependency-review-action@v4
+      - uses: actions/checkout@v7
+      - uses: actions/dependency-review-action@v5
         with:
           fail-on-severity: high
           deny-licenses: GPL-2.0, GPL-3.0, AGPL-3.0
@@ -116,14 +116,14 @@ jobs:
     outputs:
       coverage-pct: ${{ steps.cov.outputs.pct }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with: { python-version: "${{ env.PYTHON_VERSION }}" }
 
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v10
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ${{ env.UV_CACHE_DIR }}
           key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
@@ -161,7 +161,7 @@ jobs:
           echo "## Unit Tests" >> $GITHUB_STEP_SUMMARY
           echo "Coverage: **${{ steps.cov.outputs.pct }}%**" >> $GITHUB_STEP_SUMMARY
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v7
         if: always()
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -170,7 +170,7 @@ jobs:
           fail_ci_if_error: false
         continue-on-error: true
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: unit-results
@@ -213,14 +213,14 @@ jobs:
           --health-retries 5
         ports: ["6379:6379"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with: { python-version: "${{ env.PYTHON_VERSION }}" }
 
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v10
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ${{ env.UV_CACHE_DIR }}
           key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
@@ -259,7 +259,7 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: integration-results
@@ -285,14 +285,14 @@ jobs:
     env:
       DATABASE_URL: "sqlite+aiosqlite:///./test.db"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with: { python-version: "${{ env.PYTHON_VERSION }}" }
 
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v10
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ${{ env.UV_CACHE_DIR }}
           key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
@@ -330,7 +330,7 @@ jobs:
               f.write(f'pct={pct}\n')
           "
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v7
         if: always()
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -339,14 +339,14 @@ jobs:
           fail_ci_if_error: false
         continue-on-error: true
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: allure-results-api
           path: allure-results/
           retention-days: 7
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: api-results
@@ -368,14 +368,14 @@ jobs:
     needs: [unit, integration]
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with: { python-version: "${{ env.PYTHON_VERSION }}" }
 
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v10
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ${{ env.UV_CACHE_DIR }}
           key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
@@ -392,7 +392,7 @@ jobs:
             --benchmark-disable \
             -q --no-cov
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: external-results
@@ -414,14 +414,14 @@ jobs:
     needs: [unit, integration]
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with: { python-version: "${{ env.PYTHON_VERSION }}" }
 
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v10
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ${{ env.UV_CACHE_DIR }}
           key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
@@ -430,7 +430,7 @@ jobs:
       - run: uv sync --locked --extra test
 
       - name: Cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: pw-cache
         with:
           path: ~/.cache/ms-playwright
@@ -554,7 +554,7 @@ jobs:
           ls -la allure-results/ 2>/dev/null || echo '(no directory)'
           echo '::endgroup::'
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: allure-results-e2e
@@ -572,7 +572,7 @@ jobs:
           docker compose config > reports/docker-compose-config.log 2>&1 || true
 
       - name: Upload debug logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: e2e-debug-logs
@@ -649,15 +649,15 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: unit-results
           path: reports/
 
       - name: Post coverage comment
-        uses: py-cov-action/python-coverage-comment-action@v3
+        uses: py-cov-action/python-coverage-comment-action@v4
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERAGE_PATH: reports/coverage-unit.xml
@@ -679,14 +679,14 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with: { python-version: "${{ env.PYTHON_VERSION }}" }
 
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v10
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ${{ env.UV_CACHE_DIR }}
           key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
@@ -719,7 +719,7 @@ jobs:
               print(f'| {name} | {mean_ms} | {ops} |')
           " >> $GITHUB_STEP_SUMMARY
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: benchmark-results
           path: reports/benchmark.json
@@ -748,7 +748,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: allure-results-*
           merge-multiple: true
@@ -772,7 +772,7 @@ jobs:
       # Отчёт остаётся artifact'ом run'а — отдельные branches не создаём.
       - name: Upload Allure report
         if: steps.check.outputs.has_results == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: allure-report
           path: allure-report/
@@ -788,14 +788,14 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with: { python-version: "${{ env.PYTHON_VERSION }}" }
 
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v10
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ${{ env.UV_CACHE_DIR }}
           key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
@@ -842,11 +842,11 @@ jobs:
     outputs:
       image: ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
@@ -855,10 +855,10 @@ jobs:
             type=sha,prefix=sha-,format=short
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
 
       - name: Cache Docker layers
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: /tmp/.buildx-cache
           key: buildx-${{ runner.os }}-${{ github.sha }}
@@ -866,14 +866,14 @@ jobs:
 
       - name: Login to GHCR
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build (and push if not PR)
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
@@ -888,7 +888,7 @@ jobs:
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Trivy scan (build context — всегда доступен)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           scan-ref: .
@@ -899,7 +899,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload Trivy SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: trivy-results.sarif
@@ -919,12 +919,12 @@ jobs:
       name: staging
       url: ${{ vars.STAGING_URL || 'http://localhost:8080' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with: { python-version: "${{ env.PYTHON_VERSION }}" }
 
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v10
 
       - run: uv sync --locked --extra test
 
@@ -1045,12 +1045,12 @@ jobs:
       )
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with: { python-version: "${{ env.PYTHON_VERSION }}" }
 
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v10
 
       - run: uv sync --locked --extra test --extra load
 
@@ -1121,7 +1121,7 @@ jobs:
           "
         continue-on-error: true
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: load-results
@@ -1139,7 +1139,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with: { fetch-depth: 0 }
 
       - name: Build changelog
@@ -1157,7 +1157,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.ref_name }}
           name: "Release ${{ github.ref_name }}"

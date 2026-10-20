@@ -109,11 +109,13 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v7
+      # Гейт настоящий: PR с новой зависимостью high+ или запрещённой
+      # лицензией не пройдёт. Раньше здесь стоял continue-on-error, и проверка
+      # светилась, но не блокировала ничего.
       - uses: actions/dependency-review-action@v5.0.0
         with:
           fail-on-severity: high
           deny-licenses: GPL-2.0, GPL-3.0, AGPL-3.0
-        continue-on-error: true  # информативно, не блокируем
 
   # ── 3. UNIT TESTS ──────────────────────────────────────────────────────────
   unit:
@@ -921,8 +923,11 @@ jobs:
           format: sarif
           output: trivy-results.sarif
           severity: CRITICAL,HIGH
+          # Без exit-code Trivy всегда завершается успешно: находки видны в
+          # логе, но прогон зелёный. ignore-unfixed оставляет только те CVE,
+          # которые действительно можно закрыть обновлением.
+          exit-code: "1"
           ignore-unfixed: true
-        continue-on-error: true
 
       - name: Upload Trivy SARIF
         uses: github/codeql-action/upload-sarif@v4

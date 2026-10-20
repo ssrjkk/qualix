@@ -47,7 +47,7 @@ jobs:
   pre-checks:
     name: "Lint · Types · SAST"
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
 
@@ -119,8 +119,8 @@ jobs:
   unit:
     name: "Unit Tests + Coverage"
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
     needs: pre-checks
+    timeout-minutes: 15
     outputs:
       coverage-pct: ${{ steps.cov.outputs.pct }}
     steps:
@@ -199,8 +199,8 @@ jobs:
   integration:
     name: "Integration Tests (Postgres + Redis)"
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
     needs: pre-checks
+    timeout-minutes: 15
     services:
       postgres:
         image: postgres:16-alpine
@@ -290,8 +290,8 @@ jobs:
   api:
     name: "API + Contract + Schemathesis"
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
     needs: [unit, integration]
+    timeout-minutes: 20
     outputs:
       coverage-pct: ${{ steps.cov.outputs.pct }}
     env:
@@ -379,8 +379,8 @@ jobs:
   external:
     name: "External API Tests (respx mocks)"
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
     needs: [unit, integration]
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
 
@@ -427,8 +427,8 @@ jobs:
   e2e:
     name: "E2E Tests (Playwright)"
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
     needs: [unit, integration]
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
 
@@ -689,13 +689,13 @@ jobs:
   benchmark:
     name: "Performance Benchmarks"
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
     needs: quality-gate
     if: |
       needs.quality-gate.result == 'success' && (
         github.ref == 'refs/heads/main' ||
         github.event_name == 'pull_request'
       )
+    timeout-minutes: 15
     permissions:
       contents: write
     steps:
@@ -858,9 +858,9 @@ jobs:
   docker:
     name: "Docker Build + Trivy Scan"
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
     needs: quality-gate
     if: needs.quality-gate.result == 'success'
+    timeout-minutes: 20
     permissions:
       contents: read
       packages: write
@@ -935,12 +935,12 @@ jobs:
   staging-smoke:
     name: "Staging Smoke Tests"
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
     needs: docker
     if: |
       needs.docker.result == 'success' &&
       github.ref == 'refs/heads/main' &&
       github.event_name != 'pull_request'
+    timeout-minutes: 10
     environment:
       name: staging
       url: ${{ vars.STAGING_URL || 'http://localhost:8080' }}
@@ -1065,13 +1065,13 @@ jobs:
   load-tests:
     name: "Load Tests (Locust)"
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
     needs: quality-gate
     if: |
       needs.quality-gate.result == 'success' && (
         github.event_name == 'schedule' ||
         github.event.inputs.run_load_tests == 'true'
       )
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
 

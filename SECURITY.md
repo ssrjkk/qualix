@@ -119,7 +119,7 @@ When deploying qualix to production:
 
 7. **Regular updates**
    - Keep dependencies updated (`dependabot` is configured)
-   - Run `safety check` regularly
+   - Run `uv export --frozen --no-emit-project -o requirements-audit.txt && uvx pip-audit --strict -r requirements-audit.txt` regularly
    - Review Dependabot alerts weekly
 
 ## Known Security Limitations

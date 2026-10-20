@@ -85,10 +85,14 @@ jobs:
           uv run bandit -r app/ --severity-level high -f txt
           uv run bandit -r app/ -f json -o reports/bandit.json || true
 
-      - name: Safety check
+      # Проверка зависимостей обязана мочь упасть: прошлый шаг был
+      # `safety check ... || true` и не блокировал ничего, а сам safety тянул
+      # nltk с непропатченной уязвимостью. pip-audit берёт зафиксированный lock
+      # целиком (prod + dev) и падает на известной CVE.
+      - name: Pip audit
         run: |
-          uv run safety check --short-report || true
-        # continue-on-error потому что safety часто даёт false positive на dev зависимостях
+          uv export --frozen --no-emit-project -o requirements-audit.txt
+          uvx pip-audit --strict -r requirements-audit.txt
 
       - uses: actions/upload-artifact@v7
         if: always()

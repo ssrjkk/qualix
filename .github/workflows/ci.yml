@@ -1130,31 +1130,36 @@ jobs:
         run: |
           uv run python -c "
           import csv, sys
+          issues = []
+          found = False
           with open('reports/load_stats.csv') as f:
               for row in csv.DictReader(f):
-                  if row.get('Name') == 'Aggregated':
-                      p99 = float(row.get('99%', 0))
-                      rps = float(row.get('Requests/s', 0))
-                      fail_pct = float(row.get('Failure Count', 0))
-                      total = float(row.get('Request Count', 1))
-                      fail_rate = (fail_pct / total * 100) if total > 0 else 0
+                  if row.get('Name') != 'Aggregated':
+                      continue
+                  found = True
+                  p99 = float(row.get('99%', 0))
+                  rps = float(row.get('Requests/s', 0))
+                  failures = float(row.get('Failure Count', 0))
+                  total = float(row.get('Request Count', 1))
+                  fail_rate = (failures / total * 100) if total > 0 else 0
 
-                      print(f'p99 latency:  {p99:.0f}ms (threshold: 500ms)')
-                      print(f'RPS:          {rps:.1f}')
-                      print(f'Failure rate: {fail_rate:.1f}%')
+                  print(f'p99 latency:  {p99:.0f}ms (threshold: 500ms)')
+                  print(f'RPS:          {rps:.1f}')
+                  print(f'Failure rate: {fail_rate:.1f}%')
 
-                      issues = []
-                      if p99 > 500:
-                          issues.append(f'p99 {p99:.0f}ms > 500ms threshold')
-                      if fail_rate > 1:
-                          issues.append(f'failure rate {fail_rate:.1f}% > 1% threshold')
+                  if p99 > 500:
+                      issues.append(f'p99 {p99:.0f}ms > 500ms threshold')
+                  if fail_rate > 1:
+                      issues.append(f'failure rate {fail_rate:.1f}% > 1% threshold')
 
-                      if issues:
-                          print('WARN:', ', '.join(issues))
-                      else:
-                          print('PASS: all thresholds met')
+          if not found:
+              print('ERROR: no Aggregated row in reports/load_stats.csv')
+              sys.exit(1)
+          if issues:
+              print('FAIL:', ', '.join(issues))
+              sys.exit(1)
+          print('PASS: all thresholds met')
           "
-        continue-on-error: true
 
       - uses: actions/upload-artifact@v7
         if: always()

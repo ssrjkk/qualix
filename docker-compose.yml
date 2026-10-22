@@ -12,6 +12,9 @@ services:
       DATABASE_URL: postgresql+asyncpg://qa:qa@postgres:5432/qualix
       REDIS_URL: redis://redis:6379/0
       KAFKA_BOOTSTRAP: kafka:9092
+      # Нагрузочный тест меряет API, а не bcrypt: cost 12 на двух ядрах
+      # раннера съедает больше CPU, чем само приложение.
+      BCRYPT_ROUNDS: 4
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }

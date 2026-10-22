@@ -10,10 +10,30 @@ bcrypt: автоматическая соль, настраиваемый cost (
 from __future__ import annotations
 
 import hashlib
+import os
 
 import bcrypt
 
 MAX_BCRYPT_BYTES = 72
+
+# Cost 12 — рекомендация OWASP для продакшена. В тестовом стеке
+# (docker-compose) он понижается через BCRYPT_ROUNDS: нагрузочный тест
+# должен мерить API и БД, а не стоимость KDF на двух ядрах раннера.
+DEFAULT_BCRYPT_ROUNDS = 12
+MIN_BCRYPT_ROUNDS = 4
+MAX_BCRYPT_ROUNDS = 15
+
+
+def _bcrypt_rounds() -> int:
+    raw = os.getenv("BCRYPT_ROUNDS", str(DEFAULT_BCRYPT_ROUNDS))
+    try:
+        rounds = int(raw)
+    except ValueError:
+        return DEFAULT_BCRYPT_ROUNDS
+    return max(MIN_BCRYPT_ROUNDS, min(MAX_BCRYPT_ROUNDS, rounds))
+
+
+BCRYPT_ROUNDS = _bcrypt_rounds()
 
 
 def _normalize_password(password: str) -> bytes:
@@ -29,8 +49,13 @@ def _normalize_password(password: str) -> bytes:
 
 
 def hash_password(password: str) -> str:
-    """Хешируем пароль с автоматической солью. Cost=12 (OWASP рекомендация)."""
-    salt = bcrypt.gensalt(rounds=12)
+    """Хешируем пароль с автоматической солью.
+
+    Cost по умолчанию 12 (OWASP рекомендация), переопределяется через
+    переменную окружения BCRYPT_ROUNDS — это нужно нагрузочному тесту,
+    где стоимость KDF съедает CPU раннера и искажает замеры API.
+    """
+    salt = bcrypt.gensalt(rounds=BCRYPT_ROUNDS)
     return bcrypt.hashpw(_normalize_password(password), salt).decode()
 
 

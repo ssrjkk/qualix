@@ -8,11 +8,11 @@ packages = ["app"]
 [project]
 name = "qualix"
 version = "1.0.0"
-description = "Full-stack QA automation platform — Sitnikov Sergey"
+description = "Full-stack QA automation platform — SSRJKK"
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [
-    {name = "ssrjkk", email = "ray013lefe@gmail.com"},
+    {name = "SSRJKK", email = "ray013lefe@gmail.com"},
 ]
 license = {text = "MIT"}
 classifiers = [
@@ -56,6 +56,7 @@ Repository = "https://github.com/ssrjkk/qualix"
 Documentation = "https://github.com/ssrjkk/qualix#readme"
 Issues = "https://github.com/ssrjkk/qualix/issues"
 Changelog = "https://github.com/ssrjkk/qualix/blob/main/CHANGELOG.md"
+Author = "https://github.com/ssrjkk"
 
 [project.optional-dependencies]
 test = [

@@ -40,9 +40,14 @@ dependencies = [
 ]
 
 [tool.uv]
-# pip-audit gate: dnspython 2.8.0 carries CVE-2026-114605, fixed in 2.9.0.
+# pip-audit gate: transitive security floors (no upstream release pins them).
 constraint-dependencies = [
+    "brotli>=1.2.1",
     "dnspython>=2.9.0",
+    "filelock>=4.2.1",
+    "graphql-core>=3.2.12",
+    "msgpack>=1.2.3",
+    "setuptools>=84.1.0",
 ]
 
 [project.urls]

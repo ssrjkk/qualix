@@ -39,6 +39,12 @@ dependencies = [
     "prometheus-client>=0.21",
 ]
 
+[tool.uv]
+# pip-audit gate: dnspython 2.8.0 carries CVE-2026-114605, fixed in 2.9.0.
+constraint-dependencies = [
+    "dnspython>=2.9.0",
+]
+
 [project.urls]
 Homepage = "https://github.com/ssrjkk/qualix"
 Repository = "https://github.com/ssrjkk/qualix"

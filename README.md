@@ -374,7 +374,7 @@ MIT © [ssrjkk](https://github.com/ssrjkk)
 
 ---
 
-**Author:** Sergey Sitnikov · QA Automation Engineer · [Telegram](https://t.me/ssrjkk)
+**Author:** Sergey Sitnikov · Full-stack Engineer · [Telegram](https://t.me/ssrjkk)
 
 
 ## Installation

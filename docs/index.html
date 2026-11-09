@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Qualix — качество как платформа — SSRJKK</title>
-<meta name="description" content="QA Arsenal — платформа автоматизации качества: API, UI, нагрузка, базы данных и Kafka на 5 целей (hh.ru, guap.ru, amoCRM) с единым пайплайном и стандартами. Стек: Python · Go · Playwright · Kafka.">
+<meta name="description" content="Qualix — платформа автоматизации качества: 317 тестов на шести уровнях, 85%+ покрытия, security hardening и k8s-ready деплой. Стек: Python · FastAPI · pytest · Playwright · Locust.">
 <meta name="theme-color" content="#ffffff">
 <meta name="color-scheme" content="light">
 <!--
@@ -28,11 +28,11 @@
   --graphite:#6d6d6d;   /* Graphite Gray — тизеры */
   --ink:#000000;        /* Ink — наклейки и заливки */
   --ash:#acacac;        /* Ash Border — поля с lip-тенью */
-  --f-yellow:#fde300;   /* Highlighter Yellow — рамка hh.ru api */
-  --f-magenta:#ed12ed;  /* Sticker Magenta — рамка hh.ru ui */
-  --f-tomato:#f4502c;   /* рамка guap.ru python */
-  --f-teal:#00a6a6;     /* рамка guap.ru go */
-  --f-violet:#8a4fff;   /* рамка amocrm */
+  --f-yellow:#fde300;   /* Highlighter Yellow — рамка слоя api */
+  --f-magenta:#ed12ed;  /* Sticker Magenta — рамка слоя ui */
+  --f-tomato:#f4502c;   /* рамка юнит-слоя */
+  --f-teal:#00a6a6;     /* рамка интеграционного слоя */
+  --f-violet:#8a4fff;   /* рамка слоя нагрузки */
   --f-lime:#97d700;     /* рамка иллюстрации */
   --serif:'Bitter','Iowan Old Style',Georgia,'Times New Roman',serif;
   --mono:'IBM Plex Mono',Menlo,Consolas,monospace;
@@ -182,7 +182,7 @@ footer.wrap{margin-top:88px;padding-bottom:56px}
 <!-- ── мастхед ── -->
 <header class="wrap mast">
   <p class="tagline">платформа автоматизации качества.<b>Пять целей. Один стандарт.</b></p>
-  <a class="wordmark" href="#top" aria-label="QA Arsenal — к началу страницы">qa arsenal</a>
+  <a class="wordmark" href="#top" aria-label="Qualix — к началу страницы">qualix</a>
   <nav class="mlinks" aria-label="Внешние ссылки">
     <a href="https://github.com/ssrjkk/qualix">GitHub ↗</a>
     <a href="https://ssrjkk.github.io/">Все проекты ↗</a>
@@ -192,7 +192,7 @@ footer.wrap{margin-top:88px;padding-bottom:56px}
 <main id="top">
 <!-- ── хиро ── -->
 <section class="wrap hero">
-  <span class="pill">QA Arsenal · монорепозиторий</span>
+  <span class="pill">Qualix · платформа</span>
   <h1>Качество как платформа.</h1>
   <p class="lead">Платформа автоматизации качества: 317 тестов на шести уровнях, 85%+ покрытия, security hardening и k8s-ready деплой.</p>
   <div class="btnrow">
@@ -220,7 +220,7 @@ footer.wrap{margin-top:88px;padding-bottom:56px}
           <div class="mrow"><span>{"items": …, "page": …}</span></div>
         </div>
       </div>
-      <h3>hh.ru api</h3>
+      <h3>слой api</h3>
       <p class="teaser">REST-проверки внешнего API: контракты, схемы ответов и статус-коды в одном модуле.</p>
     </article>
 
@@ -233,7 +233,7 @@ footer.wrap{margin-top:88px;padding-bottom:56px}
           <span class="minibtn">открыть путь</span>
         </div>
       </div>
-      <h3>hh.ru ui</h3>
+      <h3>слой ui</h3>
       <p class="teaser">Интерфейсные проверки на Playwright: поиск, формы и пользовательские пути браузера.</p>
     </article>
 
@@ -246,7 +246,7 @@ footer.wrap{margin-top:88px;padding-bottom:56px}
           <span class="bar w80"></span><span class="bar d w65"></span><span class="bar w40"></span>
         </div>
       </div>
-      <h3>guap.ru python</h3>
+      <h3>юнит-слой</h3>
       <p class="teaser">Проверки сайта на Python: страницы, формы и расписание без ручного обхода.</p>
     </article>
 
@@ -260,7 +260,7 @@ footer.wrap{margin-top:88px;padding-bottom:56px}
           <div class="mrow"><span class="dot off"></span><span class="bar w55" style="flex:1"></span></div>
         </div>
       </div>
-      <h3>guap.ru go</h3>
+      <h3>интеграционный слой</h3>
       <p class="teaser">Те же стандарты на Go: быстрые утилиты и интеграционные проверки таргета.</p>
     </article>
 
@@ -276,12 +276,12 @@ footer.wrap{margin-top:88px;padding-bottom:56px}
           <span class="bar w65"></span><span class="bar w40"></span>
         </div>
       </div>
-      <h3>amocrm</h3>
+      <h3>слой нагрузки</h3>
       <p class="teaser">Проверки CRM-сценариев: сделки, воронки и интеграции по общим правилам.</p>
     </article>
 
     <div class="tile">
-      <h3>стандарты для всех таргетов</h3>
+      <h3>безопасность и отчётность</h3>
       <p class="teaser">Единые правила контрактов, структуры и отчётности — независимо от стека и цели. Новая цель подключается по тем же правилам.</p>
       <a class="blockbtn" href="https://github.com/ssrjkk/qualix#readme">Как устроен репозиторий ↗</a>
     </div>
@@ -296,12 +296,12 @@ footer.wrap{margin-top:88px;padding-bottom:56px}
     <span class="sys">что даёт один репозиторий</span>
   </div>
   <div class="feats">
-    <div class="feat"><span class="num">01</span><h3>целевые системы в одном репо</h3><p>API, UI, нагрузка, БД и Kafka живут рядом, а не в разных проектах.</p></div>
+    <div class="feat"><span class="num">01</span><h3>целевые системы в одном репо</h3><p>Платформа автоматизации качества: 317 тестов на шести уровнях, 85%+ покрытия, security hardening и k8s-ready деплой.</p></div>
     <div class="feat"><span class="num">02</span><h3>контракты и тесты</h3><p>Ожидания от каждой системы зафиксированы и проверяемы.</p></div>
     <div class="feat"><span class="num">03</span><h3>общий пайплайн</h3><p>Один путь запуска проверок для всех таргетов и стеков.</p></div>
     <div class="feat"><span class="num">04</span><h3>разбор результатов</h3><p>Падения разбираются по единым правилам, а не по настроению.</p></div>
     <div class="feat"><span class="num">05</span><h3>отчёты и история</h3><p>Прогоны складываются в наблюдаемую историю качества.</p></div>
-    <div class="feat"><span class="num">06</span><h3>стандарты для всех таргетов</h3><p>Правила одни — от hh.ru до amoCRM, от Python до Go.</p></div>
+    <div class="feat"><span class="num">06</span><h3>безопасность и отчётность</h3><p>Пороги одни для всех слоёв: от юнита до нагрузки.</p></div>
   </div>
 </section>
 
@@ -391,7 +391,7 @@ cd qualix</pre>
     'схема контракта API',
     'фабрика фикстур БД',
     'генератор отчёта',
-    'валидация топиков Kafka',
+    'профили нагрузки Locust',
     'сборка сводки пайплайна'
   ];
   var list=document.getElementById('checks'),

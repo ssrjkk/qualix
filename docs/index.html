@@ -4,410 +4,184 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Qualix — качество как платформа — SSRJKK</title>
-<meta name="description" content="Qualix — платформа автоматизации качества: 317 тестов на шести уровнях, 85%+ покрытия, security hardening и k8s-ready деплой. Стек: Python · FastAPI · pytest · Playwright · Locust.">
-<meta name="theme-color" content="#ffffff">
-<meta name="color-scheme" content="light">
-<!--
-  Стиль: The Pudding — белый индекс-шесть слоёв проверок: хром в Pudding Charcoal на Paper,
-  цвет несут только рамки-истории; typewriter-подписи, chunky serif заголовки.
-  ШРИФТЫ (проверка кириллицы в Google Fonts, subset cyrillic):
-  — Atlas Typewriter (спека) → IBM Plex Mono: кириллица ЕСТЬ ✓
-  — Atlas Grotesk (спека) → Inter: кириллица ЕСТЬ ✓
-  — Gooper SemiCondensed (спека) → Fraunces: кириллицы НЕТ ✗ — заменяю на Bitter 700/800,
-    ближайший chunky-сериф с кириллицей (тёплый плакатный характер, жирные засечки).
-  Дополнительные цвета рамок (violet/teal/tomato/lime) соответствуют списку из спеки
-  («violet, teal, tomato, sky blue, lime»); фирменных hex для них в спеке нет.
--->
+<meta name="description" content="Qualix — платформа автоматизации качества: 317 тестов на шести уровнях, 85%+ покрытия, security hardening, k8s-ready деплой. Стек: Python · FastAPI · pytest · Playwright · Locust.">
+<meta name="theme-color" content="#16181d">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@700;800&family=IBM+Plex+Mono:wght@400&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#ffffff;      /* Paper — канва страницы */
-  --charcoal:#262626;   /* Pudding Charcoal — хром и текст */
-  --graphite:#6d6d6d;   /* Graphite Gray — тизеры */
-  --ink:#000000;        /* Ink — наклейки и заливки */
-  --ash:#acacac;        /* Ash Border — поля с lip-тенью */
-  --f-yellow:#fde300;   /* Highlighter Yellow — рамка слоя api */
-  --f-magenta:#ed12ed;  /* Sticker Magenta — рамка слоя ui */
-  --f-tomato:#f4502c;   /* рамка юнит-слоя */
-  --f-teal:#00a6a6;     /* рамка интеграционного слоя */
-  --f-violet:#8a4fff;   /* рамка слоя нагрузки */
-  --f-lime:#97d700;     /* рамка иллюстрации */
-  --serif:'Bitter','Iowan Old Style',Georgia,'Times New Roman',serif;
-  --mono:'IBM Plex Mono',Menlo,Consolas,monospace;
-  --sans:Inter,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+  --bg:#16181d;--ink:#eef0f4;--muted:#9aa1ad;--line:rgba(255,255,255,.09);
+  --card:#1d2027;--on:#0d0f13;
+  --c1:#fde300;--c2:#ed12ed;--c3:#f4502c;--c4:#00a6a6;--c5:#8a4fff;--c6:#97d700;
+  --serif:'Bitter',Georgia,serif;--sans:Inter,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',Consolas,Menlo,monospace;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-html,body{overflow-x:clip}
-body{margin:0;background:var(--paper);color:var(--charcoal);font:400 16px/1.4 var(--sans);-webkit-font-smoothing:antialiased}
-a{color:inherit}
-button{cursor:pointer;font:inherit}
-a:focus-visible,button:focus-visible{outline:2px solid var(--charcoal);outline-offset:3px}
-section{scroll-margin-top:16px}
-.wrap{max-width:1280px;margin:0 auto;padding:0 32px}
-.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
-
-/* ── типографские роли ── */
-.label{font:400 12.8px/1.15 var(--mono);letter-spacing:1px;text-transform:uppercase;color:var(--charcoal)}
-.pill{display:inline-flex;align-items:center;height:30px;padding:0 12px;border:1px solid var(--charcoal);border-radius:28px;font:400 14px/19.6px var(--mono);text-transform:uppercase;color:var(--charcoal)}
-.sys{font:400 14px/19.6px var(--mono);text-transform:uppercase;color:var(--charcoal)}
-.teaser{margin:0;color:var(--graphite);font:400 16px/1.4 var(--sans)}
-.blockbtn{display:inline-flex;align-items:center;gap:8px;background:var(--charcoal);color:var(--paper);border:0;border-radius:2px;padding:16px 18px;font:400 12.8px/1.4 var(--mono);letter-spacing:1px;text-transform:uppercase;transition:background .2s ease-in-out}
-.blockbtn:hover{background:var(--ink)}
-.blockbtn:disabled{opacity:.7;cursor:default}
-.ghostbtn{display:inline-flex;align-items:center;background:transparent;color:var(--charcoal);border:1px solid var(--charcoal);border-radius:2px;padding:15px 18px;font:400 12.8px/1.4 var(--mono);letter-spacing:1px;text-transform:uppercase;transition:color .2s ease-in-out,border-color .2s ease-in-out}
-.ghostbtn:hover{color:var(--ink);border-color:var(--ink)}
-.honest{margin:16px 0 0;font:400 12.8px/1.5 var(--mono);color:var(--graphite)}
-
-/* ── мастхед ── */
-.mast{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:28px 0}
-.tagline{font-size:14px;line-height:1.32;color:var(--charcoal)}
-.tagline b{font-weight:700;display:block}
-.wordmark{font:800 30px/1 var(--serif);letter-spacing:-.025em;color:var(--ink);text-transform:lowercase;transform:rotate(-2deg);justify-self:center;white-space:nowrap;text-shadow:0 5px 14px rgba(0,0,0,.18);text-decoration:none}
-.mlinks{justify-self:end;display:flex;gap:20px}
-.mlinks a{font:400 12.8px/1.4 var(--mono);letter-spacing:1px;text-transform:uppercase;color:var(--charcoal)}
-.mlinks a:hover{color:var(--graphite)}
-
-/* ── хиро ── */
-.hero{padding:24px 0 8px}
-.hero .pill{margin-bottom:24px}
-h1{margin:0 0 20px;font:800 clamp(36px,5vw,64px)/1.02 var(--serif);letter-spacing:-.025em;color:var(--charcoal);max-width:900px}
-.hero .lead{margin:0 0 28px;font:400 18px/1.5 var(--sans);color:var(--charcoal);max-width:640px}
-.btnrow{display:flex;gap:12px;flex-wrap:wrap}
-.stack{margin:28px 0 0;font:400 14px/1.4 var(--mono);text-transform:uppercase;letter-spacing:1px;color:var(--graphite)}
-
-/* ── секции ── */
-.sec{padding-top:64px}
-.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:0 0 32px}
-.sec-head h2{margin:0;font:800 32px/1 var(--serif);letter-spacing:-.8px;text-transform:lowercase;color:var(--charcoal)}
-
-/* ── шесть слоёв проверок: 3 колонки рамок-историй ── */
-.sheet{display:grid;grid-template-columns:repeat(3,1fr);gap:64px 32px}
-.card{min-width:0}
-.tagrow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-.frame{aspect-ratio:1/1.05;display:flex;align-items:flex-end;justify-content:center;padding:24px;overflow:hidden}
-.frame .mock{background:var(--paper);width:min(320px,88%);padding:16px;margin-bottom:-30px;display:flex;flex-direction:column;gap:8px}
-.card h3{margin:16px 0 8px;font:800 32px/1 var(--serif);letter-spacing:-.8px;text-transform:lowercase;color:var(--charcoal)}
-.frame-y{background:var(--f-yellow)}
-.frame-m{background:var(--f-magenta)}
-.frame-t{background:var(--f-tomato)}
-.frame-tl{background:var(--f-teal)}
-.frame-v{background:var(--f-violet)}
-
-/* мини-мокапы внутри рамок */
-.mrow{display:flex;align-items:center;gap:8px;font:400 11px/1.6 var(--mono);color:var(--charcoal)}
-.chip{flex:none;padding:1px 6px;background:var(--charcoal);color:var(--paper);font:400 10px/1.6 var(--mono);letter-spacing:.5px;text-transform:uppercase}
-.dot{flex:none;width:8px;height:8px;background:var(--charcoal)}
-.dot.ok{background:var(--charcoal)}
-.dot.off{background:var(--ash)}
-.bar{height:8px;background:#e9e9e9}
-.bar.d{background:#cfcfcf}
-.w40{width:40%}.w55{width:55%}.w65{width:65%}.w80{width:80%}.w95{width:95%}
-.field-mini{border:1px solid var(--ash);border-radius:6px;padding:6px 8px;font:400 11px/1.4 var(--mono);color:var(--graphite);box-shadow:rgba(0,0,0,.3) 0 2px 1px}
-.minibtn{align-self:flex-start;padding:4px 10px;background:var(--charcoal);color:var(--paper);font:400 10px/1.6 var(--mono);letter-spacing:1px;text-transform:uppercase}
-.kanban{display:flex;gap:8px}
-.kanban div{flex:1;display:flex;flex-direction:column;gap:6px}
-.kanban .ktitle{font:400 10px/1.4 var(--mono);text-transform:uppercase;color:var(--graphite)}
-.kanban .kcard{height:14px;background:#e9e9e9}
-.kanban .kcard.d{background:#cfcfcf}
-
-/* 6-я ячейка: стандарты (без рамки, как промо-тайл) */
-.tile{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:16px}
-.tile h3{margin:0;font:800 24px/1 var(--serif);color:var(--charcoal)}
-
-/* ── возможности ── */
-.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:48px 32px}
-.feat .num{display:block;margin-bottom:12px;font:400 12.8px/1.15 var(--mono);letter-spacing:1px;text-transform:uppercase;color:var(--graphite)}
-.feat h3{margin:0 0 8px;font:800 24px/1.05 var(--serif);color:var(--charcoal)}
-.feat p{margin:0;font:400 16px/1.4 var(--sans);color:var(--graphite)}
-
-/* ── процесс ── */
-.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:32px}
-.step .pill{margin-bottom:12px}
-.step h3{margin:0 0 6px;font:800 20px/1.1 var(--serif);color:var(--charcoal);text-transform:lowercase}
-.step p{margin:0;font:400 14px/1.4 var(--sans);color:var(--graphite)}
-
-/* ── интерактивная иллюстрация ── */
-.frame-demo{background:var(--f-lime);padding:32px;display:flex;flex-direction:column;align-items:center;gap:20px}
-.console{background:var(--paper);width:min(560px,100%);padding:20px}
-.console .chead{display:flex;justify-content:space-between;gap:12px;font:400 11px/1.6 var(--mono);text-transform:uppercase;color:var(--graphite);border-bottom:1px solid #e9e9e9;padding-bottom:10px;margin-bottom:12px}
-.console ul{list-style:none;margin:0;padding:0}
-.console li{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:6px 0;font:400 13px/1.6 var(--mono);color:var(--charcoal)}
-.console li b{font-weight:400}
-.console li b.ok{color:var(--charcoal)}
-.console li b.skip{color:var(--graphite)}
-
-/* ── запуск ── */
-.field{background:var(--paper);border:1px solid var(--ash);border-radius:6px;box-shadow:rgba(0,0,0,.3) 0 2px 1px;padding:16px 20px;margin:0 0 20px;font:400 14px/1.7 var(--mono);color:var(--charcoal);overflow-x:auto}
-.launch-row{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
-.launch-row .honest{margin:0}
-
-/* ── футер: три колонки ── */
-footer.wrap{margin-top:88px;padding-bottom:56px}
-.fcols{display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
-.fcols .label{display:block;margin-bottom:12px;color:var(--graphite)}
-.fcols p{margin:0;font:400 16px/1.4 var(--sans);color:var(--charcoal)}
-.fcols a{font:700 16px/1.4 var(--sans);text-decoration:underline;text-underline-offset:3px;color:var(--charcoal)}
-.fcols a:hover{color:var(--graphite)}
-
-/* ── адаптив ── */
-@media(max-width:1080px){
-  .sheet{grid-template-columns:repeat(2,1fr)}
-  .feats{grid-template-columns:repeat(2,1fr)}
-  .steps{grid-template-columns:repeat(2,1fr)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+a:focus-visible,button:focus-visible{outline:2px solid var(--c6);outline-offset:3px}
+.top{max-width:1200px;margin:auto;padding:26px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{font:700 22px var(--serif)}
+.brand span{color:var(--c6)}
+nav{display:flex;gap:26px;font-size:14px}
+nav a{padding:8px 0;color:var(--muted)}
+nav a:hover{color:var(--ink)}
+.gh{border:1px solid var(--line);border-radius:6px;padding:10px 16px;font:500 13px var(--sans);color:var(--ink)}
+.gh:hover{border-color:var(--c6)}
+.wrap{max-width:1200px;margin:auto;padding:0 32px}
+.hero{padding:72px 0 48px}
+.pill{display:inline-block;font:500 12px var(--mono);letter-spacing:2px;text-transform:uppercase;color:var(--c6);border:1px solid rgba(151,215,0,.4);border-radius:28px;padding:7px 14px;margin-bottom:26px}
+h1{font:800 clamp(44px,6vw,78px)/1.04 var(--serif);letter-spacing:-.025em;margin:0 0 24px;max-width:900px}
+.lead{font:400 18px/1.65 var(--sans);color:var(--muted);max-width:680px;margin:0 0 36px}
+.cta{display:flex;gap:14px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;height:50px;padding:0 24px;border-radius:6px;font:600 15px var(--sans)}
+.btn-primary{background:var(--c6);color:var(--on)}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-ghost{border:1px solid var(--line);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--c6)}
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:56px 0 0}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:22px 24px 16px;text-align:center}
+.tile b{display:block;font:500 34px var(--mono);letter-spacing:1px}
+.tile span{font:500 11px var(--mono);letter-spacing:1.6px;text-transform:uppercase;color:var(--muted)}
+.sec{padding:56px 0}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:36px;flex-wrap:wrap}
+.sec-head h2{font:700 clamp(30px,3.4vw,44px)/1.15 var(--serif);letter-spacing:-.02em;margin:0}
+.sec-head .k{font:500 12px var(--mono);letter-spacing:1.6px;text-transform:uppercase;color:var(--muted)}
+.layers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.layer{background:var(--card);border-radius:6px;padding:26px 24px;position:relative;overflow:hidden;border-top:3px solid var(--ac)}
+.layer:before{content:'';position:absolute;inset:0;background:radial-gradient(80% 60% at 50% 0%,color-mix(in srgb,var(--ac) 14%,transparent),transparent 70%);pointer-events:none}
+.layer .num{font:500 12px var(--mono);letter-spacing:1.6px;color:var(--ac);text-transform:uppercase}
+.layer h3{font:700 24px var(--serif);margin:10px 0 10px}
+.layer p{margin:0;font:400 14.5px/1.6 var(--sans);color:var(--muted)}
+.demo{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:32px;display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.demo h2{font:700 30px var(--serif);margin:0 0 14px}
+.demo p{color:var(--muted);font-size:15px;margin:0 0 20px}
+.run{display:inline-flex;align-items:center;gap:8px;height:46px;padding:0 22px;border-radius:6px;background:var(--c6);color:var(--on);font:600 14px var(--sans);border:0;cursor:pointer}
+.run:hover{filter:brightness(1.08)}
+.monitor{background:var(--on);border:1px solid var(--line);border-radius:8px;padding:18px;font:400 12.5px/2 var(--mono);min-height:220px}
+.monitor .row{display:flex;justify-content:space-between;border-bottom:1px dashed rgba(255,255,255,.07);padding:4px 2px}
+.monitor .ok{color:var(--c6)}
+.monitor .warn{color:var(--c1)}
+.monitor .dim{color:var(--muted)}
+.start{display:grid;grid-template-columns:1fr 1.1fr;gap:48px;padding:64px 0 72px;align-items:center}
+.start h2{font:700 clamp(28px,3vw,40px)/1.15 var(--serif);margin:0 0 18px}
+.start p{color:var(--muted);margin:0 0 22px}
+pre{margin:0;background:var(--on);border:1px solid var(--line);border-radius:8px;padding:22px;font:400 13.5px/1.9 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink)}
+.copy{margin-top:14px;height:42px;padding:0 18px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--ink);font:500 13px var(--sans);cursor:pointer}
+.copy:hover{border-color:var(--c6)}
+footer{border-top:1px solid var(--line);padding:34px 32px 46px;max-width:1200px;margin:auto;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+footer a{color:var(--ink)}
+footer a:hover{color:var(--c6)}
+@media(max-width:920px){
+  nav{display:none}
+  .board{grid-template-columns:1fr}
+  .layers{grid-template-columns:1fr}
+  .demo{grid-template-columns:1fr;gap:24px}
+  .start{grid-template-columns:1fr;gap:28px}
+  .top,.wrap,footer{padding-left:22px;padding-right:22px}
 }
-@media(max-width:680px){
-  .wrap{padding:0 20px}
-  .mast{grid-template-columns:auto 1fr;padding:20px 0}
-  .tagline{display:none}
-  .wordmark{justify-self:start;font-size:26px}
-  h1{font-size:34px}
-  .sheet{grid-template-columns:1fr;gap:56px}
-  .feats{grid-template-columns:1fr;gap:32px}
-  .steps{grid-template-columns:1fr;gap:24px}
-  .frame{aspect-ratio:auto;min-height:300px}
-  .fcols{grid-template-columns:1fr;gap:24px}
-  footer.wrap{margin-top:64px}
-}
-@media(prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
-  *,*::before,*::after{transition:none!important;animation:none!important}
-}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-
-<!-- ── мастхед ── -->
-<header class="wrap mast">
-  <p class="tagline">платформа автоматизации качества.<b>Пять целей. Один стандарт.</b></p>
-  <a class="wordmark" href="#top" aria-label="Qualix — к началу страницы">qualix</a>
-  <nav class="mlinks" aria-label="Внешние ссылки">
-    <a href="https://github.com/ssrjkk/qualix">GitHub ↗</a>
-    <a href="https://ssrjkk.github.io/">Все проекты ↗</a>
-  </nav>
+<header class="top">
+  <div class="brand">Quali<span>x</span></div>
+  <nav aria-label="Основная навигация"><a href="#layers">Слои</a><a href="#demo">Проверка</a><a href="#start">Запуск</a></nav>
+  <a class="gh" href="https://github.com/ssrjkk/qualix">GitHub ↗</a>
 </header>
 
-<main id="top">
-<!-- ── хиро ── -->
-<section class="wrap hero">
-  <span class="pill">Qualix · платформа</span>
-  <h1>Качество как платформа.</h1>
-  <p class="lead">Платформа автоматизации качества: 317 тестов на шести уровнях, 85%+ покрытия, security hardening и k8s-ready деплой.</p>
-  <div class="btnrow">
-    <a class="blockbtn" href="https://github.com/ssrjkk/qualix#readme">Смотреть репозиторий ↗</a>
-    <a class="ghostbtn" href="https://github.com/ssrjkk/qualix#readme">Документация</a>
-  </div>
-  <p class="stack">python · typescript · go · playwright</p>
-</section>
-
-<!-- ── шесть слоёв проверок: 6 слоёв + стандарты ── -->
-<section class="wrap sec" id="targets">
-  <div class="sec-head">
-    <h2>шесть слоёв проверок</h2>
-    <span class="sys">6 слоёв · 1 репозиторий</span>
-  </div>
-  <div class="sheet">
-
-    <article class="card">
-      <div class="tagrow"><span class="pill">СЛОЙ 01</span><span class="sys">REST API</span></div>
-      <div class="frame frame-y">
-        <div class="mock" role="img" aria-label="Мини-мокап: REST-запрос к API вакансий с ответом 200">
-          <div class="mrow"><span class="chip">GET</span><span>/vacancies</span></div>
-          <div class="mrow"><span class="dot ok"></span><span>200 ok · контракт схемы совпал</span></div>
-          <span class="bar w95"></span><span class="bar w80"></span><span class="bar w65"></span>
-          <div class="mrow"><span>{"items": …, "page": …}</span></div>
-        </div>
-      </div>
-      <h3>слой api</h3>
-      <p class="teaser">REST-проверки внешнего API: контракты, схемы ответов и статус-коды в одном модуле.</p>
-    </article>
-
-    <article class="card">
-      <div class="tagrow"><span class="pill">СЛОЙ 02</span><span class="sys">UI</span></div>
-      <div class="frame frame-m">
-        <div class="mock" role="img" aria-label="Мини-мокап: страница поиска с полем и результатами">
-          <div class="field-mini">поиск: строка запроса…</div>
-          <span class="bar w95"></span><span class="bar d w80"></span><span class="bar w55"></span>
-          <span class="minibtn">открыть путь</span>
-        </div>
-      </div>
-      <h3>слой ui</h3>
-      <p class="teaser">Интерфейсные проверки на Playwright: поиск, формы и пользовательские пути браузера.</p>
-    </article>
-
-    <article class="card">
-      <div class="tagrow"><span class="pill">СЛОЙ 03</span><span class="sys">PYTHON</span></div>
-      <div class="frame frame-t">
-        <div class="mock" role="img" aria-label="Мини-мокап: Python-проверки страниц и форм">
-          <div class="mrow"><span>get /schedule → 200</span></div>
-          <div class="mrow"><span>assert schema ✓</span></div>
-          <span class="bar w80"></span><span class="bar d w65"></span><span class="bar w40"></span>
-        </div>
-      </div>
-      <h3>юнит-слой</h3>
-      <p class="teaser">Проверки сайта на Python: страницы, формы и расписание без ручного обхода.</p>
-    </article>
-
-    <article class="card">
-      <div class="tagrow"><span class="pill">СЛОЙ 04</span><span class="sys">GO</span></div>
-      <div class="frame frame-tl">
-        <div class="mock" role="img" aria-label="Мини-мокап: таблица результатов проверок на Go">
-          <div class="mrow"><span class="chip">run</span><span>target · статус</span></div>
-          <div class="mrow"><span class="dot ok"></span><span class="bar w80" style="flex:1"></span></div>
-          <div class="mrow"><span class="dot ok"></span><span class="bar d w65" style="flex:1"></span></div>
-          <div class="mrow"><span class="dot off"></span><span class="bar w55" style="flex:1"></span></div>
-        </div>
-      </div>
-      <h3>интеграционный слой</h3>
-      <p class="teaser">Те же стандарты на Go: быстрые утилиты и интеграционные проверки таргета.</p>
-    </article>
-
-    <article class="card">
-      <div class="tagrow"><span class="pill">СЛОЙ 05</span><span class="sys">CRM</span></div>
-      <div class="frame frame-v">
-        <div class="mock" role="img" aria-label="Мини-мокап: канбан сделок CRM">
-          <div class="kanban">
-            <div><span class="ktitle">новые</span><span class="kcard"></span><span class="kcard d"></span></div>
-            <div><span class="ktitle">в работе</span><span class="kcard d"></span></div>
-            <div><span class="ktitle">закрыты</span><span class="kcard"></span></div>
-          </div>
-          <span class="bar w65"></span><span class="bar w40"></span>
-        </div>
-      </div>
-      <h3>слой нагрузки</h3>
-      <p class="teaser">Проверки CRM-сценариев: сделки, воронки и интеграции по общим правилам.</p>
-    </article>
-
-    <div class="tile">
-      <h3>безопасность и отчётность</h3>
-      <p class="teaser">Единые правила контрактов, структуры и отчётности — независимо от стека и цели. Новая цель подключается по тем же правилам.</p>
-      <a class="blockbtn" href="https://github.com/ssrjkk/qualix#readme">Как устроен репозиторий ↗</a>
+<main class="wrap">
+  <section class="hero">
+    <span class="pill">QA automation platform</span>
+    <h1>Качество как платформа.</h1>
+    <p class="lead">317 тестов на шести уровнях, 85%+ покрытия, security hardening и k8s-ready деплой. Один стандарт качества — от юнита до нагрузки.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://github.com/ssrjkk/qualix">Открыть репозиторий →</a>
+      <a class="btn btn-ghost" href="https://github.com/ssrjkk/qualix#readme">Документация</a>
     </div>
-
-  </div>
-</section>
-
-<!-- ── возможности ── -->
-<section class="wrap sec" id="features">
-  <div class="sec-head">
-    <h2>возможности</h2>
-    <span class="sys">что даёт один репозиторий</span>
-  </div>
-  <div class="feats">
-    <div class="feat"><span class="num">01</span><h3>целевые системы в одном репо</h3><p>Платформа автоматизации качества: 317 тестов на шести уровнях, 85%+ покрытия, security hardening и k8s-ready деплой.</p></div>
-    <div class="feat"><span class="num">02</span><h3>контракты и тесты</h3><p>Ожидания от каждой системы зафиксированы и проверяемы.</p></div>
-    <div class="feat"><span class="num">03</span><h3>общий пайплайн</h3><p>Один путь запуска проверок для всех таргетов и стеков.</p></div>
-    <div class="feat"><span class="num">04</span><h3>разбор результатов</h3><p>Падения разбираются по единым правилам, а не по настроению.</p></div>
-    <div class="feat"><span class="num">05</span><h3>отчёты и история</h3><p>Прогоны складываются в наблюдаемую историю качества.</p></div>
-    <div class="feat"><span class="num">06</span><h3>безопасность и отчётность</h3><p>Пороги одни для всех слоёв: от юнита до нагрузки.</p></div>
-  </div>
-</section>
-
-<!-- ── процесс ── -->
-<section class="wrap sec" id="process">
-  <div class="sec-head">
-    <h2>процесс</h2>
-    <span class="sys">4 шага · одинаковые для всех</span>
-  </div>
-  <div class="steps">
-    <div class="step"><span class="pill">шаг 01</span><h3>Целевая система</h3><p>Выбираем таргет и его поверхность проверки.</p></div>
-    <div class="step"><span class="pill">шаг 02</span><h3>Контракты и тесты</h3><p>Фиксируем ожидания и пишем проверки по стандарту.</p></div>
-    <div class="step"><span class="pill">шаг 03</span><h3>Общий пайплайн</h3><p>Запускаем всё через один и тот же конвейер.</p></div>
-    <div class="step"><span class="pill">шаг 04</span><h3>Разбор результата</h3><p>Читаем отчёт и возвращаемся к контрактам.</p></div>
-  </div>
-</section>
-
-<!-- ── интерактивная иллюстрация (честная заглушка) ── -->
-<section class="wrap sec" id="demo">
-  <div class="sec-head">
-    <h2>иллюстрация</h2>
-    <span class="sys">локальный прогон · без внешних вызовов</span>
-  </div>
-  <div class="frame-demo">
-    <div class="console">
-      <div class="chead"><span>qualix · модульные проверки</span><span>локально</span></div>
-      <ul id="checks"></ul>
+    <div class="board">
+      <div class="tile"><b>317</b><span>тестов на шести уровнях</span></div>
+      <div class="tile"><b>85%+</b><span>покрытие</span></div>
+      <div class="tile"><b>K8S</b><span>ready-деплой</span></div>
     </div>
-    <button class="blockbtn" id="run" type="button">Прогнать проверки</button>
-  </div>
-  <p class="honest">Локальная иллюстрация, не подключается к сервисам. Модульные проверки выполняются без учётных данных внешних систем.</p>
-  <p class="sr-only" aria-live="polite" id="checks-status"></p>
-</section>
+  </section>
 
-<!-- ── запуск ── -->
-<section class="wrap sec" id="start">
-  <div class="sec-head">
-    <h2>запуск</h2>
-    <span class="sys">git · локально</span>
-  </div>
-  <pre class="field" id="cmd">git clone https://github.com/ssrjkk/qualix.git
+  <section class="sec" id="layers">
+    <div class="sec-head"><h2>Шесть слоёв проверок</h2><span class="k">01–06 · единый пайплайн</span></div>
+    <div class="layers">
+      <div class="layer" style="--ac:var(--c1)"><span class="num">Слой 01</span><h3>Юнит</h3><p>Pytest-набор доменной логики: фикстуры БД, параметризация, точные сообщения об ошибках.</p></div>
+      <div class="layer" style="--ac:var(--c2)"><span class="num">Слой 02</span><h3>Интеграция</h3><p>Смежные сервисы и контракты сборки — проверено в изолированном контуре.</p></div>
+      <div class="layer" style="--ac:var(--c3)"><span class="num">Слой 03</span><h3>API</h3><p>Контрактные проверки эндпоинтов FastAPI: схемы, статусы, обработка ошибок.</p></div>
+      <div class="layer" style="--ac:var(--c4)"><span class="num">Слой 04</span><h3>UI</h3><p>Playwright-сценарии интерфейса: маршруты, формы, доступность.</p></div>
+      <div class="layer" style="--ac:var(--c5)"><span class="num">Слой 05</span><h3>Нагрузка</h3><p>Locust-профили: соединения, ритм запросов, пороги SLA.</p></div>
+      <div class="layer" style="--ac:var(--c6)"><span class="num">Слой 06</span><h3>Безопасность</h3><p>Security hardening и сводка покрытия — отчёт по всем слоям сразу.</p></div>
+    </div>
+  </section>
+
+  <section class="sec" id="demo">
+    <div class="demo">
+      <div>
+        <span class="pill" style="margin-bottom:20px;display:inline-block">Интерактивная иллюстрация</span>
+        <h2>Проверка модульного слоя,<br>не подключая сервис.</h2>
+        <p>Локальная иллюстрация прогона: статусы генерируются на странице, ни один запрос не отправляется и данные никуда не передаются.</p>
+        <button class="run" id="run">Прогнать проверки</button>
+      </div>
+      <div class="monitor" id="monitor" aria-live="polite">
+        <div class="row"><span class="dim">фабрика фикстур БД</span><span class="dim">ожидание</span></div>
+        <div class="row"><span class="dim">профили нагрузки Locust</span><span class="dim">ожидание</span></div>
+        <div class="row"><span class="dim">сборка сводки пайплайна</span><span class="dim">ожидание</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="start" id="start">
+    <div>
+      <h2>От клона<br>до первой проверки.</h2>
+      <p>Демо живут в репозитории: контракты, слои и сводка — без API-ключей и внешних зависимостей.</p>
+      <a class="btn btn-ghost" href="https://github.com/ssrjkk/qualix#readme">Полная инструкция ↗</a>
+    </div>
+    <div>
+      <pre id="cmd">git clone https://github.com/ssrjkk/qualix.git
 cd qualix</pre>
-  <div class="launch-row">
-    <button class="blockbtn" type="button" data-copy="git clone https://github.com/ssrjkk/qualix.git&#10;cd qualix">Скопировать</button>
-    <p class="honest">Скопируйте обе команды — дальше README в репозитории.</p>
-  </div>
-</section>
+      <button class="copy" data-copy="git clone https://github.com/ssrjkk/qualix.git&#10;cd qualix">Скопировать команды</button>
+    </div>
+  </section>
 </main>
 
-<!-- ── футер ── -->
-<footer class="wrap">
-  <div class="fcols">
-    <div><span class="label">проект</span><p>Проект SSRJKK</p></div>
-    <div><span class="label">репозиторий</span><a href="https://github.com/ssrjkk/qualix">qualix ↗</a></div>
-    <div><span class="label">ещё</span><a href="https://ssrjkk.github.io/">Все проекты ↗</a></div>
-  </div>
+<footer>
+  <div>Проект SSRJKK · Qualix — платформа автоматизации качества</div>
+  <div><a href="https://github.com/ssrjkk/qualix">Исходники ↗</a> · <a href="https://ssrjkk.github.io/">Все проекты ↗</a></div>
 </footer>
 
 <script>
-(function(){
-  'use strict';
-  /* Копирование команд запуска */
-  document.querySelectorAll('[data-copy]').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var text=btn.getAttribute('data-copy');
-      function done(){
-        var old=btn.textContent;
-        btn.textContent='Скопировано';btn.disabled=true;
-        setTimeout(function(){btn.textContent=old;btn.disabled=false;},1600);
-      }
-      function fallback(){
-        var ta=document.createElement('textarea');
-        ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
-        document.body.appendChild(ta);ta.select();
-        try{document.execCommand('copy');done();}catch(e){}
-        document.body.removeChild(ta);
-      }
-      if(navigator.clipboard&&navigator.clipboard.writeText){
-        navigator.clipboard.writeText(text).then(done,fallback);
-      }else{fallback();}
-    });
-  });
-
-  /* Иллюстрация-заглушка: модульные проверки, ничего не подключается */
-  var CHECKS=[
-    'парсер конфига таргета',
-    'схема контракта API',
-    'фабрика фикстур БД',
-    'генератор отчёта',
-    'профили нагрузки Locust',
-    'сборка сводки пайплайна'
+document.getElementById("run").addEventListener("click", function () {
+  var box = document.getElementById("monitor");
+  var steps = [
+    ["фабрика фикстур БД", "прошло", "ok"],
+    ["профили нагрузки Locust", "прошло", "ok"],
+    ["сборка сводки пайплайна", "готово", "warn"]
   ];
-  var list=document.getElementById('checks'),
-      run=document.getElementById('run'),
-      status=document.getElementById('checks-status');
-  function renderChecks(){
-    if(!list)return;
-    list.innerHTML=CHECKS.map(function(c){
-      var ok=Math.random()>0.25;
-      return '<li><span>'+c+'</span><b class="'+(ok?'ok':'skip')+'">'+(ok?'✓':'–')+'</b></li>';
-    }).join('');
-    if(status){status.textContent='Модульные проверки перезапущены локально, без учётных данных внешних систем.';}
-  }
-  if(run){run.addEventListener('click',renderChecks);}
-  renderChecks();
-})();
+  box.innerHTML = "";
+  steps.forEach(function (s, i) {
+    setTimeout(function () {
+      var row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML = '<span>' + s[0] + '</span><span class="' + s[2] + '">' + s[1] + '</span>';
+      box.appendChild(row);
+    }, 500 * (i + 1));
+  });
+});
+document.querySelectorAll("[data-copy]").forEach(function (b) {
+  b.addEventListener("click", function () {
+    var t = b.getAttribute("data-copy").replace("&#10;", "\n");
+    if (navigator.clipboard) navigator.clipboard.writeText(t);
+    var old = b.textContent;
+    b.textContent = "Скопировано ✓";
+    setTimeout(function () { b.textContent = old; }, 1600);
+  });
+});
 </script>
 </body>
 </html>

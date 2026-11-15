@@ -1,230 +1,986 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Qualix — качество как платформа — SSRJKK</title>
-<meta name="description" content="Qualix — платформа автоматизации качества: 317 тестов на шести уровнях, 85%+ покрытия, security hardening, k8s-ready деплой. Стек: Python · FastAPI · pytest · Playwright · Locust.">
-<meta name="theme-color" content="#16181d">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qualix — платформа автоматизации качества: 317 тестов на шести слоях</title>
+<meta name="description" content="Qualix прогоняет 317 тестов через шесть слоёв проверок — от юнит-тестов до security hardening — и собирает единый отчёт прогона. Python · FastAPI · pytest · Playwright · Locust.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+/* ============ tokens ============ */
 :root{
-  --bg:#16181d;--ink:#eef0f4;--muted:#9aa1ad;--line:rgba(255,255,255,.09);
-  --card:#1d2027;--on:#0d0f13;
-  --c1:#fde300;--c2:#ed12ed;--c3:#f4502c;--c4:#00a6a6;--c5:#8a4fff;--c6:#97d700;
-  --serif:'Bitter',Georgia,serif;--sans:Inter,-apple-system,'Segoe UI',sans-serif;
-  --mono:'IBM Plex Mono',Consolas,Menlo,monospace;
+  --bg:#F0FDF4;
+  --bg-band:#E8F6EC;
+  --card:#FFFFFF;
+  --ink:#12482A;
+  --body:#2C5842;
+  --muted:#475569;
+  --primary:#15803D;
+  --primary-deep:#166534;
+  --secondary:#22C55E;
+  --accent:#D97706;
+  --border:#BBF7D0;
+  --border-soft:#D7EDDC;
+  --card-dark:#0F2A1C;
+  --card-dark-2:#123421;
+  --code:#D9F3E2;
+  --code-dim:#8FB8A0;
+  --code-key:#7EE29B;
+  --ok:#15803D;
+  --warn:#B45309;
+  --ring:#15803D;
+  --radius:28px;
+  --shadow:0 24px 60px -28px rgba(21,83,45,.18), 0 2px 6px rgba(21,83,45,.05);
+  --shadow-sm:0 10px 30px -18px rgba(21,83,45,.22);
+  --font-ui:'Exo 2',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-mono:'Roboto Mono',ui-monospace,'Cascadia Mono',monospace;
 }
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
-a{color:inherit;text-decoration:none}
-a:focus-visible,button:focus-visible{outline:2px solid var(--c6);outline-offset:3px}
-.top{max-width:1200px;margin:auto;padding:26px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.brand{font:700 22px var(--serif)}
-.brand span{color:var(--c6)}
-nav{display:flex;gap:26px;font-size:14px}
-nav a{padding:8px 0;color:var(--muted)}
-nav a:hover{color:var(--ink)}
-.gh{border:1px solid var(--line);border-radius:6px;padding:10px 16px;font:500 13px var(--sans);color:var(--ink)}
-.gh:hover{border-color:var(--c6)}
-.wrap{max-width:1200px;margin:auto;padding:0 32px}
-.hero{padding:72px 0 48px}
-.pill{display:inline-block;font:500 12px var(--mono);letter-spacing:2px;text-transform:uppercase;color:var(--c6);border:1px solid rgba(151,215,0,.4);border-radius:28px;padding:7px 14px;margin-bottom:26px}
-h1{font:800 clamp(44px,6vw,78px)/1.04 var(--serif);letter-spacing:-.025em;margin:0 0 24px;max-width:900px}
-.lead{font:400 18px/1.65 var(--sans);color:var(--muted);max-width:680px;margin:0 0 36px}
-.cta{display:flex;gap:14px;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:8px;height:50px;padding:0 24px;border-radius:6px;font:600 15px var(--sans)}
-.btn-primary{background:var(--c6);color:var(--on)}
-.btn-primary:hover{filter:brightness(1.08)}
-.btn-ghost{border:1px solid var(--line);color:var(--ink)}
-.btn-ghost:hover{border-color:var(--c6)}
-.board{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:56px 0 0}
-.tile{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:22px 24px 16px;text-align:center}
-.tile b{display:block;font:500 34px var(--mono);letter-spacing:1px}
-.tile span{font:500 11px var(--mono);letter-spacing:1.6px;text-transform:uppercase;color:var(--muted)}
-.sec{padding:56px 0}
-.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:36px;flex-wrap:wrap}
-.sec-head h2{font:700 clamp(30px,3.4vw,44px)/1.15 var(--serif);letter-spacing:-.02em;margin:0}
-.sec-head .k{font:500 12px var(--mono);letter-spacing:1.6px;text-transform:uppercase;color:var(--muted)}
-.layers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.layer{background:var(--card);border-radius:6px;padding:26px 24px;position:relative;overflow:hidden;border-top:3px solid var(--ac)}
-.layer:before{content:'';position:absolute;inset:0;background:radial-gradient(80% 60% at 50% 0%,color-mix(in srgb,var(--ac) 14%,transparent),transparent 70%);pointer-events:none}
-.layer .num{font:500 12px var(--mono);letter-spacing:1.6px;color:var(--ac);text-transform:uppercase}
-.layer h3{font:700 24px var(--serif);margin:10px 0 10px}
-.layer p{margin:0;font:400 14.5px/1.6 var(--sans);color:var(--muted)}
-.demo{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:32px;display:grid;grid-template-columns:1fr 1fr;gap:40px}
-.demo h2{font:700 30px var(--serif);margin:0 0 14px}
-.demo p{color:var(--muted);font-size:15px;margin:0 0 20px}
-.run{display:inline-flex;align-items:center;gap:8px;height:46px;padding:0 22px;border-radius:6px;background:var(--c6);color:var(--on);font:600 14px var(--sans);border:0;cursor:pointer}
-.run:hover{filter:brightness(1.08)}
-.monitor{background:var(--on);border:1px solid var(--line);border-radius:8px;padding:18px;font:400 12.5px/2 var(--mono);min-height:220px}
-.monitor .row{display:flex;justify-content:space-between;border-bottom:1px dashed rgba(255,255,255,.07);padding:4px 2px}
-.monitor .ok{color:var(--c6)}
-.monitor .warn{color:var(--c1)}
-.monitor .dim{color:var(--muted)}
-.start{display:grid;grid-template-columns:1fr 1.1fr;gap:48px;padding:64px 0 72px;align-items:center}
-.start h2{font:700 clamp(28px,3vw,40px)/1.15 var(--serif);margin:0 0 18px}
-.start p{color:var(--muted);margin:0 0 22px}
-pre{margin:0;background:var(--on);border:1px solid var(--line);border-radius:8px;padding:22px;font:400 13.5px/1.9 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink)}
-.copy{margin-top:14px;height:42px;padding:0 18px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--ink);font:500 13px var(--sans);cursor:pointer}
-.copy:hover{border-color:var(--c6)}
-footer{border-top:1px solid var(--line);padding:34px 32px 46px;max-width:1200px;margin:auto;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
-footer a{color:var(--ink)}
-footer a:hover{color:var(--c6)}
-@media(max-width:920px){
-  nav{display:none}
-  .board{grid-template-columns:1fr}
-  .layers{grid-template-columns:1fr}
-  .demo{grid-template-columns:1fr;gap:24px}
-  .start{grid-template-columns:1fr;gap:28px}
-  .top,.wrap,footer{padding-left:22px;padding-right:22px}
+/* ============ base ============ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:92px}
+body{
+  font-family:var(--font-ui);
+  background:var(--bg);
+  color:var(--body);
+  font-size:17px;line-height:1.65;
+  overflow-x:clip;
+  -webkit-font-smoothing:antialiased;
 }
-@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+h1,h2,h3{color:var(--ink);line-height:1.12;letter-spacing:-.015em;font-weight:700}
+a{color:var(--primary);text-decoration:none;transition:color .2s ease}
+a:hover{color:var(--primary-deep)}
+img,svg{display:block;max-width:100%}
+button{font:inherit;cursor:pointer}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+.skip-link{
+  position:absolute;left:16px;top:-64px;z-index:200;
+  background:var(--primary);color:#fff;padding:10px 18px;border-radius:12px;
+  font-weight:600;transition:top .2s ease;
+}
+.skip-link:focus{top:12px;color:#fff}
+:focus-visible{outline:2px solid var(--ring);outline-offset:3px;border-radius:6px}
+::selection{background:#BBF7D0;color:var(--ink)}
+
+/* ============ topbar ============ */
+.topbar{
+  position:sticky;top:0;z-index:100;
+  background:rgba(240,253,244,.86);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border-soft);
+}
+.topbar-in{display:flex;align-items:center;gap:28px;height:68px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--ink);font-weight:700;font-size:19px;letter-spacing:-.01em}
+.brand:hover{color:var(--primary-deep)}
+.brand-mark{width:30px;height:30px;flex:none}
+.topnav{display:flex;gap:26px;margin-left:auto}
+.topnav a{color:var(--body);font-weight:500;font-size:15.5px;position:relative;padding:6px 0}
+.topnav a::after{content:"";position:absolute;left:0;right:100%;bottom:2px;height:2px;background:var(--primary);transition:right .25s ease;border-radius:2px}
+.topnav a:hover{color:var(--ink)}
+.topnav a:hover::after{right:0}
+.btn{
+  display:inline-flex;align-items:center;gap:9px;
+  border-radius:999px;padding:12px 24px;font-weight:600;font-size:16px;
+  border:1px solid transparent;transition:background .2s ease,color .2s ease,border-color .2s ease,transform .2s ease;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-deep);color:#fff}
+.btn-ghost{border-color:var(--border);color:var(--ink);background:transparent}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary-deep)}
+.btn-accent{background:var(--accent);color:#000}
+.btn-accent:hover{background:#B45309;color:#fff}
+.btn-sm{padding:9px 18px;font-size:14.5px}
+.topbar .btn-ghost{margin-left:8px}
+.scroll-progress{
+  position:absolute;left:0;bottom:-1px;height:2px;width:100%;
+  background:var(--primary);transform:scaleX(0);transform-origin:left;
+}
+/* ============ hero ============ */
+.hero{position:relative;padding:84px 0 40px;overflow:clip}
+.hero-wash{position:absolute;inset:0;pointer-events:none}
+.hero-wash svg{position:absolute;right:-140px;top:-120px;width:720px;height:720px;opacity:.55}
+.hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:56px;align-items:center;position:relative}
+.hero-chip{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--font-mono);font-size:13px;color:var(--primary-deep);
+  background:#fff;border:1px solid var(--border);border-radius:999px;padding:8px 16px;
+  box-shadow:var(--shadow-sm);
+}
+.hero-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--secondary);flex:none}
+.hero h1{font-size:clamp(40px,4.9vw,68px);font-weight:800;margin:22px 0 20px}
+.hero h1 .h1-soft{color:var(--primary);font-weight:800}
+.hero-sub{font-size:18.5px;max-width:34em;color:var(--body)}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
+.hero-stack{
+  margin-top:26px;font-family:var(--font-mono);font-size:13.5px;color:var(--muted);
+}
+/* --- run board mockup --- */
+.board-wrap{position:relative}
+.board{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius) 64px var(--radius) var(--radius);
+  box-shadow:var(--shadow);padding:26px 26px 22px;position:relative;
+}
+.board-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+.board-title{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.14em;color:var(--muted)}
+.board-badge{
+  font-family:var(--font-mono);font-size:12px;color:#fff;background:var(--primary);
+  border-radius:999px;padding:5px 13px;display:inline-flex;align-items:center;gap:7px;
+}
+.board-badge::before{content:"";width:7px;height:7px;border-radius:50%;background:#DFF7E7}
+.board-row{display:grid;grid-template-columns:26px 1fr 92px;gap:12px;align-items:center;padding:10px 4px;border-top:1px dashed var(--border-soft)}
+.board-row:first-of-type{border-top:none}
+.b-ico{width:26px;height:26px;border-radius:9px;background:var(--bg-band);display:grid;place-items:center;color:var(--primary)}
+.b-ico svg{width:15px;height:15px}
+.b-name{font-size:15px;font-weight:600;color:var(--ink)}
+.b-name small{display:block;font-family:var(--font-mono);font-weight:400;font-size:11px;color:var(--muted);margin-top:1px}
+.b-bar{height:8px;border-radius:99px;background:var(--bg-band);overflow:hidden}
+.b-bar i{display:block;height:100%;border-radius:99px;background:var(--secondary);transform:scaleX(0);transform-origin:left}
+.b-check{width:20px;height:20px;border-radius:50%;background:#DCF3E4;color:var(--ok);display:grid;place-items:center;justify-self:end}
+.b-check svg{width:11px;height:11px}
+.board-foot{
+  margin-top:16px;border-top:1px solid var(--border-soft);padding-top:16px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+}
+.board-total{font-family:var(--font-mono);font-size:13px;color:var(--muted)}
+.board-total b{color:var(--ink);font-weight:600}
+.cov{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:12.5px;color:var(--muted)}
+.cov-bar{width:120px;height:8px;border-radius:99px;background:var(--bg-band);overflow:hidden}
+.cov-bar i{display:block;height:100%;width:85%;border-radius:99px;background:var(--primary);transform:scaleX(0);transform-origin:left}
+.board-tag{
+  position:absolute;right:-18px;bottom:-20px;
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  box-shadow:var(--shadow-sm);padding:10px 16px;
+  font-family:var(--font-mono);font-size:12px;color:var(--ink);
+  display:flex;align-items:center;gap:8px;
+}
+.board-tag svg{width:14px;height:14px;color:var(--accent)}
+/* ============ flowing divider ============ */
+.flow{display:block;width:100%;height:56px;margin-top:26px}
+.flow path{fill:var(--card)}
+/* ============ sections ============ */
+.band{background:var(--card);padding:84px 0}
+.band-green{background:var(--bg-band)}
+.band-round{position:relative}
+.sec-head{max-width:640px;margin-bottom:52px}
+.sec-kicker{font-family:var(--font-mono);font-size:13px;color:var(--primary-deep);margin-bottom:14px;display:block}
+.sec-title{font-size:clamp(30px,3.3vw,44px);font-weight:800;margin-bottom:16px}
+.sec-sub{font-size:17.5px;color:var(--muted)}
+/* ============ metrics ============ */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.metric{
+  background:var(--card);border:1px solid var(--border-soft);border-radius:22px;
+  padding:26px 24px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;
+}
+.metric::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--secondary);border-radius:0 3px 3px 0}
+.metric-v{font-size:42px;font-weight:800;color:var(--primary-deep);line-height:1;letter-spacing:-.02em}
+.metric-v small{font-size:20px;font-weight:700}
+.metric-l{font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.45}
+/* ============ layers map ============ */
+.map-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.map-card{
+  background:var(--card);border:1px solid var(--border-soft);border-radius:24px;
+  padding:24px;display:flex;flex-direction:column;gap:12px;position:relative;
+  transition:border-color .25s ease,transform .25s ease,box-shadow .25s ease;cursor:pointer;
+}
+.map-card:hover{border-color:var(--primary);transform:translateY(-3px);box-shadow:var(--shadow)}
+.map-ico{
+  width:44px;height:44px;border-radius:14px 14px 14px 4px;
+  background:var(--bg-band);color:var(--primary);display:grid;place-items:center;
+}
+.map-ico svg{width:22px;height:22px}
+.map-card h3{font-size:18.5px;font-weight:700}
+.map-card p{font-size:14.5px;color:var(--muted);flex:1}
+.map-tag{
+  font-family:var(--font-mono);font-size:12px;color:var(--primary-deep);
+  background:var(--bg);border:1px solid var(--border-soft);border-radius:999px;
+  padding:5px 12px;align-self:flex-start;
+}
+.map-go{
+  position:absolute;right:20px;top:22px;color:var(--border);transition:color .2s ease,transform .2s ease;
+}
+.map-card:hover .map-go{color:var(--primary);transform:translate(2px,-2px)}
+/* ============ story / chapters ============ */
+.story{padding:96px 0 60px}
+.story-grid{display:grid;grid-template-columns:220px 1fr;gap:64px;align-items:start;position:relative}
+.stem{position:sticky;top:120px}
+.stem ol{list-style:none;position:relative}
+.stem-track{
+  position:absolute;left:8px;top:14px;bottom:14px;width:2px;background:var(--border-soft);border-radius:2px;overflow:hidden;
+}
+.stem-fill{display:block;width:100%;height:100%;background:var(--secondary);transform:scaleY(0);transform-origin:top}
+.stem-node{
+  position:relative;display:flex;align-items:center;gap:14px;padding:13px 0 13px 0;
+  color:var(--muted);font-family:var(--font-mono);font-size:12.5px;
+}
+.stem-dot{
+  width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid var(--border);
+  flex:none;margin-left:0;transition:background .25s ease,border-color .25s ease,box-shadow .25s ease;
+  position:relative;z-index:1;
+}
+.stem-num{font-size:11px;width:20px;color:var(--muted);transition:color .25s ease}
+.stem-word{transition:color .25s ease}
+.stem-node:hover .stem-word{color:var(--ink)}
+.stem-node.is-active .stem-dot{background:var(--secondary);border-color:var(--primary);box-shadow:0 0 0 5px rgba(34,197,94,.14)}
+.stem-node.is-active .stem-word,.stem-node.is-active .stem-num{color:var(--ink);font-weight:600}
+.chapters{display:flex;flex-direction:column;gap:64px;min-width:0}
+.chapter{
+  display:grid;grid-template-columns:1fr .92fr;gap:44px;align-items:center;
+  background:var(--card);border:1px solid var(--border-soft);border-radius:var(--radius);
+  box-shadow:var(--shadow-sm);padding:44px 46px;scroll-margin-top:100px;
+}
+.chapter:nth-of-type(even) .ch-head{order:2}
+.chapter:nth-of-type(even){border-radius:64px var(--radius) var(--radius) var(--radius)}
+.ch-meta{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.ch-num{
+  font-family:var(--font-mono);font-size:12px;font-weight:600;color:#fff;
+  background:var(--primary);border-radius:999px;padding:5px 12px;letter-spacing:.06em;
+}
+.ch-count{font-family:var(--font-mono);font-size:12px;color:var(--muted);border:1px solid var(--border-soft);border-radius:999px;padding:5px 12px}
+.chapter h2{font-size:clamp(24px,2.3vw,31px);font-weight:800;margin-bottom:14px}
+.ch-text{font-size:16px;color:var(--body)}
+.ch-link{
+  display:inline-flex;align-items:center;gap:8px;margin-top:18px;
+  font-family:var(--font-mono);font-size:13px;font-weight:500;color:var(--primary-deep);
+}
+.ch-link svg{width:14px;height:14px;transition:transform .2s ease}
+.ch-link:hover svg{transform:translate(2px,-2px)}
+/* --- visuals --- */
+.ch-visual{min-width:0}
+.v-card{background:var(--bg);border:1px solid var(--border-soft);border-radius:20px;padding:20px}
+/* unit: code */
+.v-code{background:var(--card-dark);border-radius:20px;padding:22px 22px 18px;color:var(--code);font-family:var(--font-mono);font-size:12.8px;line-height:1.7;overflow-x:auto}
+.v-code .win{display:flex;gap:6px;margin-bottom:14px}
+.v-code .win i{width:9px;height:9px;border-radius:50%;background:#2C5B40}
+.v-code .win i:first-child{background:var(--secondary)}
+.v-code .kw{color:var(--code-key)}
+.v-code .cm{color:var(--code-dim)}
+.v-code .fn{color:#EAF8EF}
+.v-pass{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.v-pass span{
+  font-family:var(--font-mono);font-size:11px;color:var(--code-key);
+  border:1px solid #2C5B40;border-radius:999px;padding:4px 11px;display:inline-flex;align-items:center;gap:6px;
+}
+.v-pass svg{width:10px;height:10px}
+/* integration svg */
+.v-int svg{width:100%;height:auto}
+.v-int .node{fill:#fff;stroke:var(--border);stroke-width:1.5}
+.v-int .node-hot{fill:#E8F7EC;stroke:var(--primary);stroke-width:1.5}
+.v-int .link{stroke:#A9D8B6;stroke-width:2;stroke-dasharray:120;stroke-dashoffset:0}
+.v-int text{font-family:var(--font-ui);font-size:13px;font-weight:600;fill:var(--ink)}
+.v-int .tick{fill:var(--secondary)}
+.v-int .tick path{stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.v-int .edge-label{font-family:var(--font-mono);font-size:10.5px;fill:var(--muted);font-weight:400}
+/* contract */
+.v-contract{font-family:var(--font-mono);font-size:12.6px}
+.vc-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.vc-method{background:var(--primary);color:#fff;border-radius:8px;padding:3px 10px;font-weight:600;font-size:11.5px}
+.vc-path{color:var(--ink);font-weight:600}
+.vc-ok{color:var(--ok);font-weight:600;margin-left:auto}
+.vc-schema{margin-top:14px;border-top:1px dashed var(--border);padding-top:14px;display:grid;gap:7px;color:var(--body)}
+.vc-schema .k{color:var(--primary-deep)}
+.vc-diff{
+  margin-top:14px;background:#FDF3E7;border:1px solid #F2D9AE;border-radius:12px;
+  padding:10px 14px;color:var(--warn);display:flex;gap:10px;align-items:baseline;
+}
+.vc-diff del{color:#C2410C}
+.vc-diff small{font-size:11px;color:var(--warn)}
+/* ui: browser */
+.v-browser{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-sm)}
+.vb-bar{display:flex;align-items:center;gap:8px;background:var(--bg-band);padding:10px 14px}
+.vb-bar i{width:9px;height:9px;border-radius:50%;background:var(--border)}
+.vb-url{
+  flex:1;background:#fff;border:1px solid var(--border-soft);border-radius:99px;
+  font-family:var(--font-mono);font-size:11px;color:var(--muted);padding:5px 14px;
+}
+.vb-body{padding:20px 18px 22px}
+.vb-path{display:flex;align-items:center;gap:0;margin-bottom:18px}
+.vb-step{display:flex;flex-direction:column;align-items:center;gap:6px;flex:none}
+.vb-dot{
+  width:24px;height:24px;border-radius:50%;background:var(--primary);color:#fff;
+  font-family:var(--font-mono);font-size:11px;font-weight:600;display:grid;place-items:center;
+}
+.vb-step span{font-family:var(--font-mono);font-size:10px;color:var(--muted);white-space:nowrap}
+.vb-line{flex:1;height:2px;background:var(--border);margin-bottom:16px}
+.vb-form{display:grid;gap:10px}
+.vb-field{border:1px solid var(--border-soft);border-radius:10px;padding:9px 13px;font-family:var(--font-mono);font-size:11.5px;color:var(--muted)}
+.vb-field.err{border-color:#E8A87C;color:#C2410C;background:#FDF6EC}
+.vb-field small{display:block;font-size:10px;margin-top:2px}
+.vb-btn{
+  background:var(--primary);color:#fff;border-radius:10px;padding:10px 0;text-align:center;
+  font-size:12.5px;font-weight:600;position:relative;
+}
+.vb-btn::after{
+  content:"";position:absolute;inset:-5px;border:2px solid var(--secondary);border-radius:14px;
+}
+.vb-note{font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:14px;display:flex;align-items:center;gap:7px}
+.vb-note svg{width:12px;height:12px;color:var(--primary)}
+/* load: chart */
+.v-load svg{width:100%;height:auto}
+.v-load .curve{stroke:var(--primary);stroke-width:2.5;fill:none;stroke-linecap:round}
+.v-load .area{fill:rgba(34,197,94,.09)}
+.v-load .thresh{stroke:var(--accent);stroke-width:1.6;stroke-dasharray:6 6}
+.v-load .axis{stroke:var(--border-soft);stroke-width:1.5}
+.v-load text{font-family:var(--font-mono);font-size:10.5px;fill:var(--muted)}
+.v-load .t-hot{fill:var(--warn);font-weight:600}
+/* report */
+.v-report{font-family:var(--font-mono);font-size:12.4px}
+.vr-head{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--border);padding-bottom:12px;margin-bottom:12px}
+.vr-head b{color:var(--ink);letter-spacing:.12em;font-size:11.5px}
+.vr-head span{color:var(--muted);font-size:11px}
+.vr-row{display:flex;align-items:center;gap:10px;padding:7px 0;color:var(--body)}
+.vr-row .k{flex:1}
+.vr-row .v{color:var(--ink);font-weight:600}
+.vr-ok{width:18px;height:18px;border-radius:50%;background:#DCF3E4;color:var(--ok);display:grid;place-items:center;flex:none}
+.vr-ok svg{width:10px;height:10px}
+.vr-foot{margin-top:12px;border-top:1px dashed var(--border);padding-top:12px;color:var(--muted);font-size:11.5px}
+/* ============ demo ============ */
+.demo-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:48px;align-items:center}
+.demo-note{
+  display:flex;gap:12px;align-items:flex-start;margin-top:22px;
+  background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:16px 18px;
+  font-size:13.5px;color:var(--muted);
+}
+.demo-note svg{width:18px;height:18px;flex:none;color:var(--accent);margin-top:2px}
+.demo-actions{margin-top:24px;display:flex;gap:14px;flex-wrap:wrap}
+.demo-run{display:none}
+.js .demo-run{display:inline-flex}
+.terminal{
+  background:var(--card-dark);border-radius:22px;padding:24px 26px;
+  font-family:var(--font-mono);font-size:13px;line-height:1.85;color:var(--code);
+  box-shadow:var(--shadow);min-width:0;
+}
+.term-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.term-bar i{width:10px;height:10px;border-radius:50%;background:#2C5B40}
+.term-bar i:first-child{background:var(--secondary)}
+.term-bar span{margin-left:8px;font-size:11px;color:var(--code-dim);letter-spacing:.1em}
+.t-line{display:flex;gap:8px;align-items:baseline;white-space:nowrap}
+.t-file{color:var(--code);flex:none}
+.t-dots{flex:1;overflow:hidden;color:var(--code-key);letter-spacing:.12em;min-width:16px}
+.t-pct{color:var(--code-dim);flex:none}
+.t-cmd{color:#fff;font-weight:500}
+.t-cmd::before{content:"$ ";color:var(--code-key)}
+.t-info{color:var(--code-dim)}
+.t-ok{color:var(--code-key);font-weight:600}
+.t-caret{display:inline-block;width:9px;height:17px;background:var(--code-key);vertical-align:middle;margin-left:2px;opacity:0}
+.terminal.is-running .t-caret{opacity:1;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.terminal.is-armed .t-line{visibility:hidden}
+.terminal.is-armed .t-line.is-done{visibility:visible}
+/* ============ CTA ============ */
+.cta{position:relative;padding:110px 0 96px;background:var(--bg-band);overflow:clip;text-align:center}
+.cta-blob{position:absolute;pointer-events:none;opacity:.6}
+.cta-blob.a{left:-160px;top:-80px;width:480px}
+.cta-blob.b{right:-180px;bottom:-140px;width:560px}
+.cta .wrap{position:relative}
+.cta h2{font-size:clamp(32px,3.8vw,50px);font-weight:800;max-width:19ch;margin:0 auto 18px}
+.cta p{max-width:44em;margin:0 auto;color:var(--muted);font-size:17.5px}
+.cta-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:34px}
+.cta-stack{margin-top:26px;font-family:var(--font-mono);font-size:13px;color:var(--muted)}
+/* ============ footer ============ */
+.footer{background:var(--card);border-top:1px solid var(--border-soft);padding:38px 0}
+.footer-in{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.footer-brand{display:flex;align-items:center;gap:10px;color:var(--ink);font-weight:700;font-size:17px}
+.footer-brand .brand-mark{width:24px;height:24px}
+.footer-note{font-size:13.5px;color:var(--muted)}
+.footer-proj{font-family:var(--font-mono);font-size:12.5px;color:var(--muted)}
+.footer-links{margin-left:auto;display:flex;gap:22px;flex-wrap:wrap}
+.footer-links a{font-size:14.5px;font-weight:500;display:inline-flex;align-items:center;gap:5px}
+/* ============ responsive ============ */
+@media (max-width:1080px){
+  .story-grid{grid-template-columns:1fr}
+  .stem{display:none}
+  .hero-grid{grid-template-columns:1fr;gap:44px}
+  .board-wrap{max-width:560px}
+  .demo-grid{grid-template-columns:1fr;gap:36px}
+}
+@media (max-width:900px){
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .map-grid{grid-template-columns:repeat(2,1fr)}
+  .chapter{grid-template-columns:1fr;gap:28px;padding:32px 28px}
+  .chapter:nth-of-type(even) .ch-head{order:0}
+}
+@media (max-width:768px){
+  .topnav a{display:none}
+  .topbar .btn-ghost{margin-left:auto}
+  .hero{padding-top:56px}
+  .hero h1{font-size:clamp(34px,9vw,44px)}
+  .hero-sub{font-size:16.5px}
+}
+@media (max-width:560px){
+  .wrap{padding:0 18px}
+  .band,.story{padding:60px 0 40px}
+  .cta{padding:80px 0 66px}
+  .map-grid{grid-template-columns:1fr}
+  .metrics{grid-template-columns:1fr 1fr;gap:12px}
+  .metric{padding:20px 16px}
+  .metric-v{font-size:32px}
+  .chapter{padding:26px 20px}
+  .board{padding:20px 16px 16px;border-radius:22px 44px 22px 22px}
+  .board-row{grid-template-columns:24px 1fr 70px;gap:9px}
+  .board-tag{right:10px;bottom:-16px}
+  .hero-cta .btn{width:100%;justify-content:center}
+  .cta-actions .btn{width:100%;justify-content:center}
+  .demo-actions .btn{width:100%;justify-content:center}
+  .footer-in{flex-direction:column;align-items:flex-start;gap:14px}
+  .footer-links{margin-left:0}
+  .terminal{padding:18px 14px;font-size:11px}
+  .t-pct{font-size:10px}
+}
+/* ============ reduced motion ============ */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .scroll-progress,.stem-fill{display:none}
+  .b-bar i,.cov-bar i{transform:scaleX(1)}
+}
 </style>
 </head>
 <body>
-<header class="top">
-  <div class="brand">Quali<span>x</span></div>
-  <nav aria-label="Основная навигация"><a href="#layers">Слои</a><a href="#demo">Проверка</a><a href="#start">Запуск</a></nav>
-  <a class="gh" href="https://github.com/ssrjkk/qualix">GitHub ↗</a>
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+
+<!-- ================= TOPBAR ================= -->
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="brand" href="#top" aria-label="Qualix — к началу">
+      <svg class="brand-mark" viewBox="0 0 30 30" fill="none" aria-hidden="true">
+        <path d="M15 2.5 27 9v12L15 27.5 3 21V9L15 2.5Z" stroke="#15803D" stroke-width="2.2" stroke-linejoin="round"/>
+        <path d="M9.5 12.5h11M9.5 17.5h7.5" stroke="#22C55E" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      Qualix
+    </a>
+    <nav class="topnav" aria-label="Основная навигация">
+      <a href="#map">Шесть слоёв</a>
+      <a href="#story">История прогона</a>
+      <a href="#demo">Демо</a>
+    </nav>
+    <a class="btn btn-ghost btn-sm" href="https://github.com/ssrjkk/qualix" target="_blank" rel="noopener">GitHub ↗</a>
+    <div class="scroll-progress" aria-hidden="true"></div>
+  </div>
 </header>
 
-<main class="wrap">
-  <section class="hero">
-    <span class="pill">QA automation platform</span>
-    <h1>Качество как платформа.</h1>
-    <p class="lead">317 тестов на шести уровнях, 85%+ покрытия, security hardening и k8s-ready деплой. Один стандарт качества — от юнита до нагрузки.</p>
-    <div class="cta">
-      <a class="btn btn-primary" href="https://github.com/ssrjkk/qualix">Открыть репозиторий →</a>
-      <a class="btn btn-ghost" href="https://github.com/ssrjkk/qualix#readme">Документация</a>
-    </div>
-    <div class="board">
-      <div class="tile"><b>317</b><span>тестов на шести уровнях</span></div>
-      <div class="tile"><b>85%+</b><span>покрытие</span></div>
-      <div class="tile"><b>K8S</b><span>ready-деплой</span></div>
-    </div>
-  </section>
-
-  <section class="sec" id="layers">
-    <div class="sec-head"><h2>Шесть слоёв проверок</h2><span class="k">01–06 · единый пайплайн</span></div>
-    <div class="layers">
-      <div class="layer" style="--ac:var(--c1)"><span class="num">Слой 01</span><h3>Юнит</h3><p>Pytest-набор доменной логики: фикстуры БД, параметризация, точные сообщения об ошибках.</p></div>
-      <div class="layer" style="--ac:var(--c2)"><span class="num">Слой 02</span><h3>Интеграция</h3><p>Смежные сервисы и контракты сборки — проверено в изолированном контуре.</p></div>
-      <div class="layer" style="--ac:var(--c3)"><span class="num">Слой 03</span><h3>API</h3><p>Контрактные проверки эндпоинтов FastAPI: схемы, статусы, обработка ошибок.</p></div>
-      <div class="layer" style="--ac:var(--c4)"><span class="num">Слой 04</span><h3>UI</h3><p>Playwright-сценарии интерфейса: маршруты, формы, доступность.</p></div>
-      <div class="layer" style="--ac:var(--c5)"><span class="num">Слой 05</span><h3>Нагрузка</h3><p>Locust-профили: соединения, ритм запросов, пороги SLA.</p></div>
-      <div class="layer" style="--ac:var(--c6)"><span class="num">Слой 06</span><h3>Безопасность</h3><p>Security hardening и сводка покрытия — отчёт по всем слоям сразу.</p></div>
-    </div>
-  </section>
-
-  <section class="sec" id="demo">
-    <div class="demo">
-      <div>
-        <span class="pill" style="margin-bottom:20px;display:inline-block">Интерактивная иллюстрация</span>
-        <h2>Проверка модульного слоя,<br>не подключая сервис.</h2>
-        <p>Локальная иллюстрация прогона: статусы генерируются на странице, ни один запрос не отправляется и данные никуда не передаются.</p>
-        <button class="run" id="run">Прогнать проверки</button>
+<main id="main">
+<!-- ================= HERO ================= -->
+<section class="hero" id="top">
+  <div class="hero-wash" aria-hidden="true">
+    <svg viewBox="0 0 720 720" fill="none">
+      <path d="M360 60c150-40 320 60 330 220s-140 300-320 310S60 470 60 320 210 100 360 60Z" fill="#DCF3E4"/>
+      <path d="M420 140c110-30 230 40 240 150s-90 210-210 218S220 420 220 320 310 170 420 140Z" fill="#E8F7EC"/>
+    </svg>
+  </div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="hero-chip"><span class="dot" aria-hidden="true"></span>Платформа автоматизации качества</p>
+      <h1>Шесть слоёв между коммитом <span class="h1-soft">и продакшеном</span></h1>
+      <p class="hero-sub">Qualix прогоняет 317 тестов через шесть уровней проверок — от юнит-тестов до security hardening — и собирает единый отчёт. Не «зелёный билд», а доказанная готовность: покрытие 85%+, контракты на месте, кластер ждёт.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#story">Пройти шесть слоёв</a>
+        <a class="btn btn-ghost" href="https://github.com/ssrjkk/qualix" target="_blank" rel="noopener">Репозиторий ↗</a>
       </div>
-      <div class="monitor" id="monitor" aria-live="polite">
-        <div class="row"><span class="dim">фабрика фикстур БД</span><span class="dim">ожидание</span></div>
-        <div class="row"><span class="dim">профили нагрузки Locust</span><span class="dim">ожидание</span></div>
-        <div class="row"><span class="dim">сборка сводки пайплайна</span><span class="dim">ожидание</span></div>
+      <p class="hero-stack">Python · FastAPI · pytest · Playwright · Locust</p>
+    </div>
+
+    <div class="board-wrap">
+      <div class="board" role="img" aria-label="Мокап прогона Qualix: шесть слоёв проверок, все слои пройдены, 317 тестов, покрытие 85%+">
+        <div class="board-head">
+          <span class="board-title">QUALIX · ПРОГОН</span>
+          <span class="board-badge">все слои зелёные</span>
+        </div>
+        <div class="board-row">
+          <span class="b-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6 2 12l6 6M16 6l6 6-6 6"/></svg></span>
+          <span class="b-name">Юниты<small>изоляция каждой функции</small></span>
+          <span class="b-bar"><i data-w="92%"></i></span>
+          <span class="b-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg></span>
+        </div>
+        <div class="board-row">
+          <span class="b-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="2.6"/><circle cx="19" cy="5.5" r="2.6"/><circle cx="19" cy="18.5" r="2.6"/><path d="M7.4 10.9 16.6 6.6M7.4 13.1l9.2 4.3"/></svg></span>
+          <span class="b-name">Интеграционные<small>база, кэш, внешние клиенты</small></span>
+          <span class="b-bar"><i data-w="74%"></i></span>
+          <span class="b-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg></span>
+        </div>
+        <div class="board-row">
+          <span class="b-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5h8l4 4V21a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1Z"/><path d="m9 13.5 2.2 2.2L15.5 11"/></svg></span>
+          <span class="b-name">API-контракты<small>схемы запросов и ответов</small></span>
+          <span class="b-bar"><i data-w="68%"></i></span>
+          <span class="b-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg></span>
+        </div>
+        <div class="board-row">
+          <span class="b-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+          <span class="b-name">UI · Playwright<small>сценарии в реальном браузере</small></span>
+          <span class="b-bar"><i data-w="54%"></i></span>
+          <span class="b-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg></span>
+        </div>
+        <div class="board-row">
+          <span class="b-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20a8 8 0 1 1 8-8"/><path d="M12 12l5-3"/><path d="M17 21h4M19 17.5v3"/></svg></span>
+          <span class="b-name">Нагрузка · Locust<small>поведение под давлением</small></span>
+          <span class="b-bar"><i data-w="34%"></i></span>
+          <span class="b-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg></span>
+        </div>
+        <div class="board-row">
+          <span class="b-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5 20 6v6c0 4.6-3.4 8.2-8 9.5C7.4 20.2 4 16.6 4 12V6l8-3.5Z"/><path d="m8.8 12 2.2 2.2 4.2-4.4"/></svg></span>
+          <span class="b-name">Безопасность<small>hardening и отчётность</small></span>
+          <span class="b-bar"><i data-w="24%"></i></span>
+          <span class="b-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg></span>
+        </div>
+        <div class="board-foot">
+          <span class="board-total">итого: <b>317 тестов</b> · 6 слоёв</span>
+          <span class="cov">покрытие <span class="cov-bar"><i></i></span> 85%+</span>
+        </div>
+      </div>
+      <p class="board-tag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5 20 6v6c0 4.6-3.4 8.2-8 9.5C7.4 20.2 4 16.6 4 12V6l8-3.5Z"/></svg>
+        security hardening · k8s-ready
+      </p>
+    </div>
+  </div>
+
+  <svg class="flow" viewBox="0 0 1440 56" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 34 C240 6 480 54 720 40 C960 26 1200 10 1440 30 L1440 56 L0 56 Z"/>
+  </svg>
+</section>
+
+<!-- ================= METRICS ================= -->
+<section class="band band-round" aria-label="Ключевые показатели">
+  <div class="wrap">
+    <div class="metrics">
+      <div class="metric" data-reveal>
+        <p class="metric-v">317</p>
+        <p class="metric-l">тестов в репозитории — от быстрой проверки функции до нагрузочного сценария</p>
+      </div>
+      <div class="metric" data-reveal>
+        <p class="metric-v">85<small>%+</small></p>
+        <p class="metric-l">покрытие кода автотестами — порог, ниже которого релиз не проходит</p>
+      </div>
+      <div class="metric" data-reveal>
+        <p class="metric-v">6</p>
+        <p class="metric-l">слоёв проверок: юниты, интеграция, контракты, UI, нагрузка, безопасность</p>
+      </div>
+      <div class="metric" data-reveal>
+        <p class="metric-v">k8s-ready</p>
+        <p class="metric-l">манифесты и пробы здоровья готовы — сервис разворачивается в кластере</p>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section class="start" id="start">
-    <div>
-      <h2>От клона<br>до первой проверки.</h2>
-      <p>Демо живут в репозитории: контракты, слои и сводка — без API-ключей и внешних зависимостей.</p>
-      <a class="btn btn-ghost" href="https://github.com/ssrjkk/qualix#readme">Полная инструкция ↗</a>
+<!-- ================= LAYERS MAP ================= -->
+<section class="band band-green" id="map">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="sec-kicker">карта системы</span>
+      <h2 class="sec-title">Шесть слоёв одной системы</h2>
+      <p class="sec-sub">Каждый слой ловит свой класс проблем — вместе они закрывают баге путь к пользователю. Кликните слой, чтобы прочитать его главу.</p>
     </div>
-    <div>
-      <pre id="cmd">git clone https://github.com/ssrjkk/qualix.git
-cd qualix</pre>
-      <button class="copy" data-copy="git clone https://github.com/ssrjkk/qualix.git&#10;cd qualix">Скопировать команды</button>
+    <div class="map-grid">
+      <a class="map-card" href="#ch1" data-reveal>
+        <span class="map-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6 2 12l6 6M16 6l6 6-6 6"/></svg></span>
+        <h3>Юнит-тесты</h3>
+        <p>Изоляция каждой функции: конфигурации, валидаторы, модели. Самый быстрый слой обратной связи.</p>
+        <span class="map-tag">основание</span>
+        <span class="map-go" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+      </a>
+      <a class="map-card" href="#ch2" data-reveal>
+        <span class="map-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="2.6"/><circle cx="19" cy="5.5" r="2.6"/><circle cx="19" cy="18.5" r="2.6"/><path d="M7.4 10.9 16.6 6.6M7.4 13.1l9.2 4.3"/></svg></span>
+        <h3>Интеграционные</h3>
+        <p>База данных, кэш и клиенты соединяются как в реальном сервисе — там, где прячутся настоящие баги.</p>
+        <span class="map-tag">совместная работа</span>
+        <span class="map-go" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+      </a>
+      <a class="map-card" href="#ch3" data-reveal>
+        <span class="map-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5h8l4 4V21a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1Z"/><path d="m9 13.5 2.2 2.2L15.5 11"/></svg></span>
+        <h3>API-контракты</h3>
+        <p>Схемы и эндпоинты сверяются с контрактом: поле исчезло — тест падает раньше клиента.</p>
+        <span class="map-tag">гарантия схемы</span>
+        <span class="map-go" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+      </a>
+      <a class="map-card" href="#ch4" data-reveal>
+        <span class="map-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+        <h3>UI · Playwright</h3>
+        <p>Пользовательские сценарии в реальном браузере: формы, переходы, обработка ошибок.</p>
+        <span class="map-tag">глазами пользователя</span>
+        <span class="map-go" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+      </a>
+      <a class="map-card" href="#ch5" data-reveal>
+        <span class="map-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20a8 8 0 1 1 8-8"/><path d="M12 12l5-3"/><path d="M17 21h4M19 17.5v3"/></svg></span>
+        <h3>Нагрузка · Locust</h3>
+        <p>Давление на эндпоинты наращивается ступенями — видно, где время ответа начинает расти.</p>
+        <span class="map-tag">под давлением</span>
+        <span class="map-go" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+      </a>
+      <a class="map-card" href="#ch6" data-reveal>
+        <span class="map-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5 20 6v6c0 4.6-3.4 8.2-8 9.5C7.4 20.2 4 16.6 4 12V6l8-3.5Z"/><path d="m8.8 12 2.2 2.2 4.2-4.4"/></svg></span>
+        <h3>Безопасность и отчётность</h3>
+        <p>Security hardening, проверки зависимостей и единый отчёт после каждого прогона.</p>
+        <span class="map-tag">hardening</span>
+        <span class="map-go" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+      </a>
     </div>
-  </section>
+  </div>
+</section>
+
+<!-- ================= STORY: SIX CHAPTERS ================= -->
+<section class="story" id="story">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="sec-kicker">история прогона</span>
+      <h2 class="sec-title">Путь теста: от функции до отчёта</h2>
+      <p class="sec-sub">Скролльте — и пройдите все шесть глав. Слева растение-прогресс подскажет, какая глава открыта.</p>
+    </div>
+    <div class="story-grid">
+      <nav class="stem" aria-label="Прогресс по шести слоям">
+        <div class="stem-track" aria-hidden="true"><span class="stem-fill"></span></div>
+        <ol>
+          <li><a class="stem-node" href="#ch1"><span class="stem-dot" aria-hidden="true"></span><span class="stem-num">01</span><span class="stem-word">Юниты</span></a></li>
+          <li><a class="stem-node" href="#ch2"><span class="stem-dot" aria-hidden="true"></span><span class="stem-num">02</span><span class="stem-word">Интеграция</span></a></li>
+          <li><a class="stem-node" href="#ch3"><span class="stem-dot" aria-hidden="true"></span><span class="stem-num">03</span><span class="stem-word">Контракты</span></a></li>
+          <li><a class="stem-node" href="#ch4"><span class="stem-dot" aria-hidden="true"></span><span class="stem-num">04</span><span class="stem-word">UI</span></a></li>
+          <li><a class="stem-node" href="#ch5"><span class="stem-dot" aria-hidden="true"></span><span class="stem-num">05</span><span class="stem-word">Нагрузка</span></a></li>
+          <li><a class="stem-node" href="#ch6"><span class="stem-dot" aria-hidden="true"></span><span class="stem-num">06</span><span class="stem-word">Защита</span></a></li>
+        </ol>
+      </nav>
+
+      <div class="chapters">
+        <!-- 01 юниты -->
+        <article class="chapter" id="ch1">
+          <header class="ch-head" data-reveal>
+            <p class="ch-meta"><span class="ch-num">01/06</span><span class="ch-count">самый быстрый слой</span></p>
+            <h2>Основание держит всё</h2>
+            <p class="ch-text">Каждая функция проверяется в изоляции: конфигурации, валидаторы, модели данных. Обратная связь приходит за секунды — ещё до коммита. Если что-то сломалось, вы узнаете об этом на самом дешёвом для исправления этапе.</p>
+            <a class="ch-link" href="https://github.com/ssrjkk/qualix" target="_blank" rel="noopener">Тесты слоя — в репозитории <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+          </header>
+          <div class="ch-visual" data-reveal>
+            <div class="v-code" role="img" aria-label="Пример юнит-теста pytest с отметками успешного прохождения">
+              <div class="win" aria-hidden="true"><i></i><i></i><i></i></div>
+              <pre><span class="kw">def</span> <span class="fn">test_score_validator_rejects_negative</span>():
+    <span class="kw">with</span> pytest.raises(ValidationError):
+        QualityScore(value=-1)
+
+<span class="cm"># тест падает сразу и называет причину</span>
+<span class="kw">def</span> <span class="fn">test_config_roundtrip</span>(payload):
+    <span class="kw">assert</span> Config(**payload).as_dict() == payload</pre>
+              <div class="v-pass" aria-hidden="true">
+                <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg>config</span>
+                <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg>validators</span>
+                <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg>models</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 02 интеграция -->
+        <article class="chapter" id="ch2">
+          <header class="ch-head" data-reveal>
+            <p class="ch-meta"><span class="ch-num">02/06</span><span class="ch-count">совместная работа</span></p>
+            <h2>Слои работают вместе</h2>
+            <p class="ch-text">База данных, кэш и внешние клиенты соединяются так же, как в реальном сервисе. Проверяется не отдельная деталь, а их совместная работа: миграции применяются, сессии живут, ответы согласованы. Именно на стыках обычно прячутся баги.</p>
+            <a class="ch-link" href="https://github.com/ssrjkk/qualix" target="_blank" rel="noopener">Тесты слоя — в репозитории <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+          </header>
+          <div class="ch-visual v-int" data-reveal>
+            <svg viewBox="0 0 360 224" role="img" aria-label="Схема интеграционного слоя: API связан с PostgreSQL и Redis, связи проверены">
+              <path class="link" d="M158 66 84 148" aria-hidden="true"/>
+              <path class="link" d="M202 66 276 148" aria-hidden="true"/>
+              <rect class="node-hot" x="130" y="22" width="100" height="44" rx="14"/>
+              <text x="180" y="49" text-anchor="middle">API</text>
+              <rect class="node" x="24" y="148" width="120" height="44" rx="14"/>
+              <text x="84" y="175" text-anchor="middle">PostgreSQL</text>
+              <rect class="node" x="216" y="148" width="120" height="44" rx="14"/>
+              <text x="276" y="175" text-anchor="middle">Redis</text>
+              <g class="tick" transform="translate(121,107)"><circle r="10"/><path d="M-4.5 0.5 -1.5 3.5 4.5 -3"/></g>
+              <g class="tick" transform="translate(239,107)"><circle r="10"/><path d="M-4.5 0.5 -1.5 3.5 4.5 -3"/></g>
+              <text class="edge-label" x="98" y="96" text-anchor="end">миграции</text>
+              <text class="edge-label" x="262" y="96">кэш сессий</text>
+            </svg>
+          </div>
+        </article>
+
+        <!-- 03 контракты -->
+        <article class="chapter" id="ch3">
+          <header class="ch-head" data-reveal>
+            <p class="ch-meta"><span class="ch-num">03/06</span><span class="ch-count">гарантия схемы</span></p>
+            <h2>Контракт, который нельзя сломать молча</h2>
+            <p class="ch-text">Схемы запросов и ответов сверяются с контрактом на каждом эндпоинте. Поле исчезло, тип изменился, статус-код съехал — тест падает до релиза и называет, что именно разъехалось. Клиенты никогда не узнают о поломке раньше тестов.</p>
+            <a class="ch-link" href="https://github.com/ssrjkk/qualix" target="_blank" rel="noopener">Тесты слоя — в репозитории <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+          </header>
+          <div class="ch-visual" data-reveal>
+            <div class="v-card v-contract" role="img" aria-label="Проверка API-контракта: схема ответа сверена, изменение поля ловится тестом">
+              <div class="vc-line">
+                <span class="vc-method">POST</span>
+                <span class="vc-path">/api/v1/reports</span>
+                <span class="vc-ok">200 OK</span>
+              </div>
+              <div class="vc-schema">
+                <span><span class="k">id:</span> uuid</span>
+                <span><span class="k">status:</span> enum(passed, failed)</span>
+                <span><span class="k">coverage:</span> float, ≥ 0.85</span>
+                <span><span class="k">layers:</span> array[6]</span>
+              </div>
+              <div class="vc-diff">
+                <span><del>− version: str</del></span>
+                <small>поле исчезло — тест падает и показывает diff</small>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 04 UI -->
+        <article class="chapter" id="ch4">
+          <header class="ch-head" data-reveal>
+            <p class="ch-meta"><span class="ch-num">04/06</span><span class="ch-count">глазами пользователя</span></p>
+            <h2>Тесты нажимают кнопки за пользователя</h2>
+            <p class="ch-text">Playwright проходит пользовательские сценарии в реальном браузере: формы, переходы, фильтры, обработка ошибок валидации. Если действие ломает человек — его сломает и тест, с тем же сообщением и на том же шаге.</p>
+            <a class="ch-link" href="https://github.com/ssrjkk/qualix" target="_blank" rel="noopener">Тесты слоя — в репозитории <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+          </header>
+          <div class="ch-visual" data-reveal>
+            <div class="v-browser" role="img" aria-label="Мокап браузера: путь пользователя из трёх шагов и форма с проверкой валидации">
+              <div class="vb-bar" aria-hidden="true"><i></i><i></i><i></i><span class="vb-url">https://qualix.local/reports</span></div>
+              <div class="vb-body">
+                <div class="vb-path" aria-hidden="true">
+                  <div class="vb-step"><span class="vb-dot">1</span><span>открыть отчёт</span></div>
+                  <div class="vb-line"></div>
+                  <div class="vb-step"><span class="vb-dot">2</span><span>фильтр слоя</span></div>
+                  <div class="vb-line"></div>
+                  <div class="vb-step"><span class="vb-dot">3</span><span>экспорт</span></div>
+                </div>
+                <div class="vb-form" aria-hidden="true">
+                  <div class="vb-field err">Дата: 32.13 <small>ошибка валидации — сценарий продолжается</small></div>
+                  <div class="vb-field">Слой: юниты</div>
+                  <div class="vb-btn">Сформировать отчёт</div>
+                </div>
+                <p class="vb-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>реальный браузер · Chromium, Firefox, WebKit</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 05 нагрузка -->
+        <article class="chapter" id="ch5">
+          <header class="ch-head" data-reveal>
+            <p class="ch-meta"><span class="ch-num">05/06</span><span class="ch-count">под давлением</span></p>
+            <h2>Правда появляется под нагрузкой</h2>
+            <p class="ch-text">Locust наращивает давление на эндпоинты ступенями и фиксирует, где время ответа начинает расти. Пороги производительности проверяются до релиза — а не жалобами первых пользователей после него.</p>
+            <a class="ch-link" href="https://github.com/ssrjkk/qualix" target="_blank" rel="noopener">Тесты слоя — в репозитории <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+          </header>
+          <div class="ch-visual v-load" data-reveal>
+            <svg viewBox="0 0 360 208" role="img" aria-label="График нагрузочного теста: давление растёт ступенями, время ответа остаётся ниже порога">
+              <path class="area" d="M24 176 C70 168 82 118 130 100 C186 82 250 88 336 92 L336 188 L24 188 Z" aria-hidden="true"/>
+              <path class="axis" d="M24 14 V188 H336" aria-hidden="true"/>
+              <path class="thresh" d="M24 64 H336" aria-hidden="true"/>
+              <text x="330" y="56" text-anchor="end">порог p95</text>
+              <path class="curve" d="M24 176 C70 168 82 118 130 100 C186 82 250 88 336 92"/>
+              <text x="30" y="202">пользователи →</text>
+              <text class="t-hot" x="134" y="128">ступень 3</text>
+            </svg>
+          </div>
+        </article>
+
+        <!-- 06 безопасность -->
+        <article class="chapter" id="ch6">
+          <header class="ch-head" data-reveal>
+            <p class="ch-meta"><span class="ch-num">06/06</span><span class="ch-count">hardening</span></p>
+            <h2>Последний фильтр и прозрачный итог</h2>
+            <p class="ch-text">Финальный слой проверяет зависимости на известные уязвимости, конфигурации и заголовки безопасности. Каждый прогон завершается единым отчётом: покрытие, статусы всех шести слоёв, время. Видно, что именно проверено и почему релиз пропущен.</p>
+            <a class="ch-link" href="https://github.com/ssrjkk/qualix" target="_blank" rel="noopener">Тесты слоя — в репозитории <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+          </header>
+          <div class="ch-visual" data-reveal>
+            <div class="v-card v-report" role="img" aria-label="Итоговый отчёт прогона: зависимости, заголовки и конфигурация проверены, полный отчёт после каждого прогона">
+              <div class="vr-head"><b>QUALITY REPORT</b><span>итог прогона</span></div>
+              <div class="vr-row"><span class="vr-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg></span><span class="k">зависимости: известные уязвимости</span><span class="v">0</span></div>
+              <div class="vr-row"><span class="vr-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg></span><span class="k">заголовки безопасности</span><span class="v">ок</span></div>
+              <div class="vr-row"><span class="vr-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg></span><span class="k">конфигурация k8s · пробы здоровья</span><span class="v">ок</span></div>
+              <div class="vr-row"><span class="vr-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg></span><span class="k">покрытие</span><span class="v">85%+</span></div>
+              <p class="vr-foot">полный отчёт собирается после каждого прогона всех слоёв</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DEMO ================= -->
+<section class="band" id="demo">
+  <div class="wrap demo-grid">
+    <div data-reveal>
+      <div class="sec-head" style="margin-bottom:0">
+        <span class="sec-kicker">демо</span>
+        <h2 class="sec-title">Прогон модульного слоя</h2>
+        <p class="sec-sub">Миниатюра первого слоя — момента, когда 317 тестов только начинают путь. Запустите и посмотрите, как выглядит обратная связь за секунды.</p>
+      </div>
+      <div class="demo-actions">
+        <button class="btn btn-accent demo-run" type="button" id="run-btn">Запустить прогон</button>
+        <a class="btn btn-ghost" href="https://github.com/ssrjkk/qualix" target="_blank" rel="noopener">Открыть репозиторий ↗</a>
+      </div>
+      <p class="demo-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 11.5V16"/></svg>
+        Локальная иллюстрация. Не подключается к сервисам — вывод собран заранее, чтобы показать формат обратной связи.
+      </p>
+    </div>
+    <div class="terminal" id="terminal" data-reveal aria-label="Иллюстрация вывода прогона юнит-тестов" role="img">
+      <div class="term-bar" aria-hidden="true"><i></i><i></i><i></i><span>pytest · модульный слой</span></div>
+      <div class="t-line t-cmd">pytest tests/unit -q</div>
+      <div class="t-line t-info">collected 128 items</div>
+      <div class="t-line"><span class="t-file">tests/unit/test_config.py</span><span class="t-dots">................</span><span class="t-pct">[ 12%]</span></div>
+      <div class="t-line"><span class="t-file">tests/unit/test_validators.py</span><span class="t-dots">................</span><span class="t-pct">[ 25%]</span></div>
+      <div class="t-line"><span class="t-file">tests/unit/test_models.py</span><span class="t-dots">................</span><span class="t-pct">[ 37%]</span></div>
+      <div class="t-line"><span class="t-file">tests/unit/test_storage.py</span><span class="t-dots">................</span><span class="t-pct">[ 50%]</span></div>
+      <div class="t-line"><span class="t-file">tests/unit/test_auth_logic.py</span><span class="t-dots">................</span><span class="t-pct">[ 62%]</span></div>
+      <div class="t-line"><span class="t-file">tests/unit/test_formatting.py</span><span class="t-dots">................</span><span class="t-pct">[ 75%]</span></div>
+      <div class="t-line"><span class="t-file">tests/unit/test_serializers.py</span><span class="t-dots">................</span><span class="t-pct">[ 87%]</span></div>
+      <div class="t-line"><span class="t-file">tests/unit/test_utils.py</span><span class="t-dots">................</span><span class="t-pct">[100%]</span></div>
+      <div class="t-line t-ok">128 passed in 4.21s</div>
+      <span class="t-caret" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section class="cta">
+  <svg class="cta-blob a" viewBox="0 0 480 480" fill="none" aria-hidden="true"><path d="M240 30c110-30 220 50 228 160s-100 190-220 200S20 320 20 230 130 60 240 30Z" fill="#D5EFDC" opacity=".9"/></svg>
+  <svg class="cta-blob b" viewBox="0 0 560 560" fill="none" aria-hidden="true"><path d="M280 40c130-36 270 60 278 190s-115 220-260 230S30 350 30 240 150 76 280 40Z" fill="#DCF3E4"/></svg>
+  <div class="wrap">
+    <h2 data-reveal>Качество — это доказательство, а не обещание</h2>
+    <p data-reveal>Qualix — открытая платформа автоматизации качества. Шесть слоёв проверок, 317 тестов и отчёт, который можно показать. Код, тесты и архитектура — в репозитории.</p>
+    <div class="cta-actions" data-reveal>
+      <a class="btn btn-primary" href="https://github.com/ssrjkk/qualix" target="_blank" rel="noopener">Репозиторий Qualix ↗</a>
+      <a class="btn btn-ghost" href="#demo">Посмотреть демо</a>
+    </div>
+    <p class="cta-stack" data-reveal>Python · FastAPI · pytest · Playwright · Locust</p>
+  </div>
+</section>
 </main>
 
-<footer>
-  <div>Проект SSRJKK · Qualix — платформа автоматизации качества</div>
-  <div><a href="https://github.com/ssrjkk/qualix">Исходники ↗</a> · <a href="https://ssrjkk.github.io/">Все проекты ↗</a></div>
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+  <div class="wrap footer-in">
+    <span class="footer-brand">
+      <svg class="brand-mark" viewBox="0 0 30 30" fill="none" aria-hidden="true">
+        <path d="M15 2.5 27 9v12L15 27.5 3 21V9L15 2.5Z" stroke="#15803D" stroke-width="2.2" stroke-linejoin="round"/>
+        <path d="M9.5 12.5h11M9.5 17.5h7.5" stroke="#22C55E" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      Qualix
+    </span>
+    <span class="footer-proj">Проект SSRJKK</span>
+    <nav class="footer-links" aria-label="Ссылки футера">
+      <a href="https://github.com/ssrjkk/qualix" target="_blank" rel="noopener">Репозиторий ↗</a>
+      <a href="https://ssrjkk.github.io/" target="_blank" rel="noopener">Все проекты ↗</a>
+    </nav>
+  </div>
 </footer>
-
-<script>
-document.getElementById("run").addEventListener("click", function () {
-  var box = document.getElementById("monitor");
-  var steps = [
-    ["фабрика фикстур БД", "прошло", "ok"],
-    ["профили нагрузки Locust", "прошло", "ok"],
-    ["сборка сводки пайплайна", "готово", "warn"]
-  ];
-  box.innerHTML = "";
-  steps.forEach(function (s, i) {
-    setTimeout(function () {
-      var row = document.createElement("div");
-      row.className = "row";
-      row.innerHTML = '<span>' + s[0] + '</span><span class="' + s[2] + '">' + s[1] + '</span>';
-      box.appendChild(row);
-    }, 500 * (i + 1));
-  });
-});
-document.querySelectorAll("[data-copy]").forEach(function (b) {
-  b.addEventListener("click", function () {
-    var t = b.getAttribute("data-copy").replace("&#10;", "\n");
-    if (navigator.clipboard) navigator.clipboard.writeText(t);
-    var old = b.textContent;
-    b.textContent = "Скопировано ✓";
-    setTimeout(function () { b.textContent = old; }, 1600);
-  });
-});
-</script>
 
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
 <script>
-/* Моушен-слой витрин: вход хиро + scroll-ревилы секций. GSAP по CDN. */
-(function () {
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  if (!window.gsap || !window.ScrollTrigger) return;
+(function(){
+  "use strict";
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.documentElement.classList.add("js");
+
+  /* ---- demo terminal (independent of GSAP) ---- */
+  var term = document.getElementById("terminal");
+  var runBtn = document.getElementById("run-btn");
+  if (term && !reduced) {
+    var lines = Array.prototype.slice.call(term.querySelectorAll(".t-line"));
+    var running = false;
+    var wait = function(ms){ return new Promise(function(r){ setTimeout(r, ms); }); };
+    var play = function(){
+      if (running) return;
+      running = true;
+      lines.forEach(function(l){ l.classList.remove("is-done"); });
+      term.classList.add("is-armed");
+      term.classList.add("is-running");
+      var step = function(i){
+        if (i >= lines.length) {
+          term.classList.remove("is-running");
+          running = false;
+          return;
+        }
+        lines[i].classList.add("is-done");
+        var d = i === 0 ? 60 : (i === 1 ? 420 : (i === lines.length - 1 ? 520 : 300));
+        wait(d).then(function(){ step(i + 1); });
+      };
+      step(0);
+    };
+    runBtn.addEventListener("click", play);
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if (e.isIntersecting) { io.disconnect(); play(); }
+        });
+      }, { threshold: 0.4 });
+      io.observe(term);
+    } else {
+      play();
+    }
+  }
+
+  /* ---- GSAP motion layer ---- */
+  if (reduced || !window.gsap || !window.ScrollTrigger) return;
   gsap.registerPlugin(ScrollTrigger);
 
-  var heroKids = document.querySelectorAll(
-    "section:first-of-type h1, section:first-of-type .tag, section:first-of-type .sub," +
-    "section:first-of-type .intro, section:first-of-type .lede, section:first-of-type .btnrow," +
-    "section:first-of-type .cta, section:first-of-type .actions, section:first-of-type .stack," +
-    "section:first-of-type .eyebrow, section:first-of-type .pill, section:first-of-type .lead"
-  );
-  if (heroKids.length) {
-    gsap.set(heroKids, { autoAlpha: 0, y: 18 });
-    gsap.to(heroKids, {
-      autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.09,
-      ease: "power2.out", delay: 0.15, clearProps: "transform"
+  /* hero cascade */
+  gsap.timeline({ defaults: { ease: "power3.out" } })
+    .from(".hero-chip", { y: 18, opacity: 0, duration: 0.5 })
+    .from(".hero h1", { y: 34, opacity: 0, duration: 0.8 }, "-=0.15")
+    .from(".hero-sub", { y: 22, opacity: 0, duration: 0.6 }, "-=0.3")
+    .from(".hero-cta", { y: 18, opacity: 0, duration: 0.5 }, "-=0.3")
+    .from(".hero-stack", { opacity: 0, duration: 0.5 }, "-=0.25")
+    .from(".board", { y: 40, opacity: 0, duration: 0.9, ease: "power4.out" }, "-=0.5")
+    .from(".board-row", { x: -14, opacity: 0, duration: 0.4, stagger: 0.06, ease: "power2.out" }, "-=0.45")
+    .to(".b-bar i", { scaleX: 1, duration: 0.7, stagger: 0.07, ease: "power3.inOut" }, "-=0.2")
+    .to(".cov-bar i", { scaleX: 1, duration: 0.8, ease: "power3.inOut" }, "-=0.5");
+
+  /* generic soft reveals */
+  gsap.utils.toArray("[data-reveal]").forEach(function(el){
+    gsap.from(el, {
+      y: 28, opacity: 0, duration: 0.75, ease: "power3.out",
+      scrollTrigger: { trigger: el, start: "top 86%", once: true }
+    });
+  });
+
+  /* integration links draw */
+  gsap.utils.toArray(".v-int .link").forEach(function(p){
+    var len = p.getTotalLength();
+    gsap.fromTo(p,
+      { strokeDasharray: len, strokeDashoffset: len },
+      { strokeDashoffset: 0, duration: 1.1, ease: "power2.out",
+        scrollTrigger: { trigger: p.closest(".chapter"), start: "top 70%", once: true } });
+  });
+  /* load curve draw */
+  gsap.utils.toArray(".v-load .curve").forEach(function(p){
+    var len = p.getTotalLength();
+    gsap.fromTo(p,
+      { strokeDasharray: len, strokeDashoffset: len },
+      { strokeDashoffset: 0, duration: 1.4, ease: "power2.inOut",
+        scrollTrigger: { trigger: p.closest(".chapter"), start: "top 70%", once: true } });
+  });
+
+  /* stem progress fill (scrub) */
+  var chaptersEl = document.querySelector(".chapters");
+  var stemFill = document.querySelector(".stem-fill");
+  if (chaptersEl && stemFill) {
+    gsap.to(stemFill, {
+      scaleY: 1, ease: "none",
+      scrollTrigger: { trigger: chaptersEl, start: "top 62%", end: "bottom 62%", scrub: 0.4 }
     });
   }
 
-  var targets = [];
-  document.querySelectorAll("main > section, main > div, body > main > section, .section").forEach(function (sec) {
-    Array.prototype.forEach.call(sec.children, function (c) {
-      if (targets.indexOf(c) === -1) targets.push(c);
-    });
-  });
-  if (targets.length) {
-    gsap.set(targets, { autoAlpha: 0, y: 26 });
-    ScrollTrigger.batch(targets, {
-      start: "top 90%",
-      once: true,
-      onEnter: function (batch) {
-        gsap.to(batch, {
-          autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.1,
-          ease: "power2.out", overwrite: true, clearProps: "transform"
-        });
+  /* stem node activation per chapter */
+  var nodes = document.querySelectorAll(".stem-node");
+  var chapters = document.querySelectorAll(".chapter");
+  chapters.forEach(function(ch, i){
+    ScrollTrigger.create({
+      trigger: ch, start: "top 55%", end: "bottom 45%",
+      onToggle: function(self){
+        if (nodes[i]) nodes[i].classList.toggle("is-active", self.isActive);
       }
     });
+  });
+
+  /* topbar scroll progress */
+  var prog = document.querySelector(".scroll-progress");
+  if (prog) {
+    gsap.to(prog, { scaleX: 1, ease: "none", scrollTrigger: { start: 0, end: "max", scrub: 0.3 } });
   }
 })();
 </script>

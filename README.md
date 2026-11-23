@@ -10,6 +10,18 @@ QA automation platform for API and UI monitoring.
 
 [English](README.md) | [Русский](README.ru.md)
 
+**Site:** https://ssrjkk.github.io/qualix/
+
+## Screenshots
+
+Captured from the published site in a real browser (Chrome, 1440×900 and 390×844).
+
+| Home | Sections |
+| --- | --- |
+| <img src="docs/screenshots/home.jpg" width="420" alt="Qualix — landing page"> | <img src="docs/screenshots/content.jpg" width="420" alt="Qualix — site sections"> |
+
+<p align="center"><img src="docs/screenshots/mobile.jpg" width="320" alt="Qualix — mobile view"></p>
+
 ## Overview
 
 Qualix is a FastAPI application with a complete test pyramid — from unit tests to load testing. Built as a reference implementation for modern QA practices.

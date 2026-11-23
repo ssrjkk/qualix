@@ -4,6 +4,18 @@ QA-платформа для мониторинга деградации API и 
 
 [English](README.md) | [Русский](README.ru.md)
 
+**Сайт:** https://ssrjkk.github.io/qualix/
+
+## Скриншоты
+
+Сняты с опубликованного сайта в настоящем браузере (Chrome, 1440×900 и 390×844).
+
+| Главная | Разделы |
+| --- | --- |
+| <img src="docs/screenshots/home.jpg" width="420" alt="Qualix — главная страница"> | <img src="docs/screenshots/content.jpg" width="420" alt="Qualix — разделы сайта"> |
+
+<p align="center"><img src="docs/screenshots/mobile.jpg" width="320" alt="Qualix — мобильная версия"></p>
+
 ## Обзор
 
 Qualix — FastAPI-приложение с полной тест-пирамидой: от unit-тестов до нагрузочного тестирования. Построен как эталонная реализация современных QA-практик.

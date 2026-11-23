@@ -277,6 +277,7 @@ open http://localhost:4040
 - [bcrypt vs SHA-256](docs/adr/003-bcrypt-for-passwords.md)
 - [fakeredis vs mocks](docs/adr/004-fakeredis-in-tests.md)
 - [JSON Schema vs Pact](docs/adr/005-json-schema-contracts-vs-pact.md)
+- [ADR](docs/adr/README.md)
 
 ## Команды
 

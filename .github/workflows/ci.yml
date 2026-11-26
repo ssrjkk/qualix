@@ -178,6 +178,7 @@ jobs:
       - uses: codecov/codecov-action@v7
         if: always()
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: reports/coverage-unit.xml
           flags: unit
           fail_ci_if_error: true
@@ -351,6 +352,7 @@ jobs:
       - uses: codecov/codecov-action@v7
         if: always()
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: reports/coverage-api.xml
           flags: api
           fail_ci_if_error: true

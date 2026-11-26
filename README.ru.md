@@ -382,3 +382,17 @@ MIT © [ssrjkk](https://github.com/ssrjkk)
 ---
 
 **Автор:** Сергей Ситников · QA Automation Engineer · [Telegram](https://t.me/ssrjkk)
+
+## Установка
+
+```bash
+git clone https://github.com/ssrjkk/qualix.git
+cd qualix
+pip install -r requirements.txt
+```
+
+## Использование
+
+```bash
+python main.py
+```

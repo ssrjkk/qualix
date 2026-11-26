@@ -192,11 +192,11 @@ graph TB
 graph TB
     subgraph "Test Pyramid"
         Load[Load<br/>Locust]
-        E2E[E2E<br/>Playwright · 7 tests]
-        API[API<br/>httpx · schemathesis · 48 tests]
-        Contract[Contract<br/>JSON Schema · 11 tests]
-        Integration[Integration<br/>testcontainers · 17 tests]
-        Unit[Unit<br/>Hypothesis · 122 tests]
+        E2E[E2E<br/>Playwright]
+        API[API<br/>httpx · schemathesis]
+        Contract[Contract<br/>JSON Schema]
+        Integration[Integration<br/>testcontainers]
+        Unit[Unit<br/>Hypothesis]
     end
 
     Load --> E2E --> API --> Contract --> Integration --> Unit
@@ -350,11 +350,11 @@ qualix/
 │   └── config.py                 # pydantic-settings
 │
 ├── tests/
-│   ├── unit/                     # 122 tests (Hypothesis, time-machine)
-│   ├── integration/              # 17 tests (testcontainers, fakeredis)
-│   ├── api/                      # 48 tests (httpx, schemathesis)
-│   ├── contract/                 # 11 tests (JSON Schema)
-│   ├── e2e/                      # 7 tests (Playwright POM)
+│   ├── unit/                     # Hypothesis, time-machine
+│   ├── integration/              # testcontainers, fakeredis
+│   ├── api/                      # httpx, schemathesis
+│   ├── contract/                 # JSON Schema
+│   ├── e2e/                      # Playwright POM
 │   ├── load/                     # Locust + Prometheus
 │   └── plugins/                  # Flaky tracker
 │

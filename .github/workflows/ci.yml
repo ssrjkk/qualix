@@ -123,7 +123,6 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-      id-token: write
     needs: pre-checks
     timeout-minutes: 15
     outputs:
@@ -179,7 +178,6 @@ jobs:
       - uses: codecov/codecov-action@v7
         if: always()
         with:
-          use_oidc: true
           files: reports/coverage-unit.xml
           flags: unit
           fail_ci_if_error: true
@@ -296,7 +294,6 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-      id-token: write
     needs: [unit, integration]
     timeout-minutes: 20
     outputs:
@@ -354,7 +351,6 @@ jobs:
       - uses: codecov/codecov-action@v7
         if: always()
         with:
-          use_oidc: true
           files: reports/coverage-api.xml
           flags: api
           fail_ci_if_error: true

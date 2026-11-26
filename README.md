@@ -28,11 +28,11 @@ Qualix is a FastAPI application with a complete test pyramid — from unit tests
 
 **Stack:** Python 3.12, FastAPI, SQLAlchemy, pytest, Playwright, Locust, Docker, Kubernetes
 
-**Metrics:**
-- 317 tests across 6 layers
-- 85%+ code coverage
-- 17-job CI/CD pipeline
-- Full security hardening
+**Checks:**
+- Unit, integration, API, contract, E2E and security checks
+- Coverage thresholds enforced in CI
+- Lint, type checks, SAST, Docker and staging smoke tests
+- Security hardening documented in SECURITY.md
 
 ## Quick Start
 
@@ -192,11 +192,11 @@ graph TB
 graph TB
     subgraph "Test Pyramid"
         Load[Load<br/>Locust]
-        E2E[E2E<br/>Playwright · 7 tests]
-        API[API<br/>httpx · schemathesis · 48 tests]
-        Contract[Contract<br/>JSON Schema · 11 tests]
-        Integration[Integration<br/>testcontainers · 17 tests]
-        Unit[Unit<br/>Hypothesis · 122 tests]
+        E2E[E2E<br/>Playwright]
+        API[API<br/>httpx · schemathesis]
+        Contract[Contract<br/>JSON Schema]
+        Integration[Integration<br/>testcontainers]
+        Unit[Unit<br/>Hypothesis]
     end
 
     Load --> E2E --> API --> Contract --> Integration --> Unit
@@ -209,15 +209,15 @@ graph TB
     style Load fill:#F44336,color:#fff
 ```
 
-| Layer | Tests | Tools | Coverage |
-|-------|-------|-------|----------|
-| Unit | 122 | pytest, Hypothesis, time-machine, benchmark | Validators, models, auth |
-| Integration | 17 | testcontainers, fakeredis, SQLite | Repository pattern, DB ops |
-| API | 48 | httpx, factory_boy, schemathesis | CRUD, auth flows, OpenAPI fuzzing |
-| Contract | 11 | JSON Schema | API contracts, security constraints |
-| E2E | 7 | Playwright POM, AI assertions | Login flow, UI interactions |
-| Load | - | Locust, Prometheus | Performance, latency, throughput |
-| **Total** | **317** | | **85%+** |
+| Layer | Tools | What it checks |
+|-------|-------|----------------|
+| Unit | pytest, Hypothesis, time-machine, benchmark | Validators, models, auth |
+| Integration | testcontainers, fakeredis, SQLite | Repository pattern, DB ops |
+| API | httpx, factory_boy, schemathesis | CRUD, auth flows, OpenAPI fuzzing |
+| Contract | JSON Schema | API contracts, security constraints |
+| E2E | Playwright POM, AI assertions | Login flow, UI interactions |
+| Load | Locust, Prometheus | Performance, latency, throughput |
+| **Total** | **All layers run in CI** | **Coverage is measured per run** |
 
 **Testing tools:**
 - **factory_boy** — test data generation with traits
@@ -350,11 +350,11 @@ qualix/
 │   └── config.py                 # pydantic-settings
 │
 ├── tests/
-│   ├── unit/                     # 122 tests (Hypothesis, time-machine)
-│   ├── integration/              # 17 tests (testcontainers, fakeredis)
-│   ├── api/                      # 48 tests (httpx, schemathesis)
-│   ├── contract/                 # 11 tests (JSON Schema)
-│   ├── e2e/                      # 7 tests (Playwright POM)
+│   ├── unit/                     # Hypothesis, time-machine
+│   ├── integration/              # testcontainers, fakeredis
+│   ├── api/                      # httpx, schemathesis
+│   ├── contract/                 # JSON Schema
+│   ├── e2e/                      # Playwright POM
 │   ├── load/                     # Locust + Prometheus
 │   └── plugins/                  # Flaky tracker
 │
